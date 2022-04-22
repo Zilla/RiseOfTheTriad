@@ -51,45 +51,45 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <direct.h>
 //MED
 
-int    egacolor[16];
-byte   *  origpal;
-FILE   *  errout;
-FILE   *  debugout;
-FILE   *  mapdebugout;
+int egacolor[16];
+byte *origpal;
+FILE *errout;
+FILE *debugout;
+FILE *mapdebugout;
 
-static boolean SoftErrorStarted=false;
-static boolean DebugStarted=false;
-static boolean MapDebugStarted=false;
+static boolean SoftErrorStarted = false;
+static boolean DebugStarted = false;
+static boolean MapDebugStarted = false;
 
-static unsigned char egargb[48]={ 0x00,0x00,0x00,
-									 0x00,0x00,0xab,
-                            0x00,0xab,0x00,
-                            0x00,0xab,0xab,
-                            0xab,0x00,0x00,
-                            0xab,0x00,0xab,
-                            0xab,0x57,0x00,
-                            0xab,0xab,0xab,
-                            0x57,0x57,0x57,
-                            0x57,0x57,0xff,
-                            0x57,0xff,0x57,
-                            0x57,0xff,0xff,
-                            0xff,0x57,0x57,
-                            0xff,0x57,0xff,
-                            0xff,0xff,0x57,
-									 0xff,0xff,0xff};
+static unsigned char egargb[48] = {0x00, 0x00, 0x00,
+                                   0x00, 0x00, 0xab,
+                                   0x00, 0xab, 0x00,
+                                   0x00, 0xab, 0xab,
+                                   0xab, 0x00, 0x00,
+                                   0xab, 0x00, 0xab,
+                                   0xab, 0x57, 0x00,
+                                   0xab, 0xab, 0xab,
+                                   0x57, 0x57, 0x57,
+                                   0x57, 0x57, 0xff,
+                                   0x57, 0xff, 0x57,
+                                   0x57, 0xff, 0xff,
+                                   0xff, 0x57, 0x57,
+                                   0xff, 0x57, 0xff,
+                                   0xff, 0xff, 0x57,
+                                   0xff, 0xff, 0xff};
 
-extern byte * ROTT_ERR;
+extern byte *ROTT_ERR;
 
 #if (DEVELOPMENT == 1)
-int TotalStaticMemory=0;
+int TotalStaticMemory = 0;
 #endif
 
-#define SWAP(a,b) \
-   {              \
-   a=(a)^(b);     \
-   b=(a)^(b);     \
-   a=(a)^(b);     \
-   }              \
+#define SWAP(a, b)   \
+   {                 \
+      a = (a) ^ (b); \
+      b = (a) ^ (b); \
+      a = (a) ^ (b); \
+   }
 
 //******************************************************************************
 //
@@ -99,19 +99,18 @@ int TotalStaticMemory=0;
 
 int FindDistance(int ix, int iy)
 {
-  int   t;
+   int t;
 
-  ix= abs(ix);        /* absolute values */
-  iy= abs(iy);
+   ix = abs(ix); /* absolute values */
+   iy = abs(iy);
 
-  if (ix<iy)
-     SWAP(ix,iy);
+   if (ix < iy)
+      SWAP(ix, iy);
 
-  t = iy + (iy>>1);
+   t = iy + (iy >> 1);
 
-  return (ix - (ix>>5) - (ix>>7)  + (t>>2) + (t>>6));
+   return (ix - (ix >> 5) - (ix >> 7) + (t >> 2) + (t >> 6));
 }
-
 
 //******************************************************************************
 //
@@ -120,23 +119,23 @@ int FindDistance(int ix, int iy)
 //******************************************************************************
 
 int Find_3D_Distance(int ix, int iy, int iz)
-   {
-   int   t;
+{
+   int t;
 
-   ix= abs(ix);           /* absolute values */
-   iy= abs(iy);
-   iz= abs(iz);
+   ix = abs(ix); /* absolute values */
+   iy = abs(iy);
+   iz = abs(iz);
 
-   if (ix<iy)
-     SWAP(ix,iy);
+   if (ix < iy)
+      SWAP(ix, iy);
 
-   if (ix<iz)
-     SWAP(ix,iz);
+   if (ix < iz)
+      SWAP(ix, iz);
 
    t = iy + iz;
 
-   return (ix - (ix>>4) + (t>>2) + (t>>3));
-   }
+   return (ix - (ix >> 4) + (t >> 2) + (t >> 3));
+}
 
 //******************************************************************************
 //
@@ -145,86 +144,88 @@ int Find_3D_Distance(int ix, int iy, int iz)
 //******************************************************************************
 
 int atan2_appx(int dx, int dy)
-{int absdx, absdy;
- fixed angle;
- fixed ratio;
+{
+   int absdx, absdy;
+   fixed angle;
+   fixed ratio;
 
+   if (!(dx || dy))
+      return 0;
+   absdx = abs(dx);
+   absdy = abs(dy);
+   if (absdx >= absdy)
+      ratio = FixedDiv2(absdy, absdx);
+   else
+      ratio = FixedDiv2(absdx, absdy);
 
- if (!(dx||dy))
-  return 0;
- absdx = abs(dx);
- absdy = abs(dy);
- if (absdx >= absdy)
-  ratio = FixedDiv2(absdy,absdx);
- else
-  ratio = FixedDiv2(absdx,absdy);
+   if (dx >= 0)
+   {
+      if (dy >= 0)
+      {
+         if (absdx >= absdy)
+            angle = ratio; // 1st octant
+         else
+            angle = (2 << 16) - ratio; // 2nd octant
+      }
+      else
+      {
+         if (absdx >= absdy)
+            angle = (8 << 16) - ratio; // 8th octant
+         else
+            angle = (6 << 16) + ratio; // 7th octant
+      }
+   }
+   else
+   {
+      if (dy >= 0)
+      {
+         if (absdx >= absdy)
+            angle = (4 << 16) - ratio; // 4th octant
+         else
+            angle = (2 << 16) + ratio; // 3rd octant
+      }
+      else
+      {
+         if (absdx >= absdy)
+            angle = (4 << 16) + ratio; // 5th octant
+         else
+            angle = (6 << 16) - ratio; // 6th octant
+      }
+   }
 
- if (dx >= 0)
-  {if (dy >= 0)
-	 {if (absdx >= absdy)
-		angle = ratio;	    // 1st octant
-	  else
-		angle = (2<<16) - ratio; // 2nd octant
-	 }
-	else
-	 {if (absdx >= absdy)
-		angle = (8<<16) - ratio; // 8th octant
-	  else
-		angle = (6<<16) + ratio; // 7th octant
-	 }
-  }
- else
-  {if (dy >= 0)
-	 {if (absdx >= absdy)
-		angle = (4<<16) - ratio; // 4th octant
-	  else
-		angle = (2<<16) + ratio; // 3rd octant
-	 }
-	else
-	 {if (absdx >= absdy)
-		angle = (4<<16) + ratio; // 5th octant
-	  else
-		angle = (6<<16) - ratio; // 6th octant
-	 }
-  }
-
- return (((int)FixedMul(angle,ANGLESDIV8))&(FINEANGLES-1));
+   return (((int)FixedMul(angle, ANGLESDIV8)) & (FINEANGLES - 1));
 }
-
-
 
 //******************************************************************************
 //
 // StringsNotEqual
 //
 //******************************************************************************
-boolean StringsNotEqual (char * s1, char * s2, int length)
+boolean StringsNotEqual(char *s1, char *s2, int length)
 {
    int i;
 
-   for (i=0;i<length;i++)
-      if (s1[i]!=s2[i])
+   for (i = 0; i < length; i++)
+      if (s1[i] != s2[i])
          return true;
    return false;
 }
 
-
-
-void markgetch( void )
+void markgetch(void)
 {
    int done;
    int i;
 
-   done=0;
-   while (done==0)
-      {
-      IN_UpdateKeyboard ();
-      for (i=0;i<127;i++)
-         if (Keyboard[i]==1)
-            done=i;
-      }
+   done = 0;
+   while (done == 0)
+   {
+      IN_UpdateKeyboard();
+      for (i = 0; i < 127; i++)
+         if (Keyboard[i] == 1)
+            done = i;
+   }
    while (Keyboard[done])
-      IN_UpdateKeyboard ();
+      IN_UpdateKeyboard();
 }
 
 /*
@@ -235,59 +236,58 @@ void markgetch( void )
 ====================
 */
 
-void FindEGAColors ( void )
+void FindEGAColors(void)
 {
    int i;
 
-	for (i=0;i<16;i++)
-		egacolor[i]=BestColor((int)egargb[i*3],(int)egargb[i*3+1],(int)egargb[i*3+2],origpal);
+   for (i = 0; i < 16; i++)
+      egacolor[i] = BestColor((int)egargb[i * 3], (int)egargb[i * 3 + 1], (int)egargb[i * 3 + 2], origpal);
 }
 
 //===========================================================================
 
-
-byte BestColor (int r, int g, int b, byte *palette)
+byte BestColor(int r, int g, int b, byte *palette)
 {
-	int	i;
-	long	dr, dg, db;
-	long	bestdistortion, distortion;
-	int	bestcolor;
-	byte	*pal;
+   int i;
+   long dr, dg, db;
+   long bestdistortion, distortion;
+   int bestcolor;
+   byte *pal;
 
-//
-// let any color go to 0 as a last resort
-//
-   bestdistortion = ( (long)WeightR*r*r + (long)WeightG*g*g + (long)WeightB*b*b )*2;
-	bestcolor = 0;
+   //
+   // let any color go to 0 as a last resort
+   //
+   bestdistortion = ((long)WeightR * r * r + (long)WeightG * g * g + (long)WeightB * b * b) * 2;
+   bestcolor = 0;
 
-	pal = &palette[0];
-	for (i=0 ; i<= 255 ; i++,pal+=3)
-	{
-		dr = r - (int)pal[0];
-		dg = g - (int)pal[1];
-		db = b - (int)pal[2];
-      distortion = WeightR*dr*dr + WeightG*dg*dg + WeightB*db*db;
-		if (distortion < bestdistortion)
-		{
-			if (!distortion)
-				return i;		// perfect match
+   pal = &palette[0];
+   for (i = 0; i <= 255; i++, pal += 3)
+   {
+      dr = r - (int)pal[0];
+      dg = g - (int)pal[1];
+      db = b - (int)pal[2];
+      distortion = WeightR * dr * dr + WeightG * dg * dg + WeightB * db * db;
+      if (distortion < bestdistortion)
+      {
+         if (!distortion)
+            return i; // perfect match
 
-			bestdistortion = distortion;
-			bestcolor = i;
-		}
-	}
+         bestdistortion = distortion;
+         bestcolor = i;
+      }
+   }
 
-	return bestcolor;
+   return bestcolor;
 }
 
-void ClearGraphicsScreen( void )
+void ClearGraphicsScreen(void)
 {
-VL_ClearVideo(0);
+   VL_ClearVideo(0);
 }
 
-void ClearBuffer( char * buf, int size )
+void ClearBuffer(char *buf, int size)
 {
-        memset(buf,0,size);
+   memset(buf, 0, size);
 }
 
 /*
@@ -308,20 +308,19 @@ void ClearBuffer( char * buf, int size )
 =================
 */
 
-void Error (char *error, ...)
+void Error(char *error, ...)
 {
    char msgbuf[300];
-	va_list	argptr;
+   va_list argptr;
    char i;
    int size;
-   char * sptr;
+   char *sptr;
    char buf[30];
    int handle;
-   int x,y;
+   int x, y;
    int level;
    static int inerror = 0;
-   char filename[ 128 ];
-
+   char filename[128];
 
    inerror++;
    if (inerror > 1)
@@ -329,48 +328,48 @@ void Error (char *error, ...)
 
    ShutDown();
 
-	TextMode ();
-   memcpy ((byte *)0xB8000, &ROTT_ERR, 160*7);
-   memset (msgbuf, 0, 300);
+   TextMode();
+   memcpy((byte *)0xB8000, &ROTT_ERR, 160 * 7);
+   memset(msgbuf, 0, 300);
 
-   px = ERRORVERSIONCOL-1;
+   px = ERRORVERSIONCOL - 1;
    py = ERRORVERSIONROW;
 #if (SHAREWARE == 1)
-   UL_printf ("S");
+   UL_printf("S");
 #else
-   UL_printf ("R");
+   UL_printf("R");
 #endif
 
    px = ERRORVERSIONCOL;
    py = ERRORVERSIONROW;
 #if (BETA == 1)
-   UL_printf ("á");
+   UL_printf("ï¿½");
 #else
-   UL_printf (itoa(ROTTMAJORVERSION,&buf[0],10));
+   UL_printf(itoa(ROTTMAJORVERSION, &buf[0], 10));
 #endif
 
    // Skip the dot
    px++;
 
-   UL_printf (itoa(ROTTMINORVERSION,&buf[0],10));
+   UL_printf(itoa(ROTTMINORVERSION, &buf[0], 10));
 
-	va_start (argptr, error);
-   vsprintf (&msgbuf[0], error, argptr);
-	va_end (argptr);
+   va_start(argptr, error);
+   vsprintf(&msgbuf[0], error, argptr);
+   va_end(argptr);
 
    scriptbuffer = &msgbuf[0];
-	size = strlen (msgbuf);
+   size = strlen(msgbuf);
 
-	sptr = script_p = scriptbuffer;
-	scriptend_p = script_p + size;
-	scriptline = 1;
-	endofscript = false;
-	tokenready = false;
+   sptr = script_p = scriptbuffer;
+   scriptend_p = script_p + size;
+   scriptline = 1;
+   endofscript = false;
+   tokenready = false;
 
    px = ERRORCOL;
    py = ERRORROW;
 
-   GetToken (true);
+   GetToken(true);
    while (!endofscript)
    {
       if ((script_p - sptr) >= 60)
@@ -380,49 +379,49 @@ void Error (char *error, ...)
          sptr = script_p;
       }
 
-      UL_printf (token);
-      px++;                //SPACE
-      GetToken (true);
+      UL_printf(token);
+      px++; //SPACE
+      GetToken(true);
    }
 
    for (i = 0; i < 8; i++)
-      printf ("\n");
+      printf("\n");
 
-   if (player!=NULL)
-      {
-      printf ("Player X     = %lx\n", player->x);
-      printf ("Player Y     = %lx\n", player->y);
-      printf ("Player Angle = %lx\n\n", player->angle);
-      }
-   printf ("Episode      = %ld\n", gamestate.episode);
+   if (player != NULL)
+   {
+      printf("Player X     = %lx\n", player->x);
+      printf("Player Y     = %lx\n", player->y);
+      printf("Player Angle = %lx\n\n", player->angle);
+   }
+   printf("Episode      = %ld\n", gamestate.episode);
 
    if (gamestate.episode > 1)
-      level = (gamestate.mapon+1) - ((gamestate.episode-1) << 3);
+      level = (gamestate.mapon + 1) - ((gamestate.episode - 1) << 3);
    else
-      level = gamestate.mapon+1;
+      level = gamestate.mapon + 1;
 
-   printf ("Area         = %ld\n", level);
+   printf("Area         = %ld\n", level);
 
-   GetPathFromEnvironment( filename, ApogeePath, ERRORFILE );
-   handle=SafeOpenAppend ( filename );
-   for (y=0;y<16;y++)
-      {
-      for (x=0;x<160;x+=2)
-         SafeWrite(handle,(byte *)0xB8000+(y*160)+x,1);
-      i=10;
-      SafeWrite(handle,&i,1);
-      i=13;
-      SafeWrite(handle,&i,1);
-      }
+   GetPathFromEnvironment(filename, ApogeePath, ERRORFILE);
+   handle = SafeOpenAppend(filename);
+   for (y = 0; y < 16; y++)
+   {
+      for (x = 0; x < 160; x += 2)
+         SafeWrite(handle, (byte *)0xB8000 + (y * 160) + x, 1);
+      i = 10;
+      SafeWrite(handle, &i, 1);
+      i = 13;
+      SafeWrite(handle, &i, 1);
+   }
 
    close(handle);
 
-   if ( SOUNDSETUP )
-      {
+   if (SOUNDSETUP)
+   {
       getch();
-      }
+   }
 
-   exit (1);
+   exit(1);
 }
 
 //#if (SOFTERROR==1)
@@ -434,19 +433,18 @@ void Error (char *error, ...)
 =
 =================
 */
-void SoftwareError (char *error, ...)
+void SoftwareError(char *error, ...)
 {
-	va_list	argptr;
+   va_list argptr;
 
-	if (SoftErrorStarted==false)
+   if (SoftErrorStarted == false)
       return;
-	va_start (argptr, error);
-   vfprintf (errout, error, argptr);
-	va_end (argptr);
+   va_start(argptr, error);
+   vfprintf(errout, error, argptr);
+   va_end(argptr);
 }
 
 //#endif
-
 
 //#if (DEBUG == 1)
 
@@ -457,15 +455,15 @@ void SoftwareError (char *error, ...)
 =
 =================
 */
-void DebugError (char *error, ...)
+void DebugError(char *error, ...)
 {
-	va_list	argptr;
+   va_list argptr;
 
-   if (DebugStarted==false)
+   if (DebugStarted == false)
       return;
-	va_start (argptr, error);
-   vfprintf (debugout, error, argptr);
-	va_end (argptr);
+   va_start(argptr, error);
+   vfprintf(debugout, error, argptr);
+   va_end(argptr);
 }
 
 //#endif
@@ -477,10 +475,10 @@ void DebugError (char *error, ...)
 =
 =================
 */
-void OpenSoftError ( void )
+void OpenSoftError(void)
 {
-  errout = fopen(SOFTERRORFILE,"wt+");
-  SoftErrorStarted=true;
+   errout = fopen(SOFTERRORFILE, "wt+");
+   SoftErrorStarted = true;
 }
 
 /*
@@ -490,15 +488,15 @@ void OpenSoftError ( void )
 =
 =================
 */
-void MapDebug (char *error, ...)
+void MapDebug(char *error, ...)
 {
-	va_list	argptr;
+   va_list argptr;
 
-   if (MapDebugStarted==false)
+   if (MapDebugStarted == false)
       return;
-	va_start (argptr, error);
-   vfprintf (mapdebugout, error, argptr);
-	va_end (argptr);
+   va_start(argptr, error);
+   vfprintf(mapdebugout, error, argptr);
+   va_end(argptr);
 }
 
 /*
@@ -508,17 +506,16 @@ void MapDebug (char *error, ...)
 =
 =================
 */
-void OpenMapDebug ( void )
+void OpenMapDebug(void)
 {
-  char filename[ 128 ];
+   char filename[128];
 
-  if (MapDebugStarted==true)
-     return;
-  GetPathFromEnvironment( filename, ApogeePath, MAPDEBUGFILE );
-  mapdebugout = fopen(filename,"wt+");
-  MapDebugStarted=true;
+   if (MapDebugStarted == true)
+      return;
+   GetPathFromEnvironment(filename, ApogeePath, MAPDEBUGFILE);
+   mapdebugout = fopen(filename, "wt+");
+   MapDebugStarted = true;
 }
-
 
 /*
 =================
@@ -527,18 +524,18 @@ void OpenMapDebug ( void )
 =
 =================
 */
-void StartupSoftError ( void )
+void StartupSoftError(void)
 {
 #if (DEBUG == 1)
-  if (DebugStarted==false)
-     {
-     debugout = fopen(DEBUGFILE,"wt+");
-     DebugStarted=true;
-     }
+   if (DebugStarted == false)
+   {
+      debugout = fopen(DEBUGFILE, "wt+");
+      DebugStarted = true;
+   }
 #endif
 #if (SOFTERROR == 1)
-  if (SoftErrorStarted==false)
-     OpenSoftError();
+   if (SoftErrorStarted == false)
+      OpenSoftError();
 #endif
 }
 
@@ -549,25 +546,24 @@ void StartupSoftError ( void )
 =
 =================
 */
-void ShutdownSoftError ( void )
+void ShutdownSoftError(void)
 {
-  if (DebugStarted==true)
-     {
-     fclose(debugout);
-     DebugStarted=false;
-     }
-  if (SoftErrorStarted==true)
-     {
-     fclose(errout);
-     SoftErrorStarted=false;
-     }
-  if (MapDebugStarted==true)
-     {
-     fclose(mapdebugout);
-     MapDebugStarted=false;
-     }
+   if (DebugStarted == true)
+   {
+      fclose(debugout);
+      DebugStarted = false;
+   }
+   if (SoftErrorStarted == true)
+   {
+      fclose(errout);
+      SoftErrorStarted = false;
+   }
+   if (MapDebugStarted == true)
+   {
+      fclose(mapdebugout);
+      MapDebugStarted = false;
+   }
 }
-
 
 /*
 =================
@@ -581,141 +577,135 @@ void ShutdownSoftError ( void )
 =================
 */
 
-int CheckParm (char *check)
+int CheckParm(char *check)
 {
-	int		i;
-	char	*parm;
+   int i;
+   char *parm;
 
-	for (i = 1;i<_argc;i++)
-	{
-		parm = _argv[i];
-		if ( !isalpha(*parm) )	// skip - / \ etc.. in front of parm
-         {
+   for (i = 1; i < _argc; i++)
+   {
+      parm = _argv[i];
+      if (!isalpha(*parm)) // skip - / \ etc.. in front of parm
+      {
          parm++;
          if (!*parm)
-				continue;		// parm was only one char
-         }
+            continue; // parm was only one char
+      }
 
-		if ( !_fstricmp(check,parm) )
-			return i;
-	}
+      if (!_fstricmp(check, parm))
+         return i;
+   }
 
-	return 0;
+   return 0;
 }
 
-
-
-int SafeOpenAppend (char *filename)
+int SafeOpenAppend(char *filename)
 {
-	int	handle;
+   int handle;
 
-	handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_APPEND
-	, S_IREAD | S_IWRITE);
+   handle = open(filename, O_RDWR | O_BINARY | O_CREAT | O_APPEND, S_IREAD | S_IWRITE);
 
-	if (handle == -1)
-		Error ("Error opening for append %s: %s",filename,strerror(errno));
+   if (handle == -1)
+      Error("Error opening for append %s: %s", filename, strerror(errno));
 
-	return handle;
+   return handle;
 }
 
-int SafeOpenWrite (char *filename)
+int SafeOpenWrite(char *filename)
 {
-	int	handle;
+   int handle;
 
-	handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC
-	, S_IREAD | S_IWRITE);
+   handle = open(filename, O_RDWR | O_BINARY | O_CREAT | O_TRUNC, S_IREAD | S_IWRITE);
 
-	if (handle == -1)
-		Error ("Error opening %s: %s",filename,strerror(errno));
+   if (handle == -1)
+      Error("Error opening %s: %s", filename, strerror(errno));
 
-	return handle;
+   return handle;
 }
 
-int SafeOpenRead (char *filename)
+int SafeOpenRead(char *filename)
 {
-	int	handle;
+   int handle;
 
-	handle = open(filename,O_RDONLY | O_BINARY);
+   handle = open(filename, O_RDONLY | O_BINARY);
 
-	if (handle == -1)
-		Error ("Error opening %s: %s",filename,strerror(errno));
+   if (handle == -1)
+      Error("Error opening %s: %s", filename, strerror(errno));
 
-	return handle;
+   return handle;
 }
 
-
-void SafeRead (int handle, void *buffer, long count)
+void SafeRead(int handle, void *buffer, long count)
 {
-	unsigned	iocount;
+   unsigned iocount;
 
-	while (count)
-	{
-		iocount = count > 0x8000 ? 0x8000 : count;
-		if (read (handle,buffer,iocount) != iocount)
-			Error ("File read failure reading %ld bytes",count);
-		buffer = (void *)( (byte *)buffer + iocount );
-		count -= iocount;
-	}
+   while (count)
+   {
+      iocount = count > 0x8000 ? 0x8000 : count;
+      if (read(handle, buffer, iocount) != iocount)
+         Error("File read failure reading %ld bytes", count);
+      buffer = (void *)((byte *)buffer + iocount);
+      count -= iocount;
+   }
 }
 
-
-void SafeWrite (int handle, void *buffer, long count)
+void SafeWrite(int handle, void *buffer, long count)
 {
-	unsigned	iocount;
+   unsigned iocount;
 
-	while (count)
-	{
-		iocount = count > 0x8000 ? 0x8000 : count;
-		if (write (handle,buffer,iocount) != iocount)
-			Error ("File write failure writing %ld bytes",count);
-		buffer = (void *)( (byte *)buffer + iocount );
-		count -= iocount;
-	}
+   while (count)
+   {
+      iocount = count > 0x8000 ? 0x8000 : count;
+      if (write(handle, buffer, iocount) != iocount)
+         Error("File write failure writing %ld bytes", count);
+      buffer = (void *)((byte *)buffer + iocount);
+      count -= iocount;
+   }
 }
 
-void SafeWriteString (int handle, char * buffer)
+void SafeWriteString(int handle, char *buffer)
 {
-	unsigned	iocount;
+   unsigned iocount;
 
-   iocount=strlen(buffer);
-	if (write (handle,buffer,iocount) != iocount)
-			Error ("File write string failure writing %s\n",buffer);
+   iocount = strlen(buffer);
+   if (write(handle, buffer, iocount) != iocount)
+      Error("File write string failure writing %s\n", buffer);
 }
 
-void *SafeMalloc (long size)
+void *SafeMalloc(long size)
 {
-	void *ptr;
+   void *ptr;
 
-   if (zonememorystarted==false)
+   if (zonememorystarted == false)
       Error("Called SafeMalloc without starting zone memory\n");
-	ptr = Z_Malloc (size,PU_STATIC,NULL);
+   ptr = Z_Malloc(size, PU_STATIC, NULL);
 
-	if (!ptr)
-      Error ("SafeMalloc failure for %lu bytes",size);
+   if (!ptr)
+      Error("SafeMalloc failure for %lu bytes", size);
 
-	return ptr;
+   return ptr;
 }
 
-void *SafeLevelMalloc (long size)
+void *SafeLevelMalloc(long size)
 {
-	void *ptr;
+   void *ptr;
 
-   if (zonememorystarted==false)
+   if (zonememorystarted == false)
       Error("Called SafeLevelMalloc without starting zone memory\n");
-   ptr = Z_LevelMalloc (size,PU_STATIC,NULL);
+   ptr = Z_LevelMalloc(size, PU_STATIC, NULL);
 
-	if (!ptr)
-      Error ("SafeLevelMalloc failure for %lu bytes",size);
+   if (!ptr)
+      Error("SafeLevelMalloc failure for %lu bytes", size);
 
-	return ptr;
+   return ptr;
 }
 
-void SafeFree (void * ptr)
+void SafeFree(void *ptr)
 {
-   if ( ptr == NULL )
-      Error ("SafeFree : Tried to free a freed pointer\n");
+   if (ptr == NULL)
+      Error("SafeFree : Tried to free a freed pointer\n");
 
-	Z_Free (ptr);
+   Z_Free(ptr);
 }
 
 /*
@@ -726,19 +716,18 @@ void SafeFree (void * ptr)
 ==============
 */
 
-long	LoadFile (char *filename, void **bufferptr)
+long LoadFile(char *filename, void **bufferptr)
 {
-	int		handle;
-	long	length;
+   int handle;
+   long length;
 
-	handle = SafeOpenRead (filename);
-	length = filelength (handle);
-	*bufferptr = SafeMalloc (length);
-	SafeRead (handle,*bufferptr, length);
-	close (handle);
-	return length;
+   handle = SafeOpenRead(filename);
+   length = filelength(handle);
+   *bufferptr = SafeMalloc(length);
+   SafeRead(handle, *bufferptr, length);
+   close(handle);
+   return length;
 }
-
 
 /*
 ==============
@@ -748,94 +737,91 @@ long	LoadFile (char *filename, void **bufferptr)
 ==============
 */
 
-void	SaveFile (char *filename, void *buffer, long count)
+void SaveFile(char *filename, void *buffer, long count)
 {
-	int		handle;
+   int handle;
 
-	handle = SafeOpenWrite (filename);
-	SafeWrite (handle, buffer, count);
-	close (handle);
+   handle = SafeOpenWrite(filename);
+   SafeWrite(handle, buffer, count);
+   close(handle);
 }
 
-
-void GetPathFromEnvironment( char *fullname, const char *envname, const char *filename )
-   {
+void GetPathFromEnvironment(char *fullname, const char *envname, const char *filename)
+{
    char *path;
 
-   path = getenv( envname );
+   path = getenv(envname);
 
-   if ( path != NULL )
+   if (path != NULL)
+   {
+      strcpy(fullname, path);
+      if (fullname[strlen(fullname)] != '\\')
       {
-      strcpy( fullname, path );
-      if ( fullname[ strlen( fullname ) ] != '\\' )
-         {
-         strcat( fullname, "\\" );
-         }
-      strcat( fullname, filename );
+         strcat(fullname, "\\");
       }
+      strcat(fullname, filename);
+   }
    else
-      {
-      strcpy( fullname, filename );
-      }
+   {
+      strcpy(fullname, filename);
+   }
+}
+
+void DefaultExtension(char *path, char *extension)
+{
+   char *src;
+   //
+   // if path doesn't have a .EXT, append extension
+   // (extension should include the .)
+   //
+   src = path + strlen(path) - 1;
+
+   while (*src != '\\' && src != path)
+   {
+      if (*src == '.')
+         return; // it has an extension
+      src--;
    }
 
-void DefaultExtension (char *path, char *extension)
-{
-	char	*src;
-//
-// if path doesn't have a .EXT, append extension
-// (extension should include the .)
-//
-	src = path + strlen(path) - 1;
-
-	while (*src != '\\' && src != path)
-	{
-		if (*src == '.')
-			return;			// it has an extension
-		src--;
-	}
-
-	strcat (path, extension);
+   strcat(path, extension);
 }
 
-void DefaultPath (char *path, char *basepath)
+void DefaultPath(char *path, char *basepath)
 {
-	char	temp[128];
+   char temp[128];
 
-	if (path[0] == '\\')
-		return;							// absolute path location
-	strcpy (temp,path);
-	strcpy (path,basepath);
-	strcat (path,temp);
+   if (path[0] == '\\')
+      return; // absolute path location
+   strcpy(temp, path);
+   strcpy(path, basepath);
+   strcat(path, temp);
 }
 
-
-void ExtractFileBase (char *path, char *dest)
+void ExtractFileBase(char *path, char *dest)
 {
-	char	*src;
-	int		length;
+   char *src;
+   int length;
 
-	src = path + strlen(path) - 1;
+   src = path + strlen(path) - 1;
 
-//
-// back up until a \ or the start
-//
-	while (src != path && *(src-1) != '\\')
-		src--;
+   //
+   // back up until a \ or the start
+   //
+   while (src != path && *(src - 1) != '\\')
+      src--;
 
-//
-// copy up to eight characters
-//
-	memset (dest,0,8);
-	length = 0;
-	while (*src && *src != '.')
-	{
-		if (++length == 9)
-			Error ("Filename base of %s >8 chars",path);
-		*dest++ = toupper(*src++);
-	}
+   //
+   // copy up to eight characters
+   //
+   memset(dest, 0, 8);
+   length = 0;
+   while (*src && *src != '.')
+   {
+      if (++length == 9)
+         Error("Filename base of %s >8 chars", path);
+      *dest++ = toupper(*src++);
+   }
 }
-
 
 /*
 ==============
@@ -845,77 +831,71 @@ void ExtractFileBase (char *path, char *dest)
 ==============
 */
 
-long ParseHex (char *hex)
+long ParseHex(char *hex)
 {
-	char	*str;
-	long	num;
+   char *str;
+   long num;
 
-	num = 0;
-	str = hex;
+   num = 0;
+   str = hex;
 
-	while (*str)
-	{
-		num <<= 4;
-		if (*str >= '0' && *str <= '9')
-			num += *str-'0';
-		else if (*str >= 'a' && *str <= 'f')
-			num += 10 + *str-'a';
-		else if (*str >= 'A' && *str <= 'F')
-			num += 10 + *str-'A';
-		else
-			Error ("Bad hex number: %s",hex);
-		str++;
-	}
+   while (*str)
+   {
+      num <<= 4;
+      if (*str >= '0' && *str <= '9')
+         num += *str - '0';
+      else if (*str >= 'a' && *str <= 'f')
+         num += 10 + *str - 'a';
+      else if (*str >= 'A' && *str <= 'F')
+         num += 10 + *str - 'A';
+      else
+         Error("Bad hex number: %s", hex);
+      str++;
+   }
 
-	return num;
+   return num;
 }
 
-
-long ParseNum (char *str)
+long ParseNum(char *str)
 {
-	if (str[0] == '$')
-		return ParseHex (str+1);
-	if (str[0] == '0' && str[1] == 'x')
-		return ParseHex (str+2);
-	return atol (str);
+   if (str[0] == '$')
+      return ParseHex(str + 1);
+   if (str[0] == '0' && str[1] == 'x')
+      return ParseHex(str + 2);
+   return atol(str);
 }
 
-
-
-
-short	MotoShort (short l)
+short MotoShort(short l)
 {
-	byte	b1,b2;
+   byte b1, b2;
 
-	b1 = l&255;
-	b2 = (l>>8)&255;
+   b1 = l & 255;
+   b2 = (l >> 8) & 255;
 
-	return (b1<<8) + b2;
+   return (b1 << 8) + b2;
 }
 
-short	IntelShort (short l)
+short IntelShort(short l)
 {
-	return l;
+   return l;
 }
 
-
-long	MotoLong (long l)
+long MotoLong(long l)
 {
-	byte	b1,b2,b3,b4;
+   byte b1, b2, b3, b4;
 
-	b1 = l&255;
-	b2 = (l>>8)&255;
-	b3 = (l>>16)&255;
-	b4 = (l>>24)&255;
+   b1 = l & 255;
+   b2 = (l >> 8) & 255;
+   b3 = (l >> 16) & 255;
+   b4 = (l >> 24) & 255;
 
-	return ((long)b1<<24) + ((long)b2<<16) + ((long)b3<<8) + b4;
+   return ((long)b1 << 24) + ((long)b2 << 16) + ((long)b3 << 8) + b4;
 }
 
-long	IntelLong (long l)
+long IntelLong(long l)
 {
-	return l;
+   return l;
 }
-
 
 /*
 ============================================================================
@@ -935,13 +915,13 @@ long	IntelLong (long l)
 ==============
 */
 
-void GetaPalette (byte *pal)
+void GetaPalette(byte *pal)
 {
-	int	i;
+   int i;
 
-	OUTP (PEL_READ_ADR,0);
-	for (i=0 ; i<768 ; i++)
-		pal[i] = inp (PEL_DATA)<<2;
+   OUTP(PEL_READ_ADR, 0);
+   for (i = 0; i < 768; i++)
+      pal[i] = inp(PEL_DATA) << 2;
 }
 
 /*
@@ -954,30 +934,28 @@ void GetaPalette (byte *pal)
 ==============
 */
 
-void SetaPalette (byte *pal)
+void SetaPalette(byte *pal)
 {
-	int	i;
+   int i;
 
-	OUTP (PEL_WRITE_ADR,0);
-	for (i=0 ; i<768 ; i++)
-		OUTP (PEL_DATA, pal[i]>>2);
+   OUTP(PEL_WRITE_ADR, 0);
+   for (i = 0; i < 768; i++)
+      OUTP(PEL_DATA, pal[i] >> 2);
 }
 
-void GetPalette(char * pal)
+void GetPalette(char *pal)
 {
-  int i;
+   int i;
 
-  OUTP(0x03c7,0);
-  for (i=0;i<256*3;i++)
-     *(pal+(unsigned char)i)=inp(0x3c9)<<2;
+   OUTP(0x03c7, 0);
+   for (i = 0; i < 256 * 3; i++)
+      *(pal + (unsigned char)i) = inp(0x3c9) << 2;
 }
 
-void SetPalette ( char * pal )
+void SetPalette(char *pal)
 {
-   VL_SetPalette (pal);
+   VL_SetPalette(pal);
 }
-
-
 
 //******************************************************************************
 //
@@ -987,27 +965,27 @@ void SetPalette ( char * pal )
 //
 //******************************************************************************
 
-int US_CheckParm (char *parm, char **strings)
+int US_CheckParm(char *parm, char **strings)
 {
-   char  cp,cs,
-         *p,*s;
-   int      i;
-   int      length;
+   char cp, cs,
+       *p, *s;
+   int i;
+   int length;
 
-   length=strlen(parm);
-   while ( (!isalpha(*parm)) && (length>0)) // Skip non-alphas
-      {
+   length = strlen(parm);
+   while ((!isalpha(*parm)) && (length > 0)) // Skip non-alphas
+   {
       length--;
       parm++;
-      }
+   }
 
-   for (i = 0;*strings && **strings;i++)
+   for (i = 0; *strings && **strings; i++)
    {
-      for (s = *strings++,p = parm,cs = cp = 0;cs == cp;)
+      for (s = *strings++, p = parm, cs = cp = 0; cs == cp;)
       {
          cs = *s++;
          if (!cs)
-            return(i);
+            return (i);
          cp = *p++;
 
          if (isupper(cs))
@@ -1016,7 +994,7 @@ int US_CheckParm (char *parm, char **strings)
             cp = tolower(cp);
       }
    }
-   return(-1);
+   return (-1);
 }
 
 /*
@@ -1027,14 +1005,13 @@ int US_CheckParm (char *parm, char **strings)
 =================
 */
 
-void VL_NormalizePalette (byte *palette)
+void VL_NormalizePalette(byte *palette)
 {
-   int   i;
+   int i;
 
    for (i = 0; i < 768; i++)
-      *(palette+i)=(*(palette+i))>>2;
+      *(palette + i) = (*(palette + i)) >> 2;
 }
-
 
 /*
 =================
@@ -1047,18 +1024,17 @@ void VL_NormalizePalette (byte *palette)
 =================
 */
 
-void VL_SetPalette (byte *palette)
+void VL_SetPalette(byte *palette)
 {
-   int   i;
+   int i;
 
-   OUTP (PEL_WRITE_ADR, 0);
+   OUTP(PEL_WRITE_ADR, 0);
 
    for (i = 0; i < 768; i++)
-      {
-      OUTP (PEL_DATA, gammatable[(gammaindex<<6)+(*palette++)]);
-      }
+   {
+      OUTP(PEL_DATA, gammatable[(gammaindex << 6) + (*palette++)]);
+   }
 }
-
 
 //===========================================================================
 
@@ -1073,16 +1049,15 @@ void VL_SetPalette (byte *palette)
 =================
 */
 
-void VL_GetPalette (byte *palette)
+void VL_GetPalette(byte *palette)
 {
-   int   i;
+   int i;
 
-   OUTP (PEL_READ_ADR, 0);
+   OUTP(PEL_READ_ADR, 0);
 
    for (i = 0; i < 768; i++)
-      *palette++ = inp (PEL_DATA);
+      *palette++ = inp(PEL_DATA);
 }
-
 
 /*
 =================
@@ -1092,43 +1067,42 @@ void VL_GetPalette (byte *palette)
 =================
 */
 
-void UL_DisplayMemoryError ( int memneeded )
+void UL_DisplayMemoryError(int memneeded)
 {
    char buf[4000];
    int i;
 
-   ShutDown ();
-   TextMode ();
+   ShutDown();
+   TextMode();
 
    for (i = 0; i < 19; i++)
-      printf ("\n");
+      printf("\n");
 
-   memcpy (buf, &ROTT_ERR, 4000);
-   memcpy ((byte *)0xB8000, &buf[160*7], 4000-(160*7));
+   memcpy(buf, &ROTT_ERR, 4000);
+   memcpy((byte *)0xB8000, &buf[160 * 7], 4000 - (160 * 7));
 
    px = ERRORVERSIONCOL;
    py = ERRORVERSIONROW;
 #if (BETA == 1)
-   UL_printf ("á");
+   UL_printf("ï¿½");
 #else
-   UL_printf (itoa(ROTTMAJORVERSION,&buf[0],10));
+   UL_printf(itoa(ROTTMAJORVERSION, &buf[0], 10));
 #endif
    px++;
 
-   UL_printf (itoa(ROTTMINORVERSION,&buf[0],10));
+   UL_printf(itoa(ROTTMINORVERSION, &buf[0], 10));
 
    px = LOWMEMORYCOL;
    py = LOWMEMORYROW;
-   UL_printf ("You need ");
-   UL_printf (itoa(memneeded,&buf[0],10));
-   UL_printf (" bytes more memory");
-   if ( SOUNDSETUP )
-      {
+   UL_printf("You need ");
+   UL_printf(itoa(memneeded, &buf[0], 10));
+   UL_printf(" bytes more memory");
+   if (SOUNDSETUP)
+   {
       getch();
-      }
-   exit (0);
+   }
+   exit(0);
 }
-
 
 /*
 =================
@@ -1138,13 +1112,13 @@ void UL_DisplayMemoryError ( int memneeded )
 =================
 */
 
-void UL_printf (byte *str)
+void UL_printf(byte *str)
 {
    byte *s;
    byte *screen;
 
    s = str;
-   screen = (byte *)(0xB8000 + (py*160) + (px<<1));
+   screen = (byte *)(0xB8000 + (py * 160) + (px << 1));
 
    while (*s)
    {
@@ -1166,21 +1140,20 @@ void UL_printf (byte *str)
 =================
 */
 
-void UL_ColorBox (int x, int y, int w, int h, int color)
+void UL_ColorBox(int x, int y, int w, int h, int color)
 {
    byte *screen;
-   int i,j;
+   int i, j;
 
-
-   for (j=0;j<h;j++)
+   for (j = 0; j < h; j++)
+   {
+      screen = (byte *)(0xB8000 + ((y + j) * 160) + (x << 1) + 1);
+      for (i = 0; i < w; i++)
       {
-      screen = (byte *)(0xB8000 + ((y+j)*160) + (x<<1) + 1);
-      for (i=0;i<w;i++)
-         {
          *screen = (byte)color;
-         screen+=2;
-         }
+         screen += 2;
       }
+   }
 }
 
 //******************************************************************************
@@ -1191,7 +1164,7 @@ void UL_ColorBox (int x, int y, int w, int h, int color)
 
 int SideOfLine(int x1, int y1, int x2, int y2, int x3, int y3)
 {
-   int a1,b1,c1;
+   int a1, b1, c1;
 
    /* Compute a1, b1, c1, where line joining points 1 and 2
     * is "a1 x  +  b1 y  +  c1  =  0".
@@ -1199,12 +1172,10 @@ int SideOfLine(int x1, int y1, int x2, int y2, int x3, int y3)
 
    a1 = y2 - y1;
    b1 = x1 - x2;
-   c1 = FixedMulShift(x2,y1,16) - FixedMulShift(x1,y2,16);
+   c1 = FixedMulShift(x2, y1, 16) - FixedMulShift(x1, y2, 16);
 
-   return SGN(FixedMulShift(a1,x3,16) + FixedMulShift(b1,y3,16) + c1);
+   return SGN(FixedMulShift(a1, x3, 16) + FixedMulShift(b1, y3, 16) + c1);
 }
-
-
 
 //******************************************************************************
 //
@@ -1212,17 +1183,17 @@ int SideOfLine(int x1, int y1, int x2, int y2, int x3, int y3)
 //
 //******************************************************************************
 
-typedef int (*PFI)();           /* pointer to a function returning int  */
-typedef void (*PFV)();           /* pointer to a function returning int  */
-static PFI Comp;                        /* pointer to comparison routine                */
-static PFV Switch;                        /* pointer to comparison routine                */
-static int Width;                       /* width of an object in bytes                  */
-static char *Base;                      /* pointer to element [-1] of array             */
+typedef int (*PFI)();  /* pointer to a function returning int  */
+typedef void (*PFV)(); /* pointer to a function returning int  */
+static PFI Comp;       /* pointer to comparison routine                */
+static PFV Switch;     /* pointer to comparison routine                */
+static int Width;      /* width of an object in bytes                  */
+static char *Base;     /* pointer to element [-1] of array             */
 
-void hsort(char * base, int nel, int width, int (*compare)(), void (*switcher)())
+void hsort(char *base, int nel, int width, int (*compare)(), void (*switcher)())
 {
-static int i,n,stop;
-        /*      Perform a heap sort on an array starting at base.  The array is
+   static int i, n, stop;
+   /*      Perform a heap sort on an array starting at base.  The array is
                 nel elements large and width is the size of a single element in
                 bytes.  Compare is a pointer to a comparison routine which will
                 be passed pointers to two elements of the array.  It should
@@ -1233,36 +1204,39 @@ static int i,n,stop;
                 the default comparison routine, argvcmp (which sorts an
                 argv-like array of pointers to strings), is used.                                       */
 
-   Width=width;
-   Comp= compare;
-   Switch= switcher;
-   n=nel*Width;
-   Base=base-Width;
-   for (i=(n/Width/2)*Width; i>=Width; i-=Width) newsift_down(i,n);
-   stop=Width+Width;
-   for (i=n; i>=stop; )
-      {
-      (*Switch)(base, Base+i);
-      newsift_down(Width,i-=Width);
-      }
-
+   Width = width;
+   Comp = compare;
+   Switch = switcher;
+   n = nel * Width;
+   Base = base - Width;
+   for (i = (n / Width / 2) * Width; i >= Width; i -= Width)
+      newsift_down(i, n);
+   stop = Width + Width;
+   for (i = n; i >= stop;)
+   {
+      (*Switch)(base, Base + i);
+      newsift_down(Width, i -= Width);
+   }
 }
 
 /*---------------------------------------------------------------------------*/
-static newsift_down(L,U) int L,U;
-{  int c;
+static newsift_down(L, U) int L, U;
+{
+   int c;
 
-   while(1)
-      {c=L+L;
-      if(c>U) break;
-      if( (c+Width <= U) && ((*Comp)(Base+c+Width,Base+c)>0) ) c+= Width;
-      if ((*Comp)(Base+L,Base+c)>=0) break;
-      (*Switch)(Base+L, Base+c);
-      L=c;
-      }
+   while (1)
+   {
+      c = L + L;
+      if (c > U)
+         break;
+      if ((c + Width <= U) && ((*Comp)(Base + c + Width, Base + c) > 0))
+         c += Width;
+      if ((*Comp)(Base + L, Base + c) >= 0)
+         break;
+      (*Switch)(Base + L, Base + c);
+      L = c;
+   }
 }
-
-
 
 //******************************************************************************
 //
@@ -1279,11 +1253,11 @@ static newsift_down(L,U) int L,U;
 //
 //******************************************************************************
 
-char * UL_GetPath (char * path, char *dir)
+char *UL_GetPath(char *path, char *dir)
 {
-   boolean done      = 0;
-   char *dr          = dir;
-   int cnt           = 0;
+   boolean done = 0;
+   char *dr = dir;
+   int cnt = 0;
 
    if (*path == SLASHES)
       path++;
@@ -1292,9 +1266,9 @@ char * UL_GetPath (char * path, char *dir)
    {
       *dr = *path;
 
-      cnt++;                  // make sure the number of characters in the dir
-      if (cnt > MAXCHARS)     // name doesn't exceed acceptable limits.
-         Error ("ERROR : Directory name can only be %d characters long.\n", MAXCHARS);
+      cnt++;              // make sure the number of characters in the dir
+      if (cnt > MAXCHARS) // name doesn't exceed acceptable limits.
+         Error("ERROR : Directory name can only be %d characters long.\n", MAXCHARS);
 
       path++;
       dr++;
@@ -1306,7 +1280,6 @@ char * UL_GetPath (char * path, char *dir)
    *dr = 0;
    return (path);
 }
-
 
 //******************************************************************************
 //
@@ -1324,7 +1297,7 @@ char * UL_GetPath (char * path, char *dir)
 //
 //******************************************************************************
 
-boolean UL_ChangeDirectory (char *path)
+boolean UL_ChangeDirectory(char *path)
 {
    char *p;
    char dir[9];
@@ -1332,37 +1305,35 @@ boolean UL_ChangeDirectory (char *path)
 
    d = &dir[0];
    p = path;
-   memset (dir, 0, 9);
+   memset(dir, 0, 9);
 
    // Check for a drive at the beginning of the path
-   if (*(p+1) == ':')
+   if (*(p + 1) == ':')
    {
-      *d++ = *p++;      // drive letter
-      *d++ = *p++;      // colon
+      *d++ = *p++; // drive letter
+      *d++ = *p++; // colon
 
-      if (UL_ChangeDrive (dir) == false)
+      if (UL_ChangeDrive(dir) == false)
          return (false);
    }
 
    if (*p == SLASHES)
    {
-      chdir ("\\");
+      chdir("\\");
       p++;
    }
 
    d = &dir[0];
    while (*p)
    {
-      p = UL_GetPath (p, d);
+      p = UL_GetPath(p, d);
 
-      if (chdir (d) == -1)
+      if (chdir(d) == -1)
          return (false);
    }
 
    return (true);
 }
-
-
 
 //******************************************************************************
 //
@@ -1380,23 +1351,22 @@ boolean UL_ChangeDirectory (char *path)
 //
 //******************************************************************************
 
-boolean UL_ChangeDrive (char *drive)
+boolean UL_ChangeDrive(char *drive)
 {
    unsigned d, total, tempd;
 
-   d = toupper (*drive);
+   d = toupper(*drive);
 
    d = d - 'A' + 1;
 
-   _dos_setdrive (d, &total);
-   _dos_getdrive (&tempd);
+   _dos_setdrive(d, &total);
+   _dos_getdrive(&tempd);
 
    if (d != tempd)
       return (false);
 
    return (true);
 }
-
 
 /*
 =============
@@ -1405,12 +1375,12 @@ boolean UL_ChangeDrive (char *drive)
 =
 =============
 */
-void AbortCheck (char * abortstring)
+void AbortCheck(char *abortstring)
 {
    // User abort check
 
-   IN_UpdateKeyboard ();
+   IN_UpdateKeyboard();
 
    if (Keyboard[sc_Escape])
-      Error("%s\n",abortstring);
+      Error("%s\n", abortstring);
 }

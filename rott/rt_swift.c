@@ -25,7 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //****************************************************************************
 
-
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_swift.h"
 #include "_rt_swft.h"
 //MED
-
 
 //****************************************************************************
 //
@@ -47,131 +45,124 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //****************************************************************************
 
-int SWIFT_Initialize (void)
+int SWIFT_Initialize(void)
 {
    SWIFT_StaticData sdBuf;
    int fSwift = 0;
 
-   if (fActive)                     // SWIFT extensions already active
+   if (fActive) // SWIFT extensions already active
    {
 #ifdef DEGUB
-      SoftError( "SWIFT_Initialize: Already active.\n");
-      SoftError( "SWIFT_Initialize: returns TRUE\n");
+      SoftError("SWIFT_Initialize: Already active.\n");
+      SoftError("SWIFT_Initialize: returns TRUE\n");
 #endif
       return (1);
    }
 
    nAttached = SWIFT_DEV_NONE;
 
-
-   if (_dos_getvect(0x33) == NULL)  // No mouse driver loaded
+   if (_dos_getvect(0x33) == NULL) // No mouse driver loaded
    {
 #ifdef DBUG
-      SoftError( "SWIFT_Initialize: No mouse driver loaded.\n");
-      SoftError( "SWIFT_Initialize: returns FALSE\n");
+      SoftError("SWIFT_Initialize: No mouse driver loaded.\n");
+      SoftError("SWIFT_Initialize: returns FALSE\n");
 #endif
       return (0);
    }
-
 
    // Reset the mouse and driver
-   AX (regs) = 0;
-   int386( 0x33, &regs, &regs);
+   AX(regs) = 0;
+   int386(0x33, &regs, &regs);
 
-   if (AX (regs) == 0)
-   {                                // no mouse
+   if (AX(regs) == 0)
+   { // no mouse
 #ifdef DBUG
-      SoftError( "SWIFT_Initialize: No pointing device attached.\n");
-      SoftError( "SWIFT_Initialize: returns FALSE\n");
+      SoftError("SWIFT_Initialize: No pointing device attached.\n");
+      SoftError("SWIFT_Initialize: returns FALSE\n");
 #endif
       return (0);
    }
 
 #ifdef DBUG
-   AX (regs) = 36;   // Get Mouse Information
-   BX (regs) = 0xffff;
-   CX (regs) = 0xffff;
-   DX (regs) = 0xffff;
-   int386 (0x33, &regs, &regs);
-   SoftError( "SWIFT_Initialize: driver version %d.%02d\n", regs.h.bh, regs.h.bl);
-   SoftError( "SWIFT_Initialize: %s mouse using IRQ %d\n",
-          (regs.h.ch==1) ? "bus" :
-          (regs.h.ch==2) ? "serial" :
-          (regs.h.ch==3) ? "inport" :
-          (regs.h.ch==4) ? "PS/2" :
-                           "unknown", regs.h.cl);
+   AX(regs) = 36; // Get Mouse Information
+   BX(regs) = 0xffff;
+   CX(regs) = 0xffff;
+   DX(regs) = 0xffff;
+   int386(0x33, &regs, &regs);
+   SoftError("SWIFT_Initialize: driver version %d.%02d\n", regs.h.bh, regs.h.bl);
+   SoftError("SWIFT_Initialize: %s mouse using IRQ %d\n",
+             (regs.h.ch == 1) ? "bus" : (regs.h.ch == 2) ? "serial"
+                                    : (regs.h.ch == 3)   ? "inport"
+                                    : (regs.h.ch == 4)   ? "PS/2"
+                                                         : "unknown",
+             regs.h.cl);
 #endif
-
 
    // allocate a DOS real-mode buffer
    pdosmem = allocDOS(DOSMEMSIZE, &segment, &selector);
    if (!pdosmem)
    {
 #ifdef DBUG
-      SoftError( "SWIFT_Initialize: DOS Alloc failed!\n");
-      SoftError( "SWIFT_Initialize: returns FALSE\n");
+      SoftError("SWIFT_Initialize: DOS Alloc failed!\n");
+      SoftError("SWIFT_Initialize: returns FALSE\n");
 #endif
       return (0);
    }
 
-//
-// SWIFT device supported and attached
-//
-   if (SWIFT_GetStaticDeviceInfo (&sdBuf))
+   //
+   // SWIFT device supported and attached
+   //
+   if (SWIFT_GetStaticDeviceInfo(&sdBuf))
       fSwift = 1;
 
-
    if (!fSwift)
-   {  // SWIFT functions not present
+   { // SWIFT functions not present
 #ifdef DBUG
-      SoftError( "SWIFT_Initialize: no SWIFT support in mouse driver.\n");
+      SoftError("SWIFT_Initialize: no SWIFT support in mouse driver.\n");
+#endif
+   }
+   else if (sdBuf.deviceType == SWIFT_DEV_NONE)
+   {
+#ifdef DBUG
+      SoftError("SWIFT_Initialize: no SWIFT device connected.\n");
 #endif
    }
    else
-      if (sdBuf.deviceType == SWIFT_DEV_NONE)
-      {
+   {
+      nAttached = sdBuf.deviceType;
 #ifdef DBUG
-         SoftError( "SWIFT_Initialize: no SWIFT device connected.\n");
-#endif
+      SoftError("SWIFT_Initialize: ");
+
+      switch (nAttached)
+      {
+      case SWIFT_DEV_CYBERMAN:
+         SoftError("CyberMan %d.%02d connected.\n",
+                   sdBuf.majorVersion, sdBuf.minorVersion);
+         break;
+
+      default:
+         SoftError("Unknown SWIFT device (type %d) connected.\n",
+                   nAttached);
+         break;
       }
-      else
-      {
-         nAttached = sdBuf.deviceType;
-#ifdef DBUG
-         SoftError( "SWIFT_Initialize: ");
-
-         switch (nAttached)
-         {
-            case SWIFT_DEV_CYBERMAN:
-               SoftError( "CyberMan %d.%02d connected.\n",
-                                sdBuf.majorVersion, sdBuf.minorVersion);
-            break;
-
-            default:
-               SoftError( "Unknown SWIFT device (type %d) connected.\n",
-                                nAttached);
-            break;
-         }
 #endif
       fActive = 1;
    }
 
    if (!fActive)
-   {                    // activation of SWIFT module failed for some reason
+   { // activation of SWIFT module failed for some reason
       if (pdosmem)
-      {                 // if DOS buffer was allocated, free it
+      { // if DOS buffer was allocated, free it
          freeDOS(selector);
          pdosmem = 0;
       }
    }
 
 #ifdef DBUG
-   SoftError( "SWIFT_Initialize: returns %s.\n", (fActive ? "TRUE" : "FALSE"));
+   SoftError("SWIFT_Initialize: returns %s.\n", (fActive ? "TRUE" : "FALSE"));
 #endif
    return fActive;
 }
-
-
 
 //****************************************************************************
 //
@@ -184,15 +175,15 @@ int SWIFT_Initialize (void)
 //
 //****************************************************************************
 
-void SWIFT_Terminate (void)
+void SWIFT_Terminate(void)
 {
 #ifdef DBUG
-   SoftError( "SWIFT_Terminate called.\n");
+   SoftError("SWIFT_Terminate called.\n");
 #endif
 
    if (fActive)
    {
-     // free DOS buffer
+      // free DOS buffer
       if (pdosmem)
       {
          freeDOS(selector);
@@ -203,7 +194,6 @@ void SWIFT_Terminate (void)
    }
 }
 
-
 //****************************************************************************
 //
 // SWIFT_GetAttachedDevice ()
@@ -212,12 +202,10 @@ void SWIFT_Terminate (void)
 //
 //****************************************************************************
 
-int SWIFT_GetAttachedDevice (void)
+int SWIFT_GetAttachedDevice(void)
 {
    return (nAttached);
 }
-
-
 
 //****************************************************************************
 //
@@ -227,19 +215,17 @@ int SWIFT_GetAttachedDevice (void)
 //
 //****************************************************************************
 
-int SWIFT_GetStaticDeviceInfo (SWIFT_StaticData far *psd)
+int SWIFT_GetStaticDeviceInfo(SWIFT_StaticData far *psd)
 {
-   memset (&RMI, 0, sizeof (RMI));
-   RMI.ax = 0x53C1;                       // SWIFT: Get Static Device Data
-   RMI.es = segment;                      // DOS buffer real-mode segment
-   RMI.dx = 0;                            //  "    "      "   "   offset
-   MouseInt (&RMI);                       // get data into DOS buffer
+   memset(&RMI, 0, sizeof(RMI));
+   RMI.ax = 0x53C1;  // SWIFT: Get Static Device Data
+   RMI.es = segment; // DOS buffer real-mode segment
+   RMI.dx = 0;       //  "    "      "   "   offset
+   MouseInt(&RMI);   // get data into DOS buffer
 
-   *psd = *(SWIFT_StaticData *)pdosmem;   // then copy into caller's buffer
-   return (RMI.ax == 1);                  // return success
+   *psd = *(SWIFT_StaticData *)pdosmem; // then copy into caller's buffer
+   return (RMI.ax == 1);                // return success
 }
-
-
 
 //****************************************************************************
 //
@@ -249,26 +235,22 @@ int SWIFT_GetStaticDeviceInfo (SWIFT_StaticData far *psd)
 //
 //****************************************************************************
 
-
-void SWIFT_Get3DStatus (SWIFT_3DStatus far *pstat)
+void SWIFT_Get3DStatus(SWIFT_3DStatus far *pstat)
 {
 #ifdef DBUG
    if (!fActive)
    {
-      SoftError( "SWIFT_Get3DStatus: SWIFT module not active!\n");
+      SoftError("SWIFT_Get3DStatus: SWIFT module not active!\n");
    }
 #endif
 
-   memset (&RMI, 0, sizeof (RMI));
+   memset(&RMI, 0, sizeof(RMI));
    RMI.ax = 0x5301;
    RMI.es = segment;
    RMI.dx = 0;
    MouseInt(&RMI);
    *pstat = *(SWIFT_3DStatus *)pdosmem;
 }
-
-
-
 
 //****************************************************************************
 //
@@ -281,22 +263,20 @@ void SWIFT_Get3DStatus (SWIFT_3DStatus far *pstat)
 //
 //****************************************************************************
 
-void SWIFT_TactileFeedback (int d, int on, int off)
+void SWIFT_TactileFeedback(int d, int on, int off)
 {
-  // Use DPMI call 300h to issue mouse interrupt
-   memset (&RMI, 0, sizeof(RMI));
-   RMI.ax = 0x5330;                    // SWIFT: Get Position & Buttons
+   // Use DPMI call 300h to issue mouse interrupt
+   memset(&RMI, 0, sizeof(RMI));
+   RMI.ax = 0x5330; // SWIFT: Get Position & Buttons
    RMI.bx = (on / 5) << 8 + (off / 5);
    RMI.cx = d / 40;
-   MouseInt (&RMI);
+   MouseInt(&RMI);
 
 #ifdef DBUG
-   SoftError( "SWIFT_TactileFeedback (dur=%d ms, on=%d ms, off=%d ms)\n",
-                   d / 40 * 40, on/5*5, off/5*5);
+   SoftError("SWIFT_TactileFeedback (dur=%d ms, on=%d ms, off=%d ms)\n",
+             d / 40 * 40, on / 5 * 5, off / 5 * 5);
 #endif
 }
-
-
 
 //****************************************************************************
 //
@@ -306,14 +286,13 @@ void SWIFT_TactileFeedback (int d, int on, int off)
 //
 //****************************************************************************
 
-unsigned SWIFT_GetDynamicDeviceData (void)
+unsigned SWIFT_GetDynamicDeviceData(void)
 {
-   memset (&RMI, 0, sizeof(RMI));
-   RMI.ax = 0x53C2;                       // SWIFT: Get Dynamic Device Data
-   MouseInt (&RMI);
+   memset(&RMI, 0, sizeof(RMI));
+   RMI.ax = 0x53C2; // SWIFT: Get Dynamic Device Data
+   MouseInt(&RMI);
    return ((unsigned)RMI.ax);
 }
-
 
 //****************************************************************************
 //
@@ -324,17 +303,16 @@ unsigned SWIFT_GetDynamicDeviceData (void)
 //
 //****************************************************************************
 
-void MouseInt (struct rminfo *prmi)
+void MouseInt(struct rminfo *prmi)
 {
-   memset (&sregs, 0, sizeof (sregs));
-   AX (regs) = 0x0300;                    // DPMI: simulate interrupt
-   BX (regs) = MOUSE_INT;
-   CX (regs) = 0;
-   DI (regs) = FP_OFF (prmi);
-   sregs.es = FP_SEG (prmi);
-   int386x( DPMI_INT, &regs, &regs, &sregs );
+   memset(&sregs, 0, sizeof(sregs));
+   AX(regs) = 0x0300; // DPMI: simulate interrupt
+   BX(regs) = MOUSE_INT;
+   CX(regs) = 0;
+   DI(regs) = FP_OFF(prmi);
+   sregs.es = FP_SEG(prmi);
+   int386x(DPMI_INT, &regs, &regs, &sregs);
 }
-
 
 //****************************************************************************
 //
@@ -344,14 +322,13 @@ void MouseInt (struct rminfo *prmi)
 //
 //****************************************************************************
 
-void freeDOS (short sel)
+void freeDOS(short sel)
 {
-   AX(regs) = 0x0101;      // DPMI free DOS memory
+   AX(regs) = 0x0101; // DPMI free DOS memory
    DX(regs) = sel;
 
-   int386( DPMI_INT, &regs, &regs);
+   int386(DPMI_INT, &regs, &regs);
 }
-
 
 //****************************************************************************
 //
@@ -361,28 +338,28 @@ void freeDOS (short sel)
 //
 //****************************************************************************
 
-void far *allocDOS (unsigned nbytes, short *pseg, short *psel)
+void far *allocDOS(unsigned nbytes, short *pseg, short *psel)
 {
    unsigned npara = (nbytes + 15) / 16;
    void far *pprot;
    pprot = NULL;
-   *pseg = 0;        // assume will fail
+   *pseg = 0; // assume will fail
    *psel = 0;
 
    // DPMI call 100h allocates DOS memory
-   segread (&sregs);
-   AX (regs) = 0x0100;        // DPMI: Allocate DOS Memory
-   BX (regs) = npara;         // number of paragraphs to alloc
-   int386( DPMI_INT, &regs, &regs);
+   segread(&sregs);
+   AX(regs) = 0x0100; // DPMI: Allocate DOS Memory
+   BX(regs) = npara;  // number of paragraphs to alloc
+   int386(DPMI_INT, &regs, &regs);
 
    if (regs.w.cflag == 0)
    {
-      *pseg = AX (regs);      // the real-mode segment
-      *psel = DX (regs);      // equivalent protected-mode selector
+      *pseg = AX(regs); // the real-mode segment
+      *psel = DX(regs); // equivalent protected-mode selector
       // pprot is the protected mode address of the same allocated block.
       // The Rational extender maps the 1 MB physical DOS memory into
       // the bottom of our virtual address space.
-      pprot = (void far *) ((unsigned)*pseg << 4);
+      pprot = (void far *)((unsigned)*pseg << 4);
    }
    return pprot;
 }

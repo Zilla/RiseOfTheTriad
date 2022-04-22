@@ -27,39 +27,36 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SOUNDTEST 0
 #define PRECACHETEST 0
 #define ELEVATORTEST 0
-#define TEAMTEST     0
+#define TEAMTEST 0
 #define LOADSAVETEST 0
-#define WEAPONCHEAT  1
-#define MEMORYCORRUPTIONTEST  0
-#define SYNCCHECK    1
-#define DATACORRUPTIONTEST    0
+#define WEAPONCHEAT 1
+#define MEMORYCORRUPTIONTEST 0
+#define SYNCCHECK 1
+#define DATACORRUPTIONTEST 0
 #define BATTLECHECK 0 // This should be turned off for release, on for beta
-#define BATTLEINFO  0 // This should be turned off for release
+#define BATTLEINFO 0  // This should be turned off for release
 
-#define DELUXE   0
-#define LOWCOST  0
+#define DELUXE 0
+#define LOWCOST 0
 // Make sure only one of the following are on at one time
 
-#define SHAREWARE   0
-#define SUPERROTT   1
+#define SHAREWARE 0
+#define SUPERROTT 1
 #define SITELICENSE 0
 
 // okay?
 
-#define TEXTMENUS   1
-#define TEDLAUNCH   0
-#define SOFTERROR   0
-#define RANDOMTEST  0
-#define WHEREAMI    0
+#define TEXTMENUS 1
+#define TEDLAUNCH 0
+#define SOFTERROR 0
+#define RANDOMTEST 0
+#define WHEREAMI 0
 
+#if (WHEREAMI == 1)
 
-
-
-#if (WHEREAMI==1)
-
-#define wami(val)      \
-   {                   \
-   programlocation=val;\
+#define wami(val)            \
+   {                         \
+      programlocation = val; \
    }
 
 #define waminot()

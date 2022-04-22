@@ -37,15 +37,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //MED
 
 #define PANGLES 512
-#define NUMSINANGLES FINEANGLES+FINEANGLEQUAD+1
+#define NUMSINANGLES FINEANGLES + FINEANGLEQUAD + 1
 
-fixed  pangle[PANGLES];
-long   sintable[NUMSINANGLES];
-short  tantable[FINEANGLES];
-byte   gammatable[GAMMAENTRIES];
+fixed pangle[PANGLES];
+long sintable[NUMSINANGLES];
+short tantable[FINEANGLES];
+byte gammatable[GAMMAENTRIES];
 
-extern  int      _argc;
-extern  char **  _argv;
+extern int _argc;
+extern char **_argv;
 
 /*
 =================
@@ -57,161 +57,152 @@ extern  char **  _argv;
 =================
 */
 
-void Error (char *error, ...)
+void Error(char *error, ...)
 {
-	va_list	argptr;
+   va_list argptr;
 
-	va_start (argptr,error);
-	vprintf (error,argptr);
-	va_end (argptr);
-	printf ("\n");
-	exit (1);
+   va_start(argptr, error);
+   vprintf(error, argptr);
+   va_end(argptr);
+   printf("\n");
+   exit(1);
 }
 
-
-int SafeOpenWrite (char *filename)
+int SafeOpenWrite(char *filename)
 {
-	int	handle;
+   int handle;
 
-	handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC
-	, S_IREAD | S_IWRITE);
+   handle = open(filename, O_RDWR | O_BINARY | O_CREAT | O_TRUNC, S_IREAD | S_IWRITE);
 
-	if (handle == -1)
-		Error ("Error opening %s: %s",filename,strerror(errno));
+   if (handle == -1)
+      Error("Error opening %s: %s", filename, strerror(errno));
 
-	return handle;
+   return handle;
 }
 
-
-void SafeWrite (int handle, void *buffer, long count)
+void SafeWrite(int handle, void *buffer, long count)
 {
-	unsigned	iocount;
+   unsigned iocount;
 
-	while (count)
-	{
-		iocount = count > 0x8000 ? 0x8000 : count;
-		if (write (handle,buffer,iocount) != iocount)
-			Error ("File write failure");
-		buffer = (void *)( (byte *)buffer + iocount );
-		count -= iocount;
-	}
+   while (count)
+   {
+      iocount = count > 0x8000 ? 0x8000 : count;
+      if (write(handle, buffer, iocount) != iocount)
+         Error("File write failure");
+      buffer = (void *)((byte *)buffer + iocount);
+      count -= iocount;
+   }
 }
 
-
-
-
-void CalcPixelAngles ( void )
+void CalcPixelAngles(void)
 {
-    int   i;
-    long  intang;
-    double  angle;
-    double  tang;
+   int i;
+   long intang;
+   double angle;
+   double tang;
 
-    const   double radtoint = (double)FINEANGLES/2/PI;
+   const double radtoint = (double)FINEANGLES / 2 / PI;
 
-
-    for (i=0;i<PANGLES;i++)
-       {
-       // start 1/2 pixel over, so viewangle bisects two middle pixels
-       tang = ((((double)i*160.0)+80.0)/(FPFOCALWIDTH*(double)PANGLES));
-       angle = atan(tang);
-       intang = ((long)(angle*radtoint));
-       pangle[i] = intang;
-       }
+   for (i = 0; i < PANGLES; i++)
+   {
+      // start 1/2 pixel over, so viewangle bisects two middle pixels
+      tang = ((((double)i * 160.0) + 80.0) / (FPFOCALWIDTH * (double)PANGLES));
+      angle = atan(tang);
+      intang = ((long)(angle * radtoint));
+      pangle[i] = intang;
+   }
 }
 
-
-
-void BuildSinTable (void)
+void BuildSinTable(void)
 {
-   int   i;
-   double  angle,anglestep;
-   double  sinangle;
-   fixed  value;
+   int i;
+   double angle, anglestep;
+   double sinangle;
+   fixed value;
 
    angle = 0;
-   anglestep = (double)(PI/2/FINEANGLEQUAD);
-   for (i=0;i<=FINEANGLEQUAD;i++)
-      {
-      sinangle=sin(angle);
-      value=(fixed)((double)GLOBAL1*sinangle);
-      sintable[i]     =
-      sintable[i+FINEANGLES]  =
-      sintable[FINEANGLES/2-i] = value;
-      sintable[FINEANGLES-i] = -value;
-      sintable[FINEANGLES/2+i] = -value;
+   anglestep = (double)(PI / 2 / FINEANGLEQUAD);
+   for (i = 0; i <= FINEANGLEQUAD; i++)
+   {
+      sinangle = sin(angle);
+      value = (fixed)((double)GLOBAL1 * sinangle);
+      sintable[i] =
+          sintable[i + FINEANGLES] =
+              sintable[FINEANGLES / 2 - i] = value;
+      sintable[FINEANGLES - i] = -value;
+      sintable[FINEANGLES / 2 + i] = -value;
       angle += anglestep;
-      }
+   }
 }
 
-void BuildTanTable (void)
+void BuildTanTable(void)
 {
-   int   i;
-   double  angle,anglestep;
-   double  tanangle;
-   fixed  value;
+   int i;
+   double angle, anglestep;
+   double tanangle;
+   fixed value;
 
    angle = 0;
-   anglestep = (double)(PI*2/FINEANGLES);
-   for (i=0;i<FINEANGLES;i++)
-      {
-      tanangle=tan(angle);
-      value=(fixed)((double)GLOBAL1*tanangle);
-      tantable[i] =(short) (value>>1);
+   anglestep = (double)(PI * 2 / FINEANGLES);
+   for (i = 0; i < FINEANGLES; i++)
+   {
+      tanangle = tan(angle);
+      value = (fixed)((double)GLOBAL1 * tanangle);
+      tantable[i] = (short)(value >> 1);
       angle += anglestep;
-      }
+   }
 }
 
-void BuildGammaTable (void)
+void BuildGammaTable(void)
 {
-   int     l, i, inf;
-   int     j;
-   int     gGamma=0x100;
-   j=0;
-   for (l=0 ; l<NUMGAMMALEVELS ; l++,gGamma+=32)
-      {
+   int l, i, inf;
+   int j;
+   int gGamma = 0x100;
+   j = 0;
+   for (l = 0; l < NUMGAMMALEVELS; l++, gGamma += 32)
+   {
       double nGamma = (double)256 / gGamma;
-      double nScale = (double)63  / pow(63, nGamma);
+      double nScale = (double)63 / pow(63, nGamma);
 
-      for ( i = 0; i < 64; i++ )
-         {
+      for (i = 0; i < 64; i++)
+      {
          inf = pow(i, nGamma) * nScale;
          if (inf < 0)
             inf = 0;
          if (inf > 63)
             inf = 63;
-         gammatable[j++]=inf;
-         }
+         gammatable[j++] = inf;
       }
+   }
 }
 
-void main ()
+void main()
 {
    int handle;
    int size;
 
-   if (_argc!=2)
-      {
+   if (_argc != 2)
+   {
       printf("LOOKUPS -- Apogee Software (c) 1994\n");
       printf("\n USAGE:    lookups <name.dat>\n");
       exit(0);
-      }
-   handle=SafeOpenWrite (_argv[1]);
+   }
+   handle = SafeOpenWrite(_argv[1]);
    CalcPixelAngles();
    BuildSinTable();
    BuildTanTable();
    BuildGammaTable();
-   size=PANGLES;
-   SafeWrite(handle,&size,sizeof(int));
-   SafeWrite(handle,&pangle[0],sizeof(fixed)*size);
-   size=NUMSINANGLES;
-   SafeWrite(handle,&size,sizeof(int));
-   SafeWrite(handle,&sintable[0],sizeof(fixed)*size);
-   size=FINEANGLES;
-   SafeWrite(handle,&size,sizeof(int));
-   SafeWrite(handle,&tantable[0],sizeof(short)*size);
-   size=GAMMAENTRIES;
-   SafeWrite(handle,&size,sizeof(int));
-   SafeWrite(handle,&gammatable[0],sizeof(byte)*size);
-   close (handle);
+   size = PANGLES;
+   SafeWrite(handle, &size, sizeof(int));
+   SafeWrite(handle, &pangle[0], sizeof(fixed) * size);
+   size = NUMSINANGLES;
+   SafeWrite(handle, &size, sizeof(int));
+   SafeWrite(handle, &sintable[0], sizeof(fixed) * size);
+   size = FINEANGLES;
+   SafeWrite(handle, &size, sizeof(int));
+   SafeWrite(handle, &tantable[0], sizeof(short) * size);
+   size = GAMMAENTRIES;
+   SafeWrite(handle, &size, sizeof(int));
+   SafeWrite(handle, &gammatable[0], sizeof(byte) * size);
+   close(handle);
 }

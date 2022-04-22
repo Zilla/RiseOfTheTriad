@@ -26,29 +26,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //****************************************************************************
 
-
 typedef struct
 {
-   byte     width,height;
-   byte     data;
+   byte width, height;
+   byte data;
 } pic_t;
 
 typedef struct
 {
-   short     width,height;
-   short     orgx,orgy;
-   byte     data;
+   short width, height;
+   short orgx, orgy;
+   byte data;
 } lpic_t;
-
 
 typedef struct
 {
-	short height;
-   char  width[256];
+   short height;
+   char width[256];
    short charofs[256];
-   byte  data;       // as much as required
+   byte data; // as much as required
 } font_t;
-
 
 typedef struct
 {
@@ -58,38 +55,35 @@ typedef struct
    byte data;
 } lbm_t;
 
-
 typedef struct
 {
-   short          origsize;         // the orig size of "grabbed" gfx
-   short          width;            // bounding box size
-   short          height;
-   short          leftoffset;       // pixels to the left of origin
-   short          topoffset;        // pixels above the origin
-   unsigned short collumnofs[320];  // only [width] used, the [0] is &collumnofs[width]
+   short origsize; // the orig size of "grabbed" gfx
+   short width;    // bounding box size
+   short height;
+   short leftoffset;               // pixels to the left of origin
+   short topoffset;                // pixels above the origin
+   unsigned short collumnofs[320]; // only [width] used, the [0] is &collumnofs[width]
 } patch_t;
 
-
 typedef struct
 {
-   short origsize;         // the orig size of "grabbed" gfx
-   short width;            // bounding box size
+   short origsize; // the orig size of "grabbed" gfx
+   short width;    // bounding box size
    short height;
-   short leftoffset;       // pixels to the left of origin
-   short topoffset;        // pixels above the origin
+   short leftoffset; // pixels to the left of origin
+   short topoffset;  // pixels above the origin
    short translevel;
-   short collumnofs[320];  // only [width] used, the [0] is &collumnofs[width]
+   short collumnofs[320]; // only [width] used, the [0] is &collumnofs[width]
 } transpatch_t;
 
-
 typedef struct
 {
-   byte  color;
+   byte color;
    short height;
-   char  width[256];
+   char width[256];
    short charofs[256];
-   byte  pal[0x300];
-   byte  data;       // as much as required
+   byte pal[0x300];
+   byte data; // as much as required
 } cfont_t;
 
 #endif

@@ -1,6 +1,22 @@
+CC=gcc
+CFLAGS=-c -g $(INCDIRS)
+INCDIRS=-Irott/
 
-isr.o:        isr.c rt_def.h profile.h task_man.h isr.h _isr.h rt_in.h &
-                rt_util.h develop.h
+ROTTOBJ=isr.o z_zone.o w_wad.o rt_scale.o rt_draw.o engine.o \
+        rt_dr_a.o rt_fc_a.o rt_floor.o rt_main.o rt_util.o \
+        rt_stat.o rt_actor.o rt_state.o rt_ted.o rt_playr.o \
+        rt_rand.o rt_door.o rt_menu.o rt_vid.o rt_vh_a.o \
+        rt_str.o rt_in.o rt_sc_a.o rt_game.o rt_map.o \
+        rt_debug.o rt_sound.o scriplib.o f_scale.o \
+        rt_swift.o rt_build.o rt_com.o \
+        rt_view.o rt_cfg.o rt_spbal.o sbconfig.o rt_err.o \
+        rt_crc.o rt_msg.o modexlib.o rt_battl.o \
+        usrhooks.o rt_error.o rt_net.o cin_util.o \
+        cin_main.o cin_actr.o cin_evnt.o cin_efct.o cin_glob.o \
+        fli_util.o fli_main.o rt_dmand.o \
+
+out/isr.o: rott/isr.c
+        @$(CC) $(CFLAGS) -o $@ $<
 
 z_zone.o:     z_zone.c rt_def.h _z_zone.h z_zone.h rt_util.h develop.h rt_net.h
 
@@ -200,34 +216,16 @@ fli_util.o  :  fli_util.c fli_def.h fli_util.h fli_main.h fli_type.h cin_glob.h
 
 fli_main.o  :  fli_main.c fli_def.h fli_util.h fli_main.h fli_type.h cin_glob.h
 
-rott   : isr.obj z_zone.obj w_wad.obj rt_scale.obj rt_draw.obj engine.obj &
-             rt_dr_a.obj rt_fc_a.obj rt_floor.obj rt_main.obj rt_util.obj &
-             rt_stat.obj rt_actor.obj rt_state.obj rt_ted.obj rt_playr.obj &
-             rt_rand.obj rt_door.obj rt_menu.obj rt_vid.obj rt_vh_a.obj &
-             rt_str.obj rt_in.obj rt_sc_a.obj rt_game.obj rt_map.obj &
-             rt_debug.obj rt_sound.obj scriplib.obj f_scale.obj &
-             rt_swift.obj rt_build.obj rt_com.obj rott.lnk &
-             makefile rt_view.obj rt_cfg.obj rt_spbal.obj sbconfig.obj rt_err.obj &
-             rt_crc.obj rt_msg.obj modexlib.obj rt_battl.obj&
-             usrhooks.obj rt_error.obj rt_net.obj cin_util.obj &
-             cin_main.obj cin_actr.obj cin_evnt.obj cin_efct.obj cin_glob.obj &
-             fli_util.obj fli_main.obj audio_wf.lib rt_dmand.obj
-             wlink @rott.lnk
+rott: $(ROTTOBJ)
+        $(CC) $(ROTTOBJ) -o rott
 
-lookups : lookups.o lookups.c rt_def.h
-        wlink @lookups.lnk
+lookups : lookups.o
+        $(CC) -o lookups
 
-all : rott .symbolic
-      @echo Building All
-      @%null
+all: rott lookups
 
-# implicit rules
-
-.c.obj :
-        $(CC) $^& $(CFLAGS)
-
-.asm.obj :
-        $(ASM) $(AFLAGS) $^&;
+clean:
+        rm -rf out/*
 
 
 

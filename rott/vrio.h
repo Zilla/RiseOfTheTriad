@@ -61,7 +61,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // CX = Mouse X mickeys
 // DX = Mouse Y mickeys
 
-
 // INT 0x33 AX = 0x31
 // VRFeedback
 //
@@ -74,4 +73,3 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // CX = [1..2]
 //      0 - Gun Weapon
 //      1 - Missile Weapon
-

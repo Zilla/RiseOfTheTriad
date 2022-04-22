@@ -32,13 +32,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //******************************************************************************
 
-void VWB_DrawPropString  (char *string);
-void VW_MeasurePropString (char *string, int *width, int *height );
+void VWB_DrawPropString(char *string);
+void VW_MeasurePropString(char *string, int *width, int *height);
 
 //void (*USL_MeasureString)(char *, int *, int *, font_t *) = VW_MeasurePropString,
 //     (*USL_DrawString)(char *) = VWB_DrawPropString;
 void (*USL_MeasureString)(char *, int *, int *, font_t *) = (void (*)(char *, int *, int *, font_t *))VW_MeasurePropString,
-     (*USL_DrawString)(char *) = VWB_DrawPropString;
-
+                                                       (*USL_DrawString)(char *) = VWB_DrawPropString;
 
 #endif

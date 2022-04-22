@@ -26,34 +26,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define RIGHT 0
 #define LEFT 1
 
-typedef enum {
-        background,
-        backgroundscroll,
-        bkgndsprite,
-        sprite,
-        backdropscroll,
-        backdrop,
-        palette,
-        fadeout
+typedef enum
+{
+   background,
+   backgroundscroll,
+   bkgndsprite,
+   sprite,
+   backdropscroll,
+   backdrop,
+   palette,
+   fadeout
 } eventtype;
 
 typedef struct
-   {
+{
    int time;
    eventtype type;
    char name[10];
    int length;
    int origheight;
-   int x,y,scale;
-   int dx,dy,dscale;
+   int x, y, scale;
+   int dx, dy, dscale;
    int dir;
-   } event;
+} event;
 
 typedef struct
-   {
+{
    int tics;
    int eventnumber;
-   int curx,cury,curscale;
-   } actortype;
+   int curx, cury, curscale;
+} actortype;
 
 #endif

@@ -47,17 +47,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // GLOBAL VARIABLES
 
 // Same as in real mode
-rottcom_t   *	rottcom;
+rottcom_t *rottcom;
 int badpacket;
 int consoleplayer;
 byte ROTTpacket[MAXCOMBUFFERSIZE];
 int controlsynctime;
 
 // LOCAL VARIABLES
-static union  REGS   comregs;
-static int    ComStarted=false;
-static int    transittimes[MAXPLAYERS];
-
+static union REGS comregs;
+static int ComStarted = false;
+static int transittimes[MAXPLAYERS];
 
 /*
 ===============
@@ -67,35 +66,35 @@ static int    transittimes[MAXPLAYERS];
 ===============
 */
 
-void InitROTTNET (void)
+void InitROTTNET(void)
 {
-	int netarg;
-	long netaddress;
+   int netarg;
+   long netaddress;
 
-	if (ComStarted==true)
-		return;
-	ComStarted=true;
+   if (ComStarted == true)
+      return;
+   ComStarted = true;
 
-	netarg=CheckParm ("net");
-	netarg++;
+   netarg = CheckParm("net");
+   netarg++;
 
-	netaddress=atol(_argv[netarg]);
-	rottcom=(rottcom_t *)netaddress;
+   netaddress = atol(_argv[netarg]);
+   rottcom = (rottcom_t *)netaddress;
    remoteridicule = false;
    remoteridicule = rottcom->remoteridicule;
    if (rottcom->ticstep != 1)
       remoteridicule = false;
    if (remoteridicule == true)
-      {
+   {
       if (!quiet)
          printf("ROTTNET: LIVE Remote Ridicule Enabled\n");
-      }
+   }
 
    if (!quiet)
-      {
-      printf("ROTTNET: Communicating on vector %ld\n",rottcom->intnum);
-      printf("ROTTNET: consoleplayer=%ld\n",rottcom->consoleplayer);
-      }
+   {
+      printf("ROTTNET: Communicating on vector %ld\n", rottcom->intnum);
+      printf("ROTTNET: consoleplayer=%ld\n", rottcom->consoleplayer);
+   }
 }
 
 /*
@@ -106,48 +105,48 @@ void InitROTTNET (void)
 ================
 */
 
-boolean ReadPacket (void)
+boolean ReadPacket(void)
 {
-   word   crc;
-   word   sentcrc;
+   word crc;
+   word sentcrc;
 
    // Set command (Get Packet)
-	rottcom->command=CMD_GET;
+   rottcom->command = CMD_GET;
 
    badpacket = 0;
 
    // Check to see if a packet is ready
 
-	int386(rottcom->intnum,&comregs,&comregs);
+   int386(rottcom->intnum, &comregs, &comregs);
 
    // Is it ready?
 
-   if (rottcom->remotenode!=-1)
-      {
+   if (rottcom->remotenode != -1)
+   {
       // calculate crc on packet
-      crc=CalculateCRC (&rottcom->data[0], rottcom->datalength-sizeof(word));
+      crc = CalculateCRC(&rottcom->data[0], rottcom->datalength - sizeof(word));
 
       // get crc inside packet
-      sentcrc=*((word *)(&rottcom->data[rottcom->datalength-sizeof(word)]));
+      sentcrc = *((word *)(&rottcom->data[rottcom->datalength - sizeof(word)]));
 
       // are the crcs the same?
-      if (crc!=sentcrc)
-         {
-         badpacket=1;
-         SoftError("BADPKT at %ld\n",ticcount);
-         }
-      if (networkgame==false)
-         {
-         rottcom->remotenode=server;
-         }
+      if (crc != sentcrc)
+      {
+         badpacket = 1;
+         SoftError("BADPKT at %ld\n", ticcount);
+      }
+      if (networkgame == false)
+      {
+         rottcom->remotenode = server;
+      }
       else
-         {
-         if ((IsServer==true) && (rottcom->remotenode>0))
+      {
+         if ((IsServer == true) && (rottcom->remotenode > 0))
             rottcom->remotenode--;
-         }
+      }
       memcpy(&ROTTpacket[0], &rottcom->data[0], rottcom->datalength);
 
-//      SoftError( "ReadPacket: time=%ld size=%ld src=%ld type=%d\n",ticcount, rottcom->datalength,rottcom->remotenode,rottcom->data[0]);
+      //      SoftError( "ReadPacket: time=%ld size=%ld src=%ld type=%d\n",ticcount, rottcom->datalength,rottcom->remotenode,rottcom->data[0]);
 
 #if 0
       rottcom->command=CMD_OUTQUEBUFFERSIZE;
@@ -158,11 +157,10 @@ boolean ReadPacket (void)
       SoftError( "inque size=%ld\n",*((short *)&(rottcom->data[0])));
 #endif
       return true;
-      }
+   }
    else // Not ready yet....
       return false;
 }
-
 
 /*
 =============
@@ -172,45 +170,45 @@ boolean ReadPacket (void)
 =============
 */
 
-void WritePacket (void * buffer, int len, int destination)
+void WritePacket(void *buffer, int len, int destination)
 {
-   word      crc;
+   word crc;
 
    // set send command
-	rottcom->command=CMD_SEND;
+   rottcom->command = CMD_SEND;
 
    // set destination
-   rottcom->remotenode=destination;
+   rottcom->remotenode = destination;
 
-   if (len>(MAXCOMBUFFERSIZE-sizeof(word)))
-      {
+   if (len > (MAXCOMBUFFERSIZE - sizeof(word)))
+   {
       Error("WritePacket: Overflowed buffer\n");
-      }
+   }
 
    // copy local buffer into realmode buffer
-   memcpy((byte *)&(rottcom->data[0]),(byte *)buffer,len);
+   memcpy((byte *)&(rottcom->data[0]), (byte *)buffer, len);
 
    // calculate CRC
-   crc=CalculateCRC (buffer, len);
+   crc = CalculateCRC(buffer, len);
 
    // put CRC into realmode buffer packet
-   *((word *)&rottcom->data[len])=crc;
+   *((word *)&rottcom->data[len]) = crc;
 
    // set size of realmode packet including crc
-   rottcom->datalength=len+sizeof(word);
+   rottcom->datalength = len + sizeof(word);
 
-   if (*((byte *)buffer)==0)
-       Error("Packet type = 0\n");
+   if (*((byte *)buffer) == 0)
+      Error("Packet type = 0\n");
 
-   if (networkgame==true)
-      {
-      if (IsServer==true)
+   if (networkgame == true)
+   {
+      if (IsServer == true)
          rottcom->remotenode++; // server fix-up
-      }
+   }
 
-//   SoftError( "WritePacket: time=%ld size=%ld src=%ld type=%d\n",ticcount,rottcom->datalength,rottcom->remotenode,rottcom->data[0]);
+   //   SoftError( "WritePacket: time=%ld size=%ld src=%ld type=%d\n",ticcount,rottcom->datalength,rottcom->remotenode,rottcom->data[0]);
    // Send It !
-	int386(rottcom->intnum,&comregs,&comregs);
+   int386(rottcom->intnum, &comregs, &comregs);
 
 #if 0
    rottcom->command=CMD_OUTQUEBUFFERSIZE;
@@ -222,9 +220,6 @@ void WritePacket (void * buffer, int len, int destination)
 #endif
 }
 
-
-
-
 /*
 =============
 =
@@ -232,16 +227,16 @@ void WritePacket (void * buffer, int len, int destination)
 =
 =============
 */
-boolean ValidSyncPacket ( synctype * sync )
+boolean ValidSyncPacket(synctype *sync)
 {
-   if (ReadPacket() && (badpacket==0))
+   if (ReadPacket() && (badpacket == 0))
+   {
+      if (((syncpackettype *)&(ROTTpacket[0]))->type == COM_SYNC)
       {
-      if (((syncpackettype *)&(ROTTpacket[0]))->type==COM_SYNC)
-         {
-         memcpy(&(sync->pkt),&(ROTTpacket[0]),sizeof(sync->pkt));
+         memcpy(&(sync->pkt), &(ROTTpacket[0]), sizeof(sync->pkt));
          return true;
-         }
       }
+   }
    return false;
 }
 
@@ -252,13 +247,12 @@ boolean ValidSyncPacket ( synctype * sync )
 =
 =============
 */
-void SendSyncPacket ( synctype * sync, int dest)
+void SendSyncPacket(synctype *sync, int dest)
 {
-   sync->pkt.type=COM_SYNC;
-   sync->sendtime=ticcount;
-   WritePacket( &(sync->pkt.type) , sizeof(syncpackettype) , dest );
+   sync->pkt.type = COM_SYNC;
+   sync->sendtime = ticcount;
+   WritePacket(&(sync->pkt.type), sizeof(syncpackettype), dest);
 }
-
 
 /*
 =============
@@ -268,36 +262,34 @@ void SendSyncPacket ( synctype * sync, int dest)
 =============
 */
 
-boolean SlavePhaseHandler( synctype * sync )
+boolean SlavePhaseHandler(synctype *sync)
 {
    boolean done;
 
-   done=false;
+   done = false;
 
    switch (sync->pkt.phase)
-      {
-      case SYNC_PHASE1:
-         break;
-      case SYNC_PHASE2:
-         ISR_SetTime(sync->pkt.clocktime);
-         break;
-      case SYNC_PHASE3:
-         sync->pkt.clocktime=ticcount;
-         break;
-      case SYNC_PHASE4:
-         ISR_SetTime(ticcount-sync->pkt.delta);
-         sync->pkt.clocktime=ticcount;
-         break;
-      case SYNC_PHASE5:
-         ISR_SetTime(ticcount-sync->pkt.delta);
-         sync->sendtime=sync->pkt.clocktime;
-         done=true;
-         break;
-      }
+   {
+   case SYNC_PHASE1:
+      break;
+   case SYNC_PHASE2:
+      ISR_SetTime(sync->pkt.clocktime);
+      break;
+   case SYNC_PHASE3:
+      sync->pkt.clocktime = ticcount;
+      break;
+   case SYNC_PHASE4:
+      ISR_SetTime(ticcount - sync->pkt.delta);
+      sync->pkt.clocktime = ticcount;
+      break;
+   case SYNC_PHASE5:
+      ISR_SetTime(ticcount - sync->pkt.delta);
+      sync->sendtime = sync->pkt.clocktime;
+      done = true;
+      break;
+   }
    return done;
 }
-
-
 
 /*
 =============
@@ -307,36 +299,35 @@ boolean SlavePhaseHandler( synctype * sync )
 =============
 */
 
-boolean MasterPhaseHandler( synctype * sync )
+boolean MasterPhaseHandler(synctype *sync)
 {
    boolean done;
 
-   done=false;
+   done = false;
 
    switch (sync->pkt.phase)
-      {
-      case SYNC_PHASE1:
-         sync->pkt.phase=SYNC_PHASE2;
-         sync->pkt.clocktime=ticcount+(sync->deltatime>>1);
-         break;
-      case SYNC_PHASE2:
-         sync->pkt.phase=SYNC_PHASE3;
-         break;
-      case SYNC_PHASE3:
-         sync->pkt.delta=sync->pkt.clocktime-ticcount+(sync->deltatime>>1);
-         sync->pkt.phase=SYNC_PHASE4;
-         break;
-      case SYNC_PHASE4:
-         sync->pkt.phase=SYNC_PHASE5;
-         sync->pkt.delta=sync->pkt.clocktime-ticcount+(sync->deltatime>>1);
-         sync->sendtime=ticcount+SYNCTIME;
-         sync->pkt.clocktime=sync->sendtime;
-         done=true;
-         break;
-      }
+   {
+   case SYNC_PHASE1:
+      sync->pkt.phase = SYNC_PHASE2;
+      sync->pkt.clocktime = ticcount + (sync->deltatime >> 1);
+      break;
+   case SYNC_PHASE2:
+      sync->pkt.phase = SYNC_PHASE3;
+      break;
+   case SYNC_PHASE3:
+      sync->pkt.delta = sync->pkt.clocktime - ticcount + (sync->deltatime >> 1);
+      sync->pkt.phase = SYNC_PHASE4;
+      break;
+   case SYNC_PHASE4:
+      sync->pkt.phase = SYNC_PHASE5;
+      sync->pkt.delta = sync->pkt.clocktime - ticcount + (sync->deltatime >> 1);
+      sync->sendtime = ticcount + SYNCTIME;
+      sync->pkt.clocktime = sync->sendtime;
+      done = true;
+      break;
+   }
    return done;
 }
-
 
 /*
 =============
@@ -346,109 +337,108 @@ boolean MasterPhaseHandler( synctype * sync )
 =============
 */
 
-void SetTime ( void )
+void SetTime(void)
 {
    int i;
-   syncpackettype * syncpacket;
-   boolean done=false;
+   syncpackettype *syncpacket;
+   boolean done = false;
 
-   syncpacket=(syncpackettype *)SafeMalloc(sizeof(syncpackettype));
-
+   syncpacket = (syncpackettype *)SafeMalloc(sizeof(syncpackettype));
 
    // Sync clocks
 
-   if (networkgame==true)
+   if (networkgame == true)
+   {
+      if (IsServer == true)
       {
-      if (IsServer==true)
+         for (i = 0; i < numplayers; i++)
          {
-         for (i=0;i<numplayers;i++)
-            {
-            if (PlayerInGame(i)==false)
+            if (PlayerInGame(i) == false)
                continue;
-            if (standalone==true)
+            if (standalone == true)
                SyncTime(i);
-            else if (i!=consoleplayer)
+            else if (i != consoleplayer)
                SyncTime(i);
-            if (standalone==true)
-               printf("SetTime: player#%ld\n",i);
-            }
+            if (standalone == true)
+               printf("SetTime: player#%ld\n", i);
          }
+      }
       else
-         {
+      {
          SyncTime(0);
-         }
       }
+   }
    else // Modem 2-player game
-      {
-      if (consoleplayer==0)
+   {
+      if (consoleplayer == 0)
          SyncTime(server);
       else
          SyncTime(server);
-      }
+   }
 
-   if ( ( (networkgame==true) && (IsServer==true) ) ||
-        ( (networkgame==false) && (consoleplayer==0) )
-      ) // Master/Server
-      {
+   if (((networkgame == true) && (IsServer == true)) ||
+       ((networkgame == false) && (consoleplayer == 0))) // Master/Server
+   {
       int nump;
       int time;
 
-      syncpacket->type=COM_START;
-      syncpacket->clocktime=ticcount;
-      controlsynctime=syncpacket->clocktime;
-      if (networkgame==true)
-         nump=numplayers;
+      syncpacket->type = COM_START;
+      syncpacket->clocktime = ticcount;
+      controlsynctime = syncpacket->clocktime;
+      if (networkgame == true)
+         nump = numplayers;
       else
-         nump=1;
+         nump = 1;
 
       time = ticcount;
 
-      for (i=0;i<nump;i++)
-         {
-         WritePacket( &(syncpacket->type) , sizeof(syncpackettype) , i );
-         }
-
-      while (ticcount<time+(VBLCOUNTER/4)) ;
-
-      for (i=0;i<nump;i++)
-         {
-         WritePacket( &(syncpacket->type) , sizeof(syncpackettype) , i );
-         }
-
-      if (standalone==true)
-         printf("SetTime: Start packets sent\n");
-      }
-   else // Slave/Client
+      for (i = 0; i < nump; i++)
       {
-      while (done==false)
-         {
+         WritePacket(&(syncpacket->type), sizeof(syncpackettype), i);
+      }
+
+      while (ticcount < time + (VBLCOUNTER / 4))
+         ;
+
+      for (i = 0; i < nump; i++)
+      {
+         WritePacket(&(syncpacket->type), sizeof(syncpackettype), i);
+      }
+
+      if (standalone == true)
+         printf("SetTime: Start packets sent\n");
+   }
+   else // Slave/Client
+   {
+      while (done == false)
+      {
          AbortCheck("SetTime aborted as client");
 
-         if (ReadPacket() && (badpacket==0))
+         if (ReadPacket() && (badpacket == 0))
+         {
+            memcpy(syncpacket, &(ROTTpacket[0]), sizeof(syncpackettype));
+            if (syncpacket->type == COM_START)
             {
-            memcpy(syncpacket,&(ROTTpacket[0]),sizeof(syncpackettype));
-            if (syncpacket->type==COM_START)
-               {
-               controlsynctime=syncpacket->clocktime;
-               done=true;
-               }
+               controlsynctime = syncpacket->clocktime;
+               done = true;
             }
          }
       }
-   if (standalone==false)
-      {
-      AddMessage("All players synched.",MSG_SYSTEM);
+   }
+   if (standalone == false)
+   {
+      AddMessage("All players synched.", MSG_SYSTEM);
       ThreeDRefresh();
-      }
+   }
    SafeFree(syncpacket);
 
-//
-// flush out any extras
-//
-   while (ticcount<controlsynctime+VBLCOUNTER)
-      {
-      ReadPacket ();
-      }
+   //
+   // flush out any extras
+   //
+   while (ticcount < controlsynctime + VBLCOUNTER)
+   {
+      ReadPacket();
+   }
 }
 
 /*
@@ -458,51 +448,53 @@ void SetTime ( void )
 =
 =============
 */
-void InitialMasterSync ( synctype * sync, int client )
+void InitialMasterSync(synctype *sync, int client)
 {
-   boolean done=false;
+   boolean done = false;
    int i;
 
-   if (networkgame==true)
+   if (networkgame == true)
+   {
+      for (i = 0; i < numplayers; i++)
       {
-      for (i=0;i<numplayers;i++)
-         {
-         if (i<=client)
+         if (i <= client)
             continue;
-         sync->pkt.type=COM_SYNC;
-         sync->pkt.phase=SYNC_MEMO;
-         sync->pkt.clocktime=client;
-         SendSyncPacket(sync,i);
-         }
+         sync->pkt.type = COM_SYNC;
+         sync->pkt.phase = SYNC_MEMO;
+         sync->pkt.clocktime = client;
+         SendSyncPacket(sync, i);
       }
+   }
 
    // Initialize send time so as soon as we enter the loop, we send
 
-   sync->sendtime=ticcount-SYNCTIME;
+   sync->sendtime = ticcount - SYNCTIME;
 
-   while (done==false)
-      {
-      sync->pkt.phase=SYNC_PHASE0;
+   while (done == false)
+   {
+      sync->pkt.phase = SYNC_PHASE0;
 
       AbortCheck("Initial sync aborted as master");
-	   if ((sync->sendtime+SYNCTIME) <= ticcount)
-         SendSyncPacket(sync,client);
-      if (ValidSyncPacket(sync)==true)
+      if ((sync->sendtime + SYNCTIME) <= ticcount)
+         SendSyncPacket(sync, client);
+      if (ValidSyncPacket(sync) == true)
+      {
+         if (sync->pkt.phase == SYNC_PHASE0)
          {
-         if (sync->pkt.phase==SYNC_PHASE0)
-            {
-            int time=ticcount;
+            int time = ticcount;
 
-            while (time+SYNCTIME>ticcount)
-               {
+            while (time + SYNCTIME > ticcount)
+            {
                ReadPacket();
-               }
-            time=ticcount;
-            while (time+SYNCTIME>ticcount) {}
-            done=true;
             }
+            time = ticcount;
+            while (time + SYNCTIME > ticcount)
+            {
+            }
+            done = true;
          }
       }
+   }
 }
 
 /*
@@ -512,41 +504,40 @@ void InitialMasterSync ( synctype * sync, int client )
 =
 =============
 */
-void InitialSlaveSync ( synctype * sync )
+void InitialSlaveSync(synctype *sync)
 {
-   boolean done=false;
+   boolean done = false;
 
-   while (done==false)
-      {
+   while (done == false)
+   {
       AbortCheck("Initial sync aborted as slave");
-      if (ValidSyncPacket(sync)==true)
+      if (ValidSyncPacket(sync) == true)
+      {
+         if (sync->pkt.phase == SYNC_MEMO)
          {
-         if (sync->pkt.phase==SYNC_MEMO)
-            {
-            char str[50]="Server is synchronizing player ";
+            char str[50] = "Server is synchronizing player ";
             char str2[10];
 
-            strcat(str,itoa(sync->pkt.clocktime+1,str2,10));
-            AddMessage(str,MSG_SYSTEM);
+            strcat(str, itoa(sync->pkt.clocktime + 1, str2, 10));
+            AddMessage(str, MSG_SYSTEM);
             ThreeDRefresh();
-            }
-         if (sync->pkt.phase==SYNC_PHASE0)
-            {
-            int time=ticcount;
+         }
+         if (sync->pkt.phase == SYNC_PHASE0)
+         {
+            int time = ticcount;
 
-            SendSyncPacket(sync,server);
-            while (time+SYNCTIME>ticcount)
-               {
+            SendSyncPacket(sync, server);
+            while (time + SYNCTIME > ticcount)
+            {
                ReadPacket();
-               }
-            done=true;
             }
+            done = true;
          }
       }
-   AddMessage("Server is synchronizing your system",MSG_SYSTEM);
+   }
+   AddMessage("Server is synchronizing your system", MSG_SYSTEM);
    ThreeDRefresh();
 }
-
 
 /*
 =============
@@ -556,100 +547,100 @@ void InitialSlaveSync ( synctype * sync )
 =============
 */
 
-void SyncTime( int client )
+void SyncTime(int client)
 {
    int dtime[NUMSYNCPHASES];
    boolean done;
    int i;
-   synctype * sync;
+   synctype *sync;
 
-   sync=(synctype *)SafeMalloc(sizeof(synctype));
+   sync = (synctype *)SafeMalloc(sizeof(synctype));
 
-   if ( ((networkgame==true) && (IsServer==true)) ||
-         ((networkgame==false) && (consoleplayer==0)) )
-      {
+   if (((networkgame == true) && (IsServer == true)) ||
+       ((networkgame == false) && (consoleplayer == 0)))
+   {
       // Master
 
-      InitialMasterSync ( sync, client );
+      InitialMasterSync(sync, client);
 
-      done=false;
+      done = false;
 
       // Initial setup for Master
       // Initialize send time so as soon as we enter the loop, we send
 
-      sync->pkt.phase=SYNC_PHASE1;
-      sync->sendtime=ticcount-SYNCTIME;
+      sync->pkt.phase = SYNC_PHASE1;
+      sync->sendtime = ticcount - SYNCTIME;
 
-      while (done==false)
-         {
+      while (done == false)
+      {
          // Master
 
          AbortCheck("SyncTime aborted as master");
 
-		   if ((sync->sendtime+SYNCTIME) <= ticcount)
-            SendSyncPacket(sync,client);
+         if ((sync->sendtime + SYNCTIME) <= ticcount)
+            SendSyncPacket(sync, client);
 
-         while (ValidSyncPacket(sync)==true)
-            {
+         while (ValidSyncPacket(sync) == true)
+         {
 
             // find average delta
 
-            sync->deltatime=0;
+            sync->deltatime = 0;
 
             // calculate last delta
 
-            dtime[sync->pkt.phase]=ticcount-sync->sendtime;
+            dtime[sync->pkt.phase] = ticcount - sync->sendtime;
 
-            for (i=0;i<=sync->pkt.phase;i++)
-               sync->deltatime+=dtime[i];
-            if (i!=0)
-               sync->deltatime/=i;
+            for (i = 0; i <= sync->pkt.phase; i++)
+               sync->deltatime += dtime[i];
+            if (i != 0)
+               sync->deltatime /= i;
             else
                Error("SyncTime: this should not happen\n");
 
-            done = MasterPhaseHandler( sync );
+            done = MasterPhaseHandler(sync);
 
-            SendSyncPacket(sync,client);
-
-            }
+            SendSyncPacket(sync, client);
          }
       }
+   }
    else
-      {
+   {
       // Slave
 
-      InitialSlaveSync ( sync );
+      InitialSlaveSync(sync);
 
-      done=false;
+      done = false;
 
-      while (done==false)
-         {
+      while (done == false)
+      {
          // Slave
 
          AbortCheck("SyncTime aborted as slave");
 
-         while (ValidSyncPacket(sync)==true)
-            {
-            done = SlavePhaseHandler( sync );
+         while (ValidSyncPacket(sync) == true)
+         {
+            done = SlavePhaseHandler(sync);
 
-            if (done==false)
-               SendSyncPacket(sync,server);
-
-            }
+            if (done == false)
+               SendSyncPacket(sync, server);
          }
       }
+   }
 
    while (sync->sendtime > ticcount)
-      {
-      while (ReadPacket()) {}
-      }
-   while ((sync->sendtime+SYNCTIME) > ticcount)
+   {
+      while (ReadPacket())
       {
       }
+   }
+   while ((sync->sendtime + SYNCTIME) > ticcount)
+   {
+   }
 
-   if ( ((networkgame==true) && (IsServer==true)) ||
-         ((networkgame==false) && (consoleplayer==0)) )
-      SetTransitTime( client, (sync->deltatime>>1));
+   if (((networkgame == true) && (IsServer == true)) ||
+       ((networkgame == false) && (consoleplayer == 0)))
+      SetTransitTime(client, (sync->deltatime >> 1));
 
    SafeFree(sync);
 }
@@ -662,9 +653,9 @@ void SyncTime( int client )
 =============
 */
 
-void SetTransitTime( int client, int time )
+void SetTransitTime(int client, int time)
 {
-   transittimes[client]=time;
+   transittimes[client] = time;
 }
 
 /*
@@ -675,8 +666,7 @@ void SetTransitTime( int client, int time )
 =============
 */
 
-int GetTransitTime( int client )
+int GetTransitTime(int client)
 {
    return transittimes[client];
 }
-

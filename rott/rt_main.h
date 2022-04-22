@@ -32,23 +32,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_battl.h"
 
 typedef enum
-{vl_low,
- vl_medium,
- vl_high,
- vl_excessive
+{
+   vl_low,
+   vl_medium,
+   vl_high,
+   vl_excessive
 };
 
 // Enum for each version of the game
 typedef enum
-   {
+{
    ROTT_SHAREWARE,
    ROTT_REGISTERED,
    ROTT_SUPERCD,
    ROTT_SITELICENSE
-   } version_type;
+} version_type;
 
 typedef struct
-   {
+{
    int GodModeTime;
    int DogModeTime;
    int ShroomsModeTime;
@@ -67,86 +68,84 @@ typedef struct
    int GasMaskRespawnTime;
    int MercuryModeRespawnTime;
 
-   }specials;
-
+} specials;
 
 typedef struct
-   {
+{
    unsigned Version;
    // Variable for which version of the game can be played
    version_type Product;
 
-   long    TimeCount;
-   long    frame;
-   int     secrettotal,treasuretotal,killtotal;
-   int     secretcount,treasurecount,killcount;
-   int     supertotal,healthtotal,missiletotal;
-   int     supercount,healthcount,missilecount;
-   int     democratictotal,planttotal;
-   int     democraticcount,plantcount;
-   int     dipballs;
-   int     difficulty;
-   int     violence;
-	int     mapon;
-	long    score;
-	int     episode;
-	int     battlemode;
-	int     battleoption;
-	int     randomseed;
+   long TimeCount;
+   long frame;
+   int secrettotal, treasuretotal, killtotal;
+   int secretcount, treasurecount, killcount;
+   int supertotal, healthtotal, missiletotal;
+   int supercount, healthcount, missilecount;
+   int democratictotal, planttotal;
+   int democraticcount, plantcount;
+   int dipballs;
+   int difficulty;
+   int violence;
+   int mapon;
+   long score;
+   int episode;
+   int battlemode;
+   int battleoption;
+   int randomseed;
    boolean teamplay;
-	boolean DODEMOCRATICBONUS1;
-	boolean DOGROUNDZEROBONUS;
-	int     autorun;
+   boolean DODEMOCRATICBONUS1;
+   boolean DOGROUNDZEROBONUS;
+   int autorun;
 
-	// Battle Options
+   // Battle Options
    battle_type BattleOptions;
 
    boolean SpawnCollectItems;
-	boolean SpawnEluder;
-	boolean SpawnDeluder;
+   boolean SpawnEluder;
+   boolean SpawnDeluder;
    boolean ShowScores;
-	boolean PlayerHasGun[ MAXPLAYERS ];
+   boolean PlayerHasGun[MAXPLAYERS];
    specials SpecialsTimes;
-   } gametype;
+} gametype;
 
+extern int doublestep;
+extern boolean tedlevel;
+extern int tedlevelnum;
+extern int tedx;
+extern int tedy;
+extern boolean fizzlein;
+extern int pheight;
+extern int NoSound;
+extern int timelimit;
+extern boolean timelimitenabled;
+extern boolean noecho;
+extern boolean demoexit;
+extern boolean quiet;
 
-extern  int      doublestep;
-extern  boolean  tedlevel;
-extern  int      tedlevelnum;
-extern  int      tedx;
-extern  int      tedy;
-extern  boolean  fizzlein;
-extern  int      pheight;
-extern  int      NoSound;
-extern  int      timelimit;
-extern  boolean  timelimitenabled;
-extern  boolean  noecho;
-extern  boolean  demoexit;
-extern  boolean  quiet;
-
-extern gametype  gamestate;
+extern gametype gamestate;
 extern boolean DebugOk;
-extern  boolean newlevel;
+extern boolean newlevel;
 
-void QuitGame( void );
-void PlayCinematic (void);
+void QuitGame(void);
+void PlayCinematic(void);
 void InitCharacter(void);
-void ShutDown ( void );
-void UpdateGameObjects ( void );
+void ShutDown(void);
+void UpdateGameObjects(void);
 
-#if (WHEREAMI==1)
+#if (WHEREAMI == 1)
 extern int programlocation;
 #endif
 
-extern  int polltime;
-extern  int oldpolltime;
-extern  volatile int oldtime;
-void PauseLoop ( void );
+extern int polltime;
+extern int oldpolltime;
+extern volatile int oldtime;
+void PauseLoop(void);
 #if SAVE_SCREEN
 extern boolean inhmenu;
-void SaveScreen (boolean saveLBM);
+void SaveScreen(boolean saveLBM);
 #endif
-void SetupWads( void );
+void SetupWads(void);
 
 extern boolean SCREENSHOTS;
 extern boolean MEMORYTEST;

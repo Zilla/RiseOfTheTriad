@@ -20,26 +20,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _rt_util_private
 #define _rt_util_private
 
-#define PEL_WRITE_ADR   0x3c8
-#define PEL_READ_ADR    0x3c7
-#define PEL_DATA        0x3c9
-#define PEL_MASK        0x3c6
+#define PEL_WRITE_ADR 0x3c8
+#define PEL_READ_ADR 0x3c7
+#define PEL_DATA 0x3c9
+#define PEL_MASK 0x3c6
 
-#define ERRORROW        2
-#define ERRORCOL        11
+#define ERRORROW 2
+#define ERRORCOL 11
 
-#define ERRORFILE       ("ROTTERR.TXT")
-#define SOFTERRORFILE   ("ERROR.")
-#define DEBUGFILE       ("ROTT.DBG")
-#define MAPDEBUGFILE    ("MAPINFO.TXT")
+#define ERRORFILE ("ROTTERR.TXT")
+#define SOFTERRORFILE ("ERROR.")
+#define DEBUGFILE ("ROTT.DBG")
+#define MAPDEBUGFILE ("MAPINFO.TXT")
 
-#define SGN(x)          ((x>0) ? (1) : ((x==0) ? (0) : (-1)))
+#define SGN(x) ((x > 0) ? (1) : ((x == 0) ? (0) : (-1)))
 
-#define SLASHES         ('\\')
-#define MAXCHARS        8
+#define SLASHES ('\\')
+#define MAXCHARS 8
 
-#define WeightR  3
-#define WeightG  5
-#define WeightB  2
+#define WeightR 3
+#define WeightG 5
+#define WeightB 2
 
 #endif

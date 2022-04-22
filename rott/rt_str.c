@@ -52,7 +52,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_sound.h"
 //MED
 
-
 //******************************************************************************
 //
 // GLOBALS
@@ -78,43 +77,43 @@ static int BKh;
 //
 //******************************************************************************
 
-void VW_DrawClippedString (int x, int y, char *string)
+void VW_DrawClippedString(int x, int y, char *string)
 {
-   int   width,height,ht;
-   byte  *source;
-   int   ch;
-   int   oy;
+   int width, height, ht;
+   byte *source;
+   int ch;
+   int oy;
 
    ht = CurrentFont->height;
 
-   oy=y;
+   oy = y;
 
-   while ((ch = *string++)!=0)
-      {
+   while ((ch = *string++) != 0)
+   {
       ch -= 31;
       width = CurrentFont->width[ch];
-      source = ((byte *)CurrentFont)+CurrentFont->charofs[ch];
+      source = ((byte *)CurrentFont) + CurrentFont->charofs[ch];
       while (width--)
+      {
+         if ((x >= 0) && (x < MAXSCREENWIDTH))
          {
-         if ((x>=0) && (x<MAXSCREENWIDTH))
-            {
-            y=oy;
-            VGAWRITEMAP(x&3);
+            y = oy;
+            VGAWRITEMAP(x & 3);
             height = ht;
             while (height--)
+            {
+               if ((y >= 0) && (y < MAXSCREENHEIGHT))
                {
-               if ((y>=0) && (y<MAXSCREENHEIGHT))
-                  {
-                  if (*source>0)
-                     *((byte *)(bufferofs+ylookup[y]+(x>>2))) = *source;
-                  }
+                  if (*source > 0)
+                     *((byte *)(bufferofs + ylookup[y] + (x >> 2))) = *source;
+               }
                source++;
                y++;
-               }
             }
-         x++;
          }
+         x++;
       }
+   }
 }
 
 //******************************************************************************
@@ -123,13 +122,13 @@ void VW_DrawClippedString (int x, int y, char *string)
 //
 //******************************************************************************
 
-void US_ClippedPrint (int x, int y, char *s)
+void US_ClippedPrint(int x, int y, char *s)
 {
-   char  c,
-         *se;
-   int   startx;
+   char c,
+       *se;
+   int startx;
 
-   startx=x;
+   startx = x;
    while (*s)
    {
       se = s;
@@ -137,18 +136,17 @@ void US_ClippedPrint (int x, int y, char *s)
          se++;
       *se = '\0';
 
-      VW_DrawClippedString ( x, y, s);
+      VW_DrawClippedString(x, y, s);
 
       s = se;
       if (c)
-         {
+      {
          *se = c;
          s++;
          y += CurrentFont->height;
-         }
+      }
    }
 }
-
 
 //******************************************************************************
 //
@@ -158,26 +156,23 @@ void US_ClippedPrint (int x, int y, char *s)
 //
 //******************************************************************************
 
-void VW_DrawPropString (char *string)
+void VW_DrawPropString(char *string)
 {
-   byte  pix;
-   int   width,step,height,ht;
-   byte  *source, *dest, *origdest;
-   int   ch,mask;
-
+   byte pix;
+   int width, step, height, ht;
+   byte *source, *dest, *origdest;
+   int ch, mask;
 
    ht = CurrentFont->height;
-   dest = origdest = (byte *)(bufferofs+ylookup[py]+(px>>2));
+   dest = origdest = (byte *)(bufferofs + ylookup[py] + (px >> 2));
 
+   mask = 1 << (px & 3);
 
-   mask = 1<<(px&3);
-
-
-   while ((ch = *string++)!=0)
+   while ((ch = *string++) != 0)
    {
       ch -= 31;
       width = step = CurrentFont->width[ch];
-      source = ((byte *)CurrentFont)+CurrentFont->charofs[ch];
+      source = ((byte *)CurrentFont) + CurrentFont->charofs[ch];
       while (width--)
       {
          VGAMAPMASK(mask);
@@ -204,11 +199,8 @@ void VW_DrawPropString (char *string)
       }
    }
    bufferheight = ht;
-   bufferwidth = ((dest+1)-origdest)*4;
-
+   bufferwidth = ((dest + 1) - origdest) * 4;
 }
-
-
 
 //******************************************************************************
 //
@@ -218,15 +210,13 @@ void VW_DrawPropString (char *string)
 //
 //******************************************************************************
 
-void VWB_DrawPropString  (char *string)
+void VWB_DrawPropString(char *string)
 {
    int x;
    x = px;
-   VW_DrawPropString (string);
-   VW_MarkUpdateBlock (x, py, px-1, py+bufferheight-1);
+   VW_DrawPropString(string);
+   VW_MarkUpdateBlock(x, py, px - 1, py + bufferheight - 1);
 }
-
-
 
 //******************************************************************************
 //
@@ -236,26 +226,23 @@ void VWB_DrawPropString  (char *string)
 //
 //******************************************************************************
 
-void VW_DrawIPropString (char *string)
+void VW_DrawIPropString(char *string)
 {
-   byte  pix;
-   int   width,step,height,ht;
-   byte  *source, *dest, *origdest;
-   int   ch,mask;
-
+   byte pix;
+   int width, step, height, ht;
+   byte *source, *dest, *origdest;
+   int ch, mask;
 
    ht = CurrentFont->height;
-   dest = origdest = (byte *)(bufferofs+ylookup[py]+(px>>2));
+   dest = origdest = (byte *)(bufferofs + ylookup[py] + (px >> 2));
 
+   mask = 1 << (px & 3);
 
-   mask = 1<<(px&3);
-
-
-   while ((ch = *string++)!=0)
+   while ((ch = *string++) != 0)
    {
       ch -= 31;
       width = step = CurrentFont->width[ch];
-      source = ((byte *)CurrentFont)+CurrentFont->charofs[ch];
+      source = ((byte *)CurrentFont) + CurrentFont->charofs[ch];
       while (width--)
       {
          VGAMAPMASK(mask);
@@ -282,11 +269,8 @@ void VW_DrawIPropString (char *string)
       }
    }
    bufferheight = ht;
-   bufferwidth = ((dest+1)-origdest)*4;
-
+   bufferwidth = ((dest + 1) - origdest) * 4;
 }
-
-
 
 //******************************************************************************
 //
@@ -296,15 +280,13 @@ void VW_DrawIPropString (char *string)
 //
 //******************************************************************************
 
-void VWB_DrawIPropString  (char *string)
+void VWB_DrawIPropString(char *string)
 {
    int x;
    x = px;
-   VW_DrawIPropString (string);
-   VW_MarkUpdateBlock (x, py, px-1, py+bufferheight-1);
+   VW_DrawIPropString(string);
+   VW_MarkUpdateBlock(x, py, px - 1, py + bufferheight - 1);
 }
-
-
 
 //******************************************************************************
 //
@@ -312,12 +294,12 @@ void VWB_DrawIPropString  (char *string)
 //
 //******************************************************************************
 
-void VWL_MeasureString (char *s, int *width, int *height, font_t *font)
+void VWL_MeasureString(char *s, int *width, int *height, font_t *font)
 {
    *height = font->height;
 
    for (*width = 0; *s; s++)
-      *width += font->width[(*((byte *)s))-31];   // proportional width
+      *width += font->width[(*((byte *)s)) - 31]; // proportional width
 }
 
 //******************************************************************************
@@ -326,12 +308,12 @@ void VWL_MeasureString (char *s, int *width, int *height, font_t *font)
 //
 //******************************************************************************
 
-void VWL_MeasureIntensityString (char *s, int *width, int *height, cfont_t *font)
+void VWL_MeasureIntensityString(char *s, int *width, int *height, cfont_t *font)
 {
    *height = font->height;
 
    for (*width = 0; *s; s++)
-      *width += font->width[(*((byte *)s))-31];   // proportional width
+      *width += font->width[(*((byte *)s)) - 31]; // proportional width
 }
 
 //******************************************************************************
@@ -340,9 +322,9 @@ void VWL_MeasureIntensityString (char *s, int *width, int *height, cfont_t *font
 //
 //******************************************************************************
 
-void VW_MeasureIntensityPropString (char *string, int *width, int *height)
+void VW_MeasureIntensityPropString(char *string, int *width, int *height)
 {
-   VWL_MeasureIntensityString (string, width, height, IFont);
+   VWL_MeasureIntensityString(string, width, height, IFont);
 }
 
 //******************************************************************************
@@ -351,11 +333,10 @@ void VW_MeasureIntensityPropString (char *string, int *width, int *height)
 //
 //******************************************************************************
 
-void VW_MeasurePropString (char *string, int *width, int *height)
+void VW_MeasurePropString(char *string, int *width, int *height)
 {
-   VWL_MeasureString (string, width, height, CurrentFont);
+   VWL_MeasureString(string, width, height, CurrentFont);
 }
-
 
 //******************************************************************************
 //
@@ -363,22 +344,22 @@ void VW_MeasurePropString (char *string, int *width, int *height)
 //
 //******************************************************************************
 
-void US_MeasureStr (int *width, int *height, char * s, ...)
+void US_MeasureStr(int *width, int *height, char *s, ...)
 {
-   char  c,
-         *se,
-         *ss;
-   int   w,h;
+   char c,
+       *se,
+       *ss;
+   int w, h;
    va_list strptr;
    char buf[300];
 
-   *width  = 0;
+   *width = 0;
    *height = 0;
 
-   memset (&buf[0], 0, sizeof (buf));
-   va_start (strptr, s);
-   vsprintf (&buf[0], s, strptr);
-   va_end (strptr);
+   memset(&buf[0], 0, sizeof(buf));
+   va_start(strptr, s);
+   vsprintf(&buf[0], s, strptr);
+   va_end(strptr);
 
    ss = &buf[0];
 
@@ -389,7 +370,7 @@ void US_MeasureStr (int *width, int *height, char * s, ...)
          se++;
       *se = '\0';
 
-      VWL_MeasureString (ss, &w, &h, CurrentFont);
+      VWL_MeasureString(ss, &w, &h, CurrentFont);
 
       *height += h;
 
@@ -405,7 +386,6 @@ void US_MeasureStr (int *width, int *height, char * s, ...)
    }
 }
 
-
 //******************************************************************************
 //
 // US_SetPrintRoutines() - Sets the routines used to measure and print
@@ -414,13 +394,12 @@ void US_MeasureStr (int *width, int *height, char * s, ...)
 //
 //******************************************************************************
 
-void US_SetPrintRoutines (void (*measure)(char *, int *, int *, font_t *),
-                          void (*print)(char *))
+void US_SetPrintRoutines(void (*measure)(char *, int *, int *, font_t *),
+                         void (*print)(char *))
 {
    USL_MeasureString = measure;
-   USL_DrawString    = print;
+   USL_DrawString = print;
 }
-
 
 //******************************************************************************
 //
@@ -429,11 +408,11 @@ void US_SetPrintRoutines (void (*measure)(char *, int *, int *, font_t *),
 //
 //******************************************************************************
 
-void US_Print (char *s)
+void US_Print(char *s)
 {
-   char  c,
-         *se;
-   int   w,h;
+   char c,
+       *se;
+   int w, h;
 
    while (*s)
    {
@@ -442,10 +421,10 @@ void US_Print (char *s)
          se++;
       *se = '\0';
 
-      USL_MeasureString (s, &w, &h, CurrentFont);
+      USL_MeasureString(s, &w, &h, CurrentFont);
       px = PrintX;
       py = PrintY;
-      USL_DrawString (s);
+      USL_DrawString(s);
 
       s = se;
       if (c)
@@ -467,13 +446,13 @@ void US_Print (char *s)
 //
 //******************************************************************************
 
-void US_BufPrint (char *s)
+void US_BufPrint(char *s)
 {
-   char  c,
-         *se;
-   int   startx;
+   char c,
+       *se;
+   int startx;
 
-   startx=PrintX;
+   startx = PrintX;
    while (*s)
    {
       se = s;
@@ -483,22 +462,21 @@ void US_BufPrint (char *s)
 
       px = PrintX;
       py = PrintY;
-      USL_DrawString (s);
+      USL_DrawString(s);
 
       PrintY = py;
       PrintX = px;
 
       s = se;
       if (c)
-         {
+      {
          *se = c;
          s++;
          PrintY += CurrentFont->height;
          PrintX = startx;
-         }
+      }
    }
 }
-
 
 //******************************************************************************
 //
@@ -506,11 +484,11 @@ void US_BufPrint (char *s)
 //
 //******************************************************************************
 
-void US_PrintUnsigned (unsigned long int n)
+void US_PrintUnsigned(unsigned long int n)
 {
-   char  buffer[32];
+   char buffer[32];
 
-   US_Print (ultoa (n, buffer, 10));
+   US_Print(ultoa(n, buffer, 10));
 }
 
 //******************************************************************************
@@ -519,11 +497,11 @@ void US_PrintUnsigned (unsigned long int n)
 //
 //******************************************************************************
 
-void US_PrintSigned (long int n)
+void US_PrintSigned(long int n)
 {
-   char  buffer[32];
+   char buffer[32];
 
-   US_Print (ltoa (n, buffer, 10));
+   US_Print(ltoa(n, buffer, 10));
 }
 
 //******************************************************************************
@@ -532,18 +510,18 @@ void US_PrintSigned (long int n)
 //
 //******************************************************************************
 
-void USL_PrintInCenter (char *s, Rect r)
+void USL_PrintInCenter(char *s, Rect r)
 {
-   int   w,h,
-         rw,rh;
+   int w, h,
+       rw, rh;
 
-   USL_MeasureString (s,&w,&h, CurrentFont);
+   USL_MeasureString(s, &w, &h, CurrentFont);
    rw = r.lr.x - r.ul.x;
    rh = r.lr.y - r.ul.y;
 
    px = r.ul.x + ((rw - w) / 2);
    py = r.ul.y + ((rh - h) / 2);
-   USL_DrawString (s);
+   USL_DrawString(s);
 }
 
 //******************************************************************************
@@ -552,16 +530,16 @@ void USL_PrintInCenter (char *s, Rect r)
 //
 //******************************************************************************
 
-void US_PrintCentered (char *s)
+void US_PrintCentered(char *s)
 {
-   Rect  r;
+   Rect r;
 
    r.ul.x = WindowX;
    r.ul.y = WindowY;
    r.lr.x = r.ul.x + WindowW;
    r.lr.y = r.ul.y + WindowH;
 
-   USL_PrintInCenter (s, r);
+   USL_PrintInCenter(s, r);
 }
 
 //******************************************************************************
@@ -571,18 +549,18 @@ void US_PrintCentered (char *s)
 //
 //******************************************************************************
 
-void US_CPrintLine (char *s)
+void US_CPrintLine(char *s)
 {
    int w, h;
 
-   USL_MeasureString (s, &w, &h, CurrentFont);
+   USL_MeasureString(s, &w, &h, CurrentFont);
 
    if (w > WindowW)
       Error("US_CPrintLine() - String exceeds width");
 
    px = WindowX + ((WindowW - w) / 2);
    py = PrintY;
-   USL_DrawString (s);
+   USL_DrawString(s);
    PrintY += h;
 }
 
@@ -593,10 +571,10 @@ void US_CPrintLine (char *s)
 //
 //******************************************************************************
 
-void US_CPrint (char *s)
+void US_CPrint(char *s)
 {
-   char  c,
-         *se;
+   char c,
+       *se;
 
    while (*s)
    {
@@ -605,7 +583,7 @@ void US_CPrint (char *s)
          se++;
       *se = '\0';
 
-      US_CPrintLine (s);
+      US_CPrintLine(s);
 
       s = se;
       if (c)
@@ -616,8 +594,6 @@ void US_CPrint (char *s)
    }
 }
 
-
-
 //
 //
 // Text Input routines
@@ -625,59 +601,51 @@ void US_CPrint (char *s)
 //
 //
 
-
-
 //******************************************************************************
 //
 // USL_XORICursor() - XORs the I-bar text cursor. Used by  US_LineInput()
 //
 //******************************************************************************
 
-static void USL_XORICursor (int x, int y, char *s, int cursor, int color)
+static void USL_XORICursor(int x, int y, char *s, int cursor, int color)
 {
-   static   boolean  status;     // VGA doesn't XOR...
-   char     buf[MaxString];
+   static boolean status; // VGA doesn't XOR...
+   char buf[MaxString];
 
-   int      w,h;
-   int      oldx = px;
-   int      oldy = py;
+   int w, h;
+   int oldx = px;
+   int oldy = py;
 
-   strcpy (buf,s);
+   strcpy(buf, s);
    buf[cursor] = '\0';
-   USL_MeasureString (buf, &w, &h, CurrentFont);
+   USL_MeasureString(buf, &w, &h, CurrentFont);
 
-
-   if (status^=1)
+   if (status ^= 1)
    {
       px = x + w;
       py = y;
       if (color)
-         USL_DrawString ("\x80");
+         USL_DrawString("\x80");
       else
-         DrawMenuBufPropString (px, py, "\x80");
+         DrawMenuBufPropString(px, py, "\x80");
    }
    else
    {
       if (color)
       {
-         VWB_Bar (px, py, BKw, BKh, color);
-         USL_DrawString (s);
+         VWB_Bar(px, py, BKw, BKh, color);
+         USL_DrawString(s);
       }
       else
       {
-         EraseMenuBufRegion (px, py, BKw, BKh);
-//         EraseMenuBufRegion (px, py+1, BKw, BKh-2);
-         DrawMenuBufPropString (px, py, s);
+         EraseMenuBufRegion(px, py, BKw, BKh);
+         //         EraseMenuBufRegion (px, py+1, BKw, BKh-2);
+         DrawMenuBufPropString(px, py, s);
       }
    }
    px = oldx;
    py = oldy;
 }
-
-
-
-
-
 
 //******************************************************************************
 //
@@ -690,80 +658,76 @@ static void USL_XORICursor (int x, int y, char *s, int cursor, int color)
 //
 ///******************************************************************************
 
-extern byte * IN_GetScanName (ScanCode scan);
+extern byte *IN_GetScanName(ScanCode scan);
 
-boolean US_LineInput (int x, int y, char *buf, char *def, boolean escok,
-                      int maxchars, int maxwidth, int color)
+boolean US_LineInput(int x, int y, char *buf, char *def, boolean escok,
+                     int maxchars, int maxwidth, int color)
 {
-   boolean  redraw,
-            cursorvis,
-            cursormoved,
-            done,
-            result;
-   char     s[MaxString],
-            olds[MaxString];
-   int      i,
-            cursor,
-            w,h,
-            len;
+   boolean redraw,
+       cursorvis,
+       cursormoved,
+       done,
+       result;
+   char s[MaxString],
+       olds[MaxString];
+   int i,
+       cursor,
+       w, h,
+       len;
 
-   int      lasttime;
+   int lasttime;
 
+   int lastkey;
+   int cursorwidth;
 
-   int      lastkey;
-   int      cursorwidth;
+   cursorwidth = CurrentFont->width[80 - 31];
 
-   cursorwidth = CurrentFont->width[80-31];
-
-   memset (s, 0, MaxString);
-   memset (olds, 0, MaxString);
-   IN_ClearKeyboardQueue ();
+   memset(s, 0, MaxString);
+   memset(olds, 0, MaxString);
+   IN_ClearKeyboardQueue();
 
    BKw = maxwidth;
    BKh = CurrentFont->height;
 
-
    if (def)
-      strcpy (s, def);
+      strcpy(s, def);
    else
       *s = '\0';
 
    *olds = '\0';
 
-   cursor      = strlen (s);
+   cursor = strlen(s);
    cursormoved = redraw = true;
-   cursorvis   = done   = false;
+   cursorvis = done = false;
 
-   lasttime  = ticcount;
+   lasttime = ticcount;
 
-
-   lastkey = getASCII ();
+   lastkey = getASCII();
 
    while (!done)
    {
-//      if (GameEscaped==true)
-//         PauseLoop ();
+      //      if (GameEscaped==true)
+      //         PauseLoop ();
 
       if (cursorvis)
-         USL_XORICursor (x, y, s, cursor, color);
+         USL_XORICursor(x, y, s, cursor, color);
 
-      LastScan = IN_InputUpdateKeyboard ();
+      LastScan = IN_InputUpdateKeyboard();
       if (Keyboard[sc_LShift] || Keyboard[sc_RShift])
          lastkey = ShiftNames[LastScan];
       else
          lastkey = ASCIINames[LastScan];
-
 
       switch (LastScan)
       {
       case sc_LeftArrow:
 
          if (cursor)
-            {
+         {
             cursor--;
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          lastkey = key_None;
          Keyboard[sc_LeftArrow] = 0;
          break;
@@ -771,46 +735,45 @@ boolean US_LineInput (int x, int y, char *buf, char *def, boolean escok,
       case sc_RightArrow:
 
          if (s[cursor])
-            {
+         {
             cursor++;
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          lastkey = key_None;
          Keyboard[sc_RightArrow] = 0;
          break;
 
       case sc_Home:
 
-         if ( cursor )
-            {
+         if (cursor)
+         {
             cursor = 0;
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          Keyboard[sc_Home] = 0;
          lastkey = key_None;
          break;
 
       case sc_End:
 
-         if ( cursor != strlen (s) )
-            {
-            cursor = strlen (s);
+         if (cursor != strlen(s))
+         {
+            cursor = strlen(s);
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          lastkey = key_None;
          Keyboard[sc_End] = 0;
          break;
 
-
       case sc_Return:
-         strcpy (buf,s);
+         strcpy(buf, s);
          done = true;
          result = true;
          lastkey = key_None;
-         MN_PlayMenuSnd (SD_SELECTSND);
+         MN_PlayMenuSnd(SD_SELECTSND);
          break;
 
       case sc_Escape:
@@ -818,7 +781,7 @@ boolean US_LineInput (int x, int y, char *buf, char *def, boolean escok,
          {
             done = true;
             result = false;
-            MN_PlayMenuSnd (SD_ESCPRESSEDSND);
+            MN_PlayMenuSnd(SD_ESCPRESSEDSND);
          }
          lastkey = key_None;
          break;
@@ -826,33 +789,33 @@ boolean US_LineInput (int x, int y, char *buf, char *def, boolean escok,
       case sc_BackSpace:
 
          if (cursor)
-            {
-            strcpy (s + cursor - 1,s + cursor);
+         {
+            strcpy(s + cursor - 1, s + cursor);
             cursor--;
             redraw = true;
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          lastkey = key_None;
          Keyboard[sc_BackSpace] = 0;
-         IN_ClearKeyboardQueue ();
+         IN_ClearKeyboardQueue();
          break;
 
       case sc_Delete:
 
          if (s[cursor])
          {
-            strcpy (s + cursor,s + cursor + 1);
+            strcpy(s + cursor, s + cursor + 1);
             redraw = true;
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
          }
          lastkey = key_None;
          Keyboard[sc_Delete] = 0;
-         IN_ClearKeyboardQueue ();
+         IN_ClearKeyboardQueue();
          break;
 
-      case 0x4c:  // Keypad 5
+      case 0x4c: // Keypad 5
       case sc_UpArrow:
       case sc_DownArrow:
       case sc_PgUp:
@@ -862,58 +825,53 @@ boolean US_LineInput (int x, int y, char *buf, char *def, boolean escok,
          break;
       }
 
-//      if (GameEscaped==true)
-//         PauseLoop ();
+      //      if (GameEscaped==true)
+      //         PauseLoop ();
 
       if (lastkey)
       {
-         len = strlen (s);
-         USL_MeasureString (s, &w, &h, CurrentFont);
+         len = strlen(s);
+         USL_MeasureString(s, &w, &h, CurrentFont);
 
-         if
-         (
-            isprint(lastkey)
-         && (len < MaxString - 1)
-         && ((!maxchars) || (len < maxchars))
-         && ((!maxwidth) || ((w+2) < (maxwidth-cursorwidth-2)))
-         )
+         if (
+             isprint(lastkey) && (len < MaxString - 1) && ((!maxchars) || (len < maxchars)) && ((!maxwidth) || ((w + 2) < (maxwidth - cursorwidth - 2))))
          {
             int ls;
             int rs;
 
-            for (i = len + 1;i > cursor;i--)
+            for (i = len + 1; i > cursor; i--)
                s[i] = s[i - 1];
             s[cursor++] = lastkey;
             redraw = true;
 
             ls = Keyboard[sc_LShift];
             rs = Keyboard[sc_RShift];
-            memset (Keyboard, 0, 127*sizeof(int));       // Clear printable keys
+            memset(Keyboard, 0, 127 * sizeof(int)); // Clear printable keys
             Keyboard[sc_LShift] = ls;
             Keyboard[sc_RShift] = rs;
 
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
          }
       }
 
-//      if (GameEscaped==true)
-//         PauseLoop ();
+      //      if (GameEscaped==true)
+      //         PauseLoop ();
 
       if (redraw)
       {
          if (color)
-            VWB_Bar (x, y, BKw, BKh, color);
+            VWB_Bar(x, y, BKw, BKh, color);
          else
-            EraseMenuBufRegion (x, y, BKw, BKh);
+            EraseMenuBufRegion(x, y, BKw, BKh);
 
-         strcpy (olds, s);
+         strcpy(olds, s);
 
          px = x;
          py = y;
          if (color)
-            USL_DrawString (s);
+            USL_DrawString(s);
          else
-            DrawMenuBufPropString (px, py, s);
+            DrawMenuBufPropString(px, py, s);
          px = x;
          py = y;
 
@@ -934,42 +892,41 @@ boolean US_LineInput (int x, int y, char *buf, char *def, boolean escok,
          cursorvis ^= true;
       }
       if (cursorvis)
-         USL_XORICursor (x, y, s, cursor, color);
+         USL_XORICursor(x, y, s, cursor, color);
 
-//      if (GameEscaped==true)
-//         PauseLoop ();
+      //      if (GameEscaped==true)
+      //         PauseLoop ();
 
       if (color)
-         VW_UpdateScreen ();
+         VW_UpdateScreen();
       else
-         RefreshMenuBuf (0);
+         RefreshMenuBuf(0);
    }
 
    if (cursorvis)
-      USL_XORICursor (x, y, s, cursor, color);
+      USL_XORICursor(x, y, s, cursor, color);
 
    if (!result)
    {
       px = x;
       py = y;
       if (color)
-         USL_DrawString (olds);
+         USL_DrawString(olds);
       else
-         DrawMenuBufPropString (px, py, olds);
+         DrawMenuBufPropString(px, py, olds);
    }
 
-//   if (GameEscaped==true)
-//      PauseLoop ();
+   //   if (GameEscaped==true)
+   //      PauseLoop ();
 
    if (color)
-      VW_UpdateScreen ();
+      VW_UpdateScreen();
    else
-      RefreshMenuBuf (0);
+      RefreshMenuBuf(0);
 
-   IN_ClearKeyboardQueue ();
+   IN_ClearKeyboardQueue();
    return (result);
 }
-
 
 //******************************************************************************
 //
@@ -982,80 +939,76 @@ boolean US_LineInput (int x, int y, char *buf, char *def, boolean escok,
 //
 ///******************************************************************************
 
-boolean US_lineinput (int x, int y, char *buf, char *def, boolean escok,
-                      int maxchars, int maxwidth, int color)
+boolean US_lineinput(int x, int y, char *buf, char *def, boolean escok,
+                     int maxchars, int maxwidth, int color)
 {
-   boolean  redraw,
-            cursorvis,
-            cursormoved,
-            done,
-            result;
-   char     s[MaxString],
-            xx[MaxString],
-            olds[MaxString];
-   int      i,
-            cursor,
-            w,h,
-            len;
+   boolean redraw,
+       cursorvis,
+       cursormoved,
+       done,
+       result;
+   char s[MaxString],
+       xx[MaxString],
+       olds[MaxString];
+   int i,
+       cursor,
+       w, h,
+       len;
 
-   int      lasttime;
+   int lasttime;
 
+   int lastkey;
+   int cursorwidth;
 
-   int      lastkey;
-   int      cursorwidth;
+   cursorwidth = CurrentFont->width[80 - 31];
 
-   cursorwidth = CurrentFont->width[80-31];
-
-   memset (s, 0, MaxString);
-   memset (xx, 0, MaxString);
-   memset (olds, 0, MaxString);
-   IN_ClearKeyboardQueue ();
+   memset(s, 0, MaxString);
+   memset(xx, 0, MaxString);
+   memset(olds, 0, MaxString);
+   IN_ClearKeyboardQueue();
 
    BKw = maxwidth;
    BKh = CurrentFont->height;
 
-
    if (def)
-      strcpy (s, def);
+      strcpy(s, def);
    else
       *s = '\0';
 
    *olds = '\0';
 
-   cursor      = strlen (s);
+   cursor = strlen(s);
    cursormoved = redraw = true;
-   cursorvis   = done   = false;
+   cursorvis = done = false;
 
-   lasttime  = ticcount;
+   lasttime = ticcount;
 
-
-   lastkey = getASCII ();
+   lastkey = getASCII();
 
    while (!done)
    {
-//      if (GameEscaped == true)
-//         PauseLoop ();
+      //      if (GameEscaped == true)
+      //         PauseLoop ();
 
       if (cursorvis)
-         USL_XORICursor (x, y, xx, cursor, color);
+         USL_XORICursor(x, y, xx, cursor, color);
 
-      LastScan = IN_InputUpdateKeyboard ();
+      LastScan = IN_InputUpdateKeyboard();
       if (Keyboard[sc_LShift] || Keyboard[sc_RShift])
          lastkey = ShiftNames[LastScan];
       else
          lastkey = ASCIINames[LastScan];
-
 
       switch (LastScan)
       {
       case sc_LeftArrow:
 
          if (cursor)
-            {
+         {
             cursor--;
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          lastkey = key_None;
          Keyboard[sc_LeftArrow] = 0;
          break;
@@ -1063,45 +1016,45 @@ boolean US_lineinput (int x, int y, char *buf, char *def, boolean escok,
       case sc_RightArrow:
 
          if (s[cursor])
-            {
+         {
             cursor++;
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          lastkey = key_None;
          Keyboard[sc_RightArrow] = 0;
          break;
 
       case sc_Home:
 
-         if ( cursor != 0 )
-            {
+         if (cursor != 0)
+         {
             cursor = 0;
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          Keyboard[sc_Home] = 0;
          lastkey = key_None;
          break;
 
       case sc_End:
 
-         if ( cursor != strlen( s ) )
-            {
-            cursor = strlen (s);
+         if (cursor != strlen(s))
+         {
+            cursor = strlen(s);
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          lastkey = key_None;
          Keyboard[sc_End] = 0;
          break;
 
       case sc_Return:
-         strcpy (buf,s);
+         strcpy(buf, s);
          done = true;
          result = true;
          lastkey = key_None;
-         MN_PlayMenuSnd (SD_SELECTSND);
+         MN_PlayMenuSnd(SD_SELECTSND);
          break;
 
       case sc_Escape:
@@ -1109,7 +1062,7 @@ boolean US_lineinput (int x, int y, char *buf, char *def, boolean escok,
          {
             done = true;
             result = false;
-            MN_PlayMenuSnd (SD_ESCPRESSEDSND);
+            MN_PlayMenuSnd(SD_ESCPRESSEDSND);
          }
          lastkey = key_None;
          break;
@@ -1117,35 +1070,35 @@ boolean US_lineinput (int x, int y, char *buf, char *def, boolean escok,
       case sc_BackSpace:
 
          if (cursor)
-            {
-            strcpy (s + cursor - 1,s + cursor);
-            strcpy (xx + cursor - 1,xx + cursor);
+         {
+            strcpy(s + cursor - 1, s + cursor);
+            strcpy(xx + cursor - 1, xx + cursor);
             cursor--;
             redraw = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
             cursormoved = true;
-            }
+         }
          lastkey = key_None;
          Keyboard[sc_BackSpace] = 0;
-         IN_ClearKeyboardQueue ();
+         IN_ClearKeyboardQueue();
          break;
 
       case sc_Delete:
 
          if (s[cursor])
-            {
-            strcpy (s + cursor,s + cursor + 1);
-            strcpy (xx + cursor,xx + cursor + 1);
+         {
+            strcpy(s + cursor, s + cursor + 1);
+            strcpy(xx + cursor, xx + cursor + 1);
             redraw = true;
             cursormoved = true;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
-            }
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
+         }
          lastkey = key_None;
          Keyboard[sc_Delete] = 0;
-         IN_ClearKeyboardQueue ();
+         IN_ClearKeyboardQueue();
          break;
 
-      case 0x4c:  // Keypad 5
+      case 0x4c: // Keypad 5
       case sc_UpArrow:
       case sc_DownArrow:
       case sc_PgUp:
@@ -1155,58 +1108,53 @@ boolean US_lineinput (int x, int y, char *buf, char *def, boolean escok,
          break;
       }
 
-//      if (GameEscaped==true)
-//         PauseLoop ();
+      //      if (GameEscaped==true)
+      //         PauseLoop ();
 
       if (lastkey)
       {
-         len = strlen (s);
-         USL_MeasureString (xx, &w, &h, CurrentFont);
+         len = strlen(s);
+         USL_MeasureString(xx, &w, &h, CurrentFont);
 
-         if
-         (
-            isprint(lastkey)
-         && (len < MaxString - 1)
-         && ((!maxchars) || (len < maxchars))
-         && ((!maxwidth) || ((w+2) < (maxwidth-cursorwidth-2)))
-         )
+         if (
+             isprint(lastkey) && (len < MaxString - 1) && ((!maxchars) || (len < maxchars)) && ((!maxwidth) || ((w + 2) < (maxwidth - cursorwidth - 2))))
          {
             int ls;
             int rs;
 
-            for (i = len + 1;i > cursor;i--)
+            for (i = len + 1; i > cursor; i--)
                s[i] = s[i - 1];
-            s[cursor]   = lastkey;
+            s[cursor] = lastkey;
             xx[cursor++] = '*';
             redraw = true;
 
             ls = Keyboard[sc_LShift];
             rs = Keyboard[sc_RShift];
-            memset (Keyboard, 0, 127*sizeof(int));       // Clear printable keys
+            memset(Keyboard, 0, 127 * sizeof(int)); // Clear printable keys
             Keyboard[sc_LShift] = ls;
             Keyboard[sc_RShift] = rs;
-            MN_PlayMenuSnd (SD_MOVECURSORSND);
+            MN_PlayMenuSnd(SD_MOVECURSORSND);
          }
       }
 
-//      if (GameEscaped==true)
-//         PauseLoop ();
+      //      if (GameEscaped==true)
+      //         PauseLoop ();
 
       if (redraw)
       {
          if (color)
-            VWB_Bar (x, y, BKw, BKh, color);
+            VWB_Bar(x, y, BKw, BKh, color);
          else
-            EraseMenuBufRegion (x, y, BKw, BKh);
+            EraseMenuBufRegion(x, y, BKw, BKh);
 
-         strcpy (olds, s);
+         strcpy(olds, s);
 
          px = x;
          py = y;
          if (color)
-            USL_DrawString (xx);
+            USL_DrawString(xx);
          else
-            DrawMenuBufPropString (px, py, xx);
+            DrawMenuBufPropString(px, py, xx);
          px = x;
          py = y;
 
@@ -1227,40 +1175,38 @@ boolean US_lineinput (int x, int y, char *buf, char *def, boolean escok,
          cursorvis ^= true;
       }
       if (cursorvis)
-         USL_XORICursor (x, y, xx, cursor, color);
+         USL_XORICursor(x, y, xx, cursor, color);
 
       if (color)
-         VW_UpdateScreen ();
+         VW_UpdateScreen();
       else
-         RefreshMenuBuf (0);
+         RefreshMenuBuf(0);
    }
 
    if (cursorvis)
-      USL_XORICursor (x, y, xx, cursor, color);
+      USL_XORICursor(x, y, xx, cursor, color);
 
    if (!result)
    {
       px = x;
       py = y;
       if (color)
-         USL_DrawString (xx);
+         USL_DrawString(xx);
       else
-         DrawMenuBufPropString (px, py, xx);
+         DrawMenuBufPropString(px, py, xx);
    }
 
-//   if (GameEscaped==true)
-//      PauseLoop ();
+   //   if (GameEscaped==true)
+   //      PauseLoop ();
 
    if (color)
-      VW_UpdateScreen ();
+      VW_UpdateScreen();
    else
-      RefreshMenuBuf (0);
+      RefreshMenuBuf(0);
 
-   IN_ClearKeyboardQueue ();
+   IN_ClearKeyboardQueue();
    return (result);
 }
-
-
 
 //******************************************************************************
 //******************************************************************************
@@ -1270,7 +1216,6 @@ boolean US_lineinput (int x, int y, char *buf, char *def, boolean escok,
 //******************************************************************************
 //******************************************************************************
 
-
 //******************************************************************************
 //
 // US_ClearWindow() - Clears the current window to white and homes the
@@ -1278,15 +1223,12 @@ boolean US_lineinput (int x, int y, char *buf, char *def, boolean escok,
 //
 //******************************************************************************
 
-void US_ClearWindow (void)
+void US_ClearWindow(void)
 {
-   VWB_Bar (WindowX, WindowY, WindowW, WindowH, 13);
+   VWB_Bar(WindowX, WindowY, WindowW, WindowH, 13);
    PrintX = WindowX;
    PrintY = WindowY;
 }
-
-
-
 
 //******************************************************************************
 //
@@ -1294,14 +1236,14 @@ void US_ClearWindow (void)
 //
 //******************************************************************************
 
-void US_DrawWindow (int x, int y, int w, int h)
+void US_DrawWindow(int x, int y, int w, int h)
 {
-   int  i,
-        sx,
-        sy,
-        sw,
-        sh;
-   byte * shape;
+   int i,
+       sx,
+       sy,
+       sw,
+       sh;
+   byte *shape;
 
    pic_t *Win1;
    pic_t *Win2;
@@ -1313,25 +1255,25 @@ void US_DrawWindow (int x, int y, int w, int h)
    pic_t *Win8;
    pic_t *Win9;
 
-	// Cache in windowing shapes
-	shape = W_CacheLumpNum (W_GetNumForName ("window1"), PU_CACHE);
-	Win1 = (pic_t *) shape;
-	shape = W_CacheLumpNum (W_GetNumForName ("window2"), PU_CACHE);
-	Win2 = (pic_t *) shape;
-	shape = W_CacheLumpNum (W_GetNumForName ("window3"), PU_CACHE);
-	Win3 = (pic_t *) shape;
-	shape = W_CacheLumpNum (W_GetNumForName ("window4"), PU_CACHE);
-	Win4 = (pic_t *) shape;
-	shape = W_CacheLumpNum (W_GetNumForName ("window5"), PU_CACHE);
-	Win5 = (pic_t *) shape;
-	shape = W_CacheLumpNum (W_GetNumForName ("window6"), PU_CACHE);
-	Win6 = (pic_t *) shape;
-	shape = W_CacheLumpNum (W_GetNumForName ("window7"), PU_CACHE);
-	Win7 = (pic_t *) shape;
-	shape = W_CacheLumpNum (W_GetNumForName ("window8"), PU_CACHE);
-	Win8 = (pic_t *) shape;
-	shape = W_CacheLumpNum (W_GetNumForName ("window9"), PU_CACHE);
-	Win9 = (pic_t *) shape;
+   // Cache in windowing shapes
+   shape = W_CacheLumpNum(W_GetNumForName("window1"), PU_CACHE);
+   Win1 = (pic_t *)shape;
+   shape = W_CacheLumpNum(W_GetNumForName("window2"), PU_CACHE);
+   Win2 = (pic_t *)shape;
+   shape = W_CacheLumpNum(W_GetNumForName("window3"), PU_CACHE);
+   Win3 = (pic_t *)shape;
+   shape = W_CacheLumpNum(W_GetNumForName("window4"), PU_CACHE);
+   Win4 = (pic_t *)shape;
+   shape = W_CacheLumpNum(W_GetNumForName("window5"), PU_CACHE);
+   Win5 = (pic_t *)shape;
+   shape = W_CacheLumpNum(W_GetNumForName("window6"), PU_CACHE);
+   Win6 = (pic_t *)shape;
+   shape = W_CacheLumpNum(W_GetNumForName("window7"), PU_CACHE);
+   Win7 = (pic_t *)shape;
+   shape = W_CacheLumpNum(W_GetNumForName("window8"), PU_CACHE);
+   Win8 = (pic_t *)shape;
+   shape = W_CacheLumpNum(W_GetNumForName("window9"), PU_CACHE);
+   Win9 = (pic_t *)shape;
 
    WindowX = x * 8;
    WindowY = y * 8;
@@ -1346,30 +1288,27 @@ void US_DrawWindow (int x, int y, int w, int h)
    sw = (w + 1) * 8;
    sh = (h + 1) * 8;
 
-   US_ClearWindow ();
+   US_ClearWindow();
 
+   VWB_DrawPic(sx, sy, Win1);
 
-   VWB_DrawPic (sx, sy, Win1);
+   VWB_DrawPic(sx, sy + sh, Win7);
 
-   VWB_DrawPic (sx, sy + sh, Win7);
-
-   for (i = sx + 8;i <= sx + sw - 8; i += 8)
+   for (i = sx + 8; i <= sx + sw - 8; i += 8)
    {
-      VWB_DrawPic (i, sy, Win2);
-      VWB_DrawPic (i, sy + sh, Win8);
+      VWB_DrawPic(i, sy, Win2);
+      VWB_DrawPic(i, sy + sh, Win8);
    }
 
-   VWB_DrawPic (i, sy, Win3);
-   VWB_DrawPic (i, sy + sh, Win9);
+   VWB_DrawPic(i, sy, Win3);
+   VWB_DrawPic(i, sy + sh, Win9);
 
-   for (i = sy + 8;i <= sy + sh - 8; i += 8)
+   for (i = sy + 8; i <= sy + sh - 8; i += 8)
    {
-      VWB_DrawPic (sx, i, Win4);
-      VWB_DrawPic (sx + sw, i, Win6);
+      VWB_DrawPic(sx, i, Win4);
+      VWB_DrawPic(sx + sw, i, Win6);
    }
 }
-
-
 
 //******************************************************************************
 //
@@ -1378,12 +1317,10 @@ void US_DrawWindow (int x, int y, int w, int h)
 //
 //******************************************************************************
 
-void US_CenterWindow (int w, int h)
+void US_CenterWindow(int w, int h)
 {
-   US_DrawWindow (((MaxX / 8) - w) / 2,((MaxY / 8) - h) / 2, w, h);
+   US_DrawWindow(((MaxX / 8) - w) / 2, ((MaxY / 8) - h) / 2, w, h);
 }
-
-
 
 //==============================================================================
 //
@@ -1403,13 +1340,12 @@ void US_CenterWindow (int w, int h)
 //
 //******************************************************************************
 
-byte GetIntensityColor (byte pix)
+byte GetIntensityColor(byte pix)
 {
-   if ((fontcolor<0) || (fontcolor>255))
+   if ((fontcolor < 0) || (fontcolor > 255))
       Error("Intensity Color out of range\n");
-   return ((byte) intensitytable[(pix<<8)+fontcolor]);
+   return ((byte)intensitytable[(pix << 8) + fontcolor]);
 }
-
 
 //******************************************************************************
 //
@@ -1419,60 +1355,57 @@ byte GetIntensityColor (byte pix)
 //
 //******************************************************************************
 
-void DrawIntensityChar
-   (
-   char ch
-   )
+void DrawIntensityChar(
+    char ch)
 
-   {
-   byte  pix;
-   int   width;
-   int   height;
-   int   ht;
-   byte  *source;
-   byte  *dest;
-   byte  *origdest;
-   int   mask;
+{
+   byte pix;
+   int width;
+   int height;
+   int ht;
+   byte *source;
+   byte *dest;
+   byte *origdest;
+   int mask;
 
    ht = IFont->height;
 
-   origdest = ( byte * )( bufferofs + ylookup[ py ] + ( px >> 2 ) );
+   origdest = (byte *)(bufferofs + ylookup[py] + (px >> 2));
    dest = origdest;
 
    ch -= 31;
-   width = IFont->width[ ch ];
-   source = ( ( byte * )IFont ) + IFont->charofs[ ch ];
+   width = IFont->width[ch];
+   source = ((byte *)IFont) + IFont->charofs[ch];
 
-   mask = 1 << ( px & 3 );
+   mask = 1 << (px & 3);
 
-   while( width-- )
-      {
-      VGAMAPMASK( mask );
+   while (width--)
+   {
+      VGAMAPMASK(mask);
 
       height = ht;
-      while( height-- )
-         {
+      while (height--)
+      {
          pix = *source;
-         if ( pix != 0xFE )
-            {
-            *dest = GetIntensityColor( pix );
-            }
+         if (pix != 0xFE)
+         {
+            *dest = GetIntensityColor(pix);
+         }
 
          source++;
          dest += linewidth;
-         }
+      }
 
       px++;
       mask <<= 1;
-      if ( mask == 16 )
-         {
+      if (mask == 16)
+      {
          mask = 1;
          origdest++;
-         }
-      dest = origdest;
       }
+      dest = origdest;
    }
-
+}
 
 //******************************************************************************
 //
@@ -1480,15 +1413,14 @@ void DrawIntensityChar
 //
 //******************************************************************************
 
-int GetColor (int num)
+int GetColor(int num)
 {
    int returnval;
 
    if ((num >= '0') && (num <= '9'))
       returnval = egacolor[num - '0'];
-   else
-      if ((num >= 'A') && (num <= 'F'))
-         returnval = egacolor[((num - 'A') + 10)];
+   else if ((num >= 'A') && (num <= 'F'))
+      returnval = egacolor[((num - 'A') + 10)];
 
    return (returnval);
 }
@@ -1502,7 +1434,7 @@ int GetColor (int num)
 static int oldfontcolor = 0;
 static boolean highlight = false;
 
-void DrawIString (unsigned short int x, unsigned short int y, char *string, int flags)
+void DrawIString(unsigned short int x, unsigned short int y, char *string, int flags)
 {
    char ch;
    char temp;
@@ -1512,7 +1444,7 @@ void DrawIString (unsigned short int x, unsigned short int y, char *string, int 
 
    while ((ch = *string++) != 0)
    {
-      if ( !PERMANENT_MSG( flags ) )
+      if (!PERMANENT_MSG(flags))
       {
          // Highlighting is done only for 1 word - if we get a "space"
          //  and highlight is on ...., reset variables.
@@ -1521,51 +1453,51 @@ void DrawIString (unsigned short int x, unsigned short int y, char *string, int 
          {
             highlight = false;
             fontcolor = oldfontcolor;
-            DrawIntensityChar (ch);
+            DrawIntensityChar(ch);
          }
          else
-            // '\\' is color change to a specific EGA color (ie. egacolor)
-            //
-            if (ch == '\\')
+             // '\\' is color change to a specific EGA color (ie. egacolor)
+             //
+             if (ch == '\\')
+         {
+            temp = *string++;
+            temp = toupper(temp);
+
+            // Force fontcolor to a specific color
+            if (temp == 'N')
             {
                temp = *string++;
-               temp = toupper (temp);
+               fontcolor = GetColor(temp);
+               oldfontcolor = fontcolor;
+            }
 
-               // Force fontcolor to a specific color
-               if (temp == 'N')
-               {
-                  temp         = *string++;
-                  fontcolor    = GetColor (temp);
-                  oldfontcolor = fontcolor;
-               }
-
-               // Restore fontcolor to a previous color
-               else if (temp == 'O')
-               {
-                  fontcolor    = oldfontcolor;
-               }
-               else
-               {
-                  oldfontcolor = fontcolor;           // save off old font color
-                  highlight    = true;                // set highlight
-                  fontcolor    = GetColor (temp);
-               }
+            // Restore fontcolor to a previous color
+            else if (temp == 'O')
+            {
+               fontcolor = oldfontcolor;
             }
             else
-               // '`' is highlight the current fontcolor
-               //
-               if (ch == '`')
-               {
-                  oldfontcolor = fontcolor;        // save off old font color
-                  highlight    = true;             // set highlight
-                  if (fontcolor < 8)               // only highlight the
-                     fontcolor    = fontcolor-10;  //  lower colors
-               }
-               else
-                  DrawIntensityChar (ch);
+            {
+               oldfontcolor = fontcolor; // save off old font color
+               highlight = true;         // set highlight
+               fontcolor = GetColor(temp);
+            }
+         }
+         else
+             // '`' is highlight the current fontcolor
+             //
+             if (ch == '`')
+         {
+            oldfontcolor = fontcolor;      // save off old font color
+            highlight = true;              // set highlight
+            if (fontcolor < 8)             // only highlight the
+               fontcolor = fontcolor - 10; //  lower colors
+         }
+         else
+            DrawIntensityChar(ch);
       }
       else
-         DrawIntensityChar (ch);
+         DrawIntensityChar(ch);
    }
 
    if (highlight == true)
@@ -1575,354 +1507,295 @@ void DrawIString (unsigned short int x, unsigned short int y, char *string, int 
    }
 }
 
-
 //******************************************************************************
 //
 // DrawIntensityString ()
 //
 //******************************************************************************
 
-void DrawIntensityString (unsigned short int x, unsigned short int y, char *string, int color)
+void DrawIntensityString(unsigned short int x, unsigned short int y, char *string, int color)
 {
    char ch;
 
    px = x;
    py = y;
 
-   fontcolor=color;
+   fontcolor = color;
 
    while ((ch = *string++) != 0)
-      {
-      DrawIntensityChar (ch);
-      }
+   {
+      DrawIntensityChar(ch);
+   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 static unsigned short disp_offset = 160 * 24;
 
-void DrawText
-   (
-   int x,
-   int y,
-   int ch,
-   int foreground,
-   int background
-   )
+void DrawText(
+    int x,
+    int y,
+    int ch,
+    int foreground,
+    int background)
 
-   {
+{
    char *vid;
 
-   vid  = ( char * )( 0xb0000 );
+   vid = (char *)(0xb0000);
    vid += y * 160;
    vid += x * 2;
 
-   if ( ch != NONE )
-      {
+   if (ch != NONE)
+   {
       *vid = ch;
-      }
+   }
    vid++;
-   *vid = ( ( background & 0x0f ) << 4 ) | ( foreground & 0x0f );
-   }
+   *vid = ((background & 0x0f) << 4) | (foreground & 0x0f);
+}
 
-void TextBox
-   (
-   int  x1,
-   int  y1,
-   int  x2,
-   int  y2,
-   int ch,
-   int  foreground,
-   int  background
-   )
+void TextBox(
+    int x1,
+    int y1,
+    int x2,
+    int y2,
+    int ch,
+    int foreground,
+    int background)
 
-   {
+{
    int x;
    int y;
 
-   for( x = x1; x <= x2; x++ )
+   for (x = x1; x <= x2; x++)
+   {
+      for (y = y1; y <= y2; y++)
       {
-      for( y = y1; y <= y2; y++ )
-         {
-         DrawText( x, y, ch, foreground, background );
-         }
+         DrawText(x, y, ch, foreground, background);
       }
    }
+}
 
-void TextFrame
-   (
-   int x1,
-   int y1,
-   int x2,
-   int y2,
-   int type,
-   int foreground,
-   int background
-   )
+void TextFrame(
+    int x1,
+    int y1,
+    int x2,
+    int y2,
+    int type,
+    int foreground,
+    int background)
 
-   {
+{
    int x;
    int y;
 
-   if ( type == 0 )
+   if (type == 0)
+   {
+      for (x = x1 + 1; x < x2; x++)
       {
-      for( x = x1 + 1; x < x2; x++ )
-         {
-         DrawText( x, y1, type, foreground, background );
-         DrawText( x, y2, type, foreground, background );
-         }
-      for( y = y1 + 1; y < y2; y++ )
-         {
-         DrawText( x1, y, type, foreground, background );
-         DrawText( x2, y, type, foreground, background );
-         }
+         DrawText(x, y1, type, foreground, background);
+         DrawText(x, y2, type, foreground, background);
       }
-   if ( type == SINGLE_FRAME )
+      for (y = y1 + 1; y < y2; y++)
       {
-      DrawText( x1, y1, 'Ú', foreground, background );
-      DrawText( x2, y1, '¿', foreground, background );
-      DrawText( x1, y2, 'À', foreground, background );
-      DrawText( x2, y2, 'Ù', foreground, background );
-      for( x = x1 + 1; x < x2; x++ )
-         {
-         DrawText( x, y1, 'Ä', foreground, background );
-         DrawText( x, y2, 'Ä', foreground, background );
-         }
-      for( y = y1 + 1; y < y2; y++ )
-         {
-         DrawText( x1, y, '³', foreground, background );
-         DrawText( x2, y, '³', foreground, background );
-         }
-      }
-   if ( type == DOUBLE_FRAME )
-      {
-      DrawText( x1, y1, 'É', foreground, background );
-      DrawText( x2, y1, '»', foreground, background );
-      DrawText( x1, y2, 'È', foreground, background );
-      DrawText( x2, y2, '¼', foreground, background );
-      for( x = x1 + 1; x < x2; x++ )
-         {
-         DrawText( x, y1, 'Í', foreground, background );
-         DrawText( x, y2, 'Í', foreground, background );
-         }
-      for( y = y1 + 1; y < y2; y++ )
-         {
-         DrawText( x1, y, 'º', foreground, background );
-         DrawText( x2, y, 'º', foreground, background );
-         }
+         DrawText(x1, y, type, foreground, background);
+         DrawText(x2, y, type, foreground, background);
       }
    }
-
-void mysetxy
-   (
-   int x,
-   int y
-   )
-
+   if (type == SINGLE_FRAME)
    {
-   disp_offset = ( x * 2 ) + ( y * 160 );
+      DrawText(x1, y1, 'ï¿½', foreground, background);
+      DrawText(x2, y1, 'ï¿½', foreground, background);
+      DrawText(x1, y2, 'ï¿½', foreground, background);
+      DrawText(x2, y2, 'ï¿½', foreground, background);
+      for (x = x1 + 1; x < x2; x++)
+      {
+         DrawText(x, y1, 'ï¿½', foreground, background);
+         DrawText(x, y2, 'ï¿½', foreground, background);
+      }
+      for (y = y1 + 1; y < y2; y++)
+      {
+         DrawText(x1, y, 'ï¿½', foreground, background);
+         DrawText(x2, y, 'ï¿½', foreground, background);
+      }
    }
-
-void myputch
-   (
-   char ch
-   )
-
+   if (type == DOUBLE_FRAME)
    {
+      DrawText(x1, y1, 'ï¿½', foreground, background);
+      DrawText(x2, y1, 'ï¿½', foreground, background);
+      DrawText(x1, y2, 'ï¿½', foreground, background);
+      DrawText(x2, y2, 'ï¿½', foreground, background);
+      for (x = x1 + 1; x < x2; x++)
+      {
+         DrawText(x, y1, 'ï¿½', foreground, background);
+         DrawText(x, y2, 'ï¿½', foreground, background);
+      }
+      for (y = y1 + 1; y < y2; y++)
+      {
+         DrawText(x1, y, 'ï¿½', foreground, background);
+         DrawText(x2, y, 'ï¿½', foreground, background);
+      }
+   }
+}
+
+void mysetxy(
+    int x,
+    int y)
+
+{
+   disp_offset = (x * 2) + (y * 160);
+}
+
+void myputch(
+    char ch)
+
+{
    int j;
-   char *disp_start = (char *)( 0xb0000 );
+   char *disp_start = (char *)(0xb0000);
 
-   if ( disp_offset >= 160 * 24 )
+   if (disp_offset >= 160 * 24)
+   {
+      for (j = 160; j < 160 * 24; j += 2)
       {
-      for ( j = 160; j < 160 * 24; j += 2 )
-         {
-         *( disp_start + j - 160 ) = *( disp_start + j );
-         }
+         *(disp_start + j - 160) = *(disp_start + j);
+      }
 
       disp_offset = 160 * 23;
 
-      for ( j = disp_offset; j < ( 160 * 24 ); j += 2 )
-         {
-         *( disp_start + j ) = ' ';
-         }
-      }
-
-   if ( ch >= 32 )
+      for (j = disp_offset; j < (160 * 24); j += 2)
       {
-      *( disp_start + disp_offset ) = ch;
-      disp_offset = disp_offset + 2;
-      }
-
-   if ( ch == '\r' )
-      {
-      disp_offset = disp_offset / 160;
-      disp_offset = disp_offset * 160;
-      }
-
-   if ( ch == '\n' )
-      {
-      disp_offset = disp_offset + 160;
-      if ( disp_offset < 160 * 24 )
-         {
-         for ( j = disp_offset; j < ( ( ( disp_offset / 160 ) + 1 ) *
-            160 ); j += 2 )
-            {
-            *( disp_start + j ) = ' ';
-            }
-         }
+         *(disp_start + j) = ' ';
       }
    }
 
-int printstring
-   (
-   char *string
-   )
-
+   if (ch >= 32)
    {
+      *(disp_start + disp_offset) = ch;
+      disp_offset = disp_offset + 2;
+   }
+
+   if (ch == '\r')
+   {
+      disp_offset = disp_offset / 160;
+      disp_offset = disp_offset * 160;
+   }
+
+   if (ch == '\n')
+   {
+      disp_offset = disp_offset + 160;
+      if (disp_offset < 160 * 24)
+      {
+         for (j = disp_offset; j < (((disp_offset / 160) + 1) *
+                                    160);
+              j += 2)
+         {
+            *(disp_start + j) = ' ';
+         }
+      }
+   }
+}
+
+int printstring(
+    char *string)
+
+{
    int count;
    char *ptr;
 
    ptr = string;
    count = 0;
 
-   while ( *ptr )
-      {
-      myputch( *ptr );
+   while (*ptr)
+   {
+      myputch(*ptr);
       count++;
       ptr++;
-      }
-
-   return( count );
    }
 
+   return (count);
+}
 
-int printnum
-   (
-   int number
-   )
+int printnum(
+    int number)
 
-   {
-   char string[ 100 ];
-   int  count;
+{
+   char string[100];
+   int count;
 
-   itoa( number, string, 10 );
-   count = printstring( string );
+   itoa(number, string, 10);
+   count = printstring(string);
 
-   return( count );
-   }
+   return (count);
+}
 
-int printunsigned
-   (
-   unsigned long number,
-   int radix
-   )
+int printunsigned(
+    unsigned long number,
+    int radix)
 
-   {
-   char string[ 100 ];
-   int  count;
+{
+   char string[100];
+   int count;
 
-   ultoa( number, string, radix );
-   count = printstring( string );
+   ultoa(number, string, radix);
+   count = printstring(string);
 
-   return( count );
-   }
+   return (count);
+}
 
-int myprintf
-   (
-   char *fmt,
-   ...
-   )
+int myprintf(
+    char *fmt,
+    ...)
 
-   {
+{
    va_list argptr;
-   int     count;
-   char    *ptr;
-   if (MONOPRESENT==false)
-      {
+   int count;
+   char *ptr;
+   if (MONOPRESENT == false)
+   {
       Debug(fmt);
       return 0;
-      }
-   va_start( argptr, fmt );
+   }
+   va_start(argptr, fmt);
    ptr = fmt;
    count = 0;
 
-   while( *ptr != 0 )
+   while (*ptr != 0)
+   {
+      if (*ptr == '%')
       {
-      if ( *ptr == '%' )
+         ptr++;
+         switch (*ptr)
          {
-         ptr++;
-         switch( *ptr )
-            {
-            case 0 :
-               return( EOF );
-               break;
-            case 'l' :
-               count += printnum( va_arg( argptr, int ) );
-               ptr++;
-               break;
-            case 'd' :
-               count += printnum( va_arg( argptr, int ) );
-               break;
-            case 's' :
-               count += printstring( va_arg( argptr, char * ) );
-               break;
-            case 'u' :
-               count += printunsigned( va_arg( argptr, int ), 10 );
-               break;
-            case 'x' :
-            case 'X' :
-               count += printunsigned( va_arg( argptr, int ), 16 );
-               break;
-            }
-         ptr++;
+         case 0:
+            return (EOF);
+            break;
+         case 'l':
+            count += printnum(va_arg(argptr, int));
+            ptr++;
+            break;
+         case 'd':
+            count += printnum(va_arg(argptr, int));
+            break;
+         case 's':
+            count += printstring(va_arg(argptr, char *));
+            break;
+         case 'u':
+            count += printunsigned(va_arg(argptr, int), 10);
+            break;
+         case 'x':
+         case 'X':
+            count += printunsigned(va_arg(argptr, int), 16);
+            break;
          }
+         ptr++;
+      }
       else
-         {
-         myputch( *ptr );
+      {
+         myputch(*ptr);
          count++;
          ptr++;
-         }
       }
-
-   va_end( argptr );
-
-   return( count );
    }
+
+   va_end(argptr);
+
+   return (count);
+}

@@ -18,8 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-
-
 /*
 ============================================================================
 
@@ -62,43 +60,43 @@ volatile int ticcount;
 volatile int fasttics;
 volatile boolean PausePressed = false;
 volatile boolean PanicPressed = false;
-int KeyboardStarted=false;
-int  ASCIINames[] =          // Unshifted ASCII for scan codes
-													 {
-//       0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-		  0  ,27 ,'1','2','3','4','5','6','7','8','9','0','-','=',8  ,9  ,        // 0
-		  'q','w','e','r','t','y','u','i','o','p','[',']',13 ,0  ,'a','s',        // 1
-		  'd','f','g','h','j','k','l',';',39 ,'`',0  ,92 ,'z','x','c','v',        // 2
-		  'b','n','m',',','.','/',0  ,'*',0  ,' ',0  ,0  ,0  ,0  ,0  ,0  ,        // 3
-		  0  ,0  ,0  ,0  ,0  ,0  ,0  ,'7','8','9','-','4','5','6','+','1',        // 4
-		  '2','3','0',127,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,        // 5
-		  0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,        // 6
-		  0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0           // 7
-													 },
-		  ShiftNames[] =              // Shifted ASCII for scan codes
-													 {
-//       0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-		  0  ,27 ,'!','@','#','$','%','^','&','*','(',')','_','+',8  ,9  ,        // 0
-		  'Q','W','E','R','T','Y','U','I','O','P','{','}',13 ,0  ,'A','S',        // 1
-		  'D','F','G','H','J','K','L',':',34 ,'~',0  ,'|','Z','X','C','V',        // 2
-		  'B','N','M','<','>','?',0  ,'*',0  ,' ',0  ,0  ,0  ,0  ,0  ,0  ,        // 3
-		  0  ,0  ,0  ,0  ,0  ,0  ,0  ,'7','8','9','-','4','5','6','+','1',        // 4
-		  '2','3','0',127,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,        // 5
-		  0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,        // 6
-		  0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0           // 7
-													 };
+int KeyboardStarted = false;
+int ASCIINames[] = // Unshifted ASCII for scan codes
+    {
+        //       0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+        0, 27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 8, 9,     // 0
+        'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 13, 0, 'a', 's', // 1
+        'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 39, '`', 0, 92, 'z', 'x', 'c', 'v',  // 2
+        'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' ', 0, 0, 0, 0, 0, 0,              // 3
+        0, 0, 0, 0, 0, 0, 0, '7', '8', '9', '-', '4', '5', '6', '+', '1',            // 4
+        '2', '3', '0', 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                      // 5
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                              // 6
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                               // 7
+},
+    ShiftNames[] = // Shifted ASCII for scan codes
+    {
+        //       0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+        0, 27, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 8, 9,     // 0
+        'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', 13, 0, 'A', 'S', // 1
+        'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', 34, '~', 0, '|', 'Z', 'X', 'C', 'V', // 2
+        'B', 'N', 'M', '<', '>', '?', 0, '*', 0, ' ', 0, 0, 0, 0, 0, 0,              // 3
+        0, 0, 0, 0, 0, 0, 0, '7', '8', '9', '-', '4', '5', '6', '+', '1',            // 4
+        '2', '3', '0', 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                      // 5
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                              // 6
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                               // 7
+};
 // Local Variables
 
-static task * timertask;
+static task *timertask;
 #if (DEVELOPMENT == 1)
-static task * fasttimertask;
+static task *fasttimertask;
 #endif
-static int TimerStarted=false;
-static volatile int pausecount=0;
+static int TimerStarted = false;
+static volatile int pausecount = 0;
 static struct dostime_t starttime;
 
-void (__interrupt __far *oldtimerisr) ();
-void (__interrupt __far *oldkeyboardisr) () = NULL;
+void(__interrupt __far *oldtimerisr)();
+void(__interrupt __far *oldkeyboardisr)() = NULL;
 
 static int LEDs;
 static volatile int KBFlags;
@@ -111,12 +109,12 @@ static volatile int KBFlags;
 ================
 */
 
-void __interrupt I_TimerISR (void)
+void __interrupt I_TimerISR(void)
 {
-// acknowledge the interrupt
+   // acknowledge the interrupt
 
-		  OUTP(0x20,0x20);
-		  ticcount++;
+   OUTP(0x20, 0x20);
+   ticcount++;
 }
 
 /*
@@ -152,7 +150,7 @@ void ISR_SetTime(int settime)
 #endif
 #endif
 
-   ticcount=settime;
+   ticcount = settime;
 #if 0
 #if (DEVELOPMENT == 1)
       {
@@ -208,10 +206,10 @@ void ISR_SetTime(int settime)
 #endif
 }
 
-static void ISR_Timer (task *Task)
+static void ISR_Timer(task *Task)
 {
-//	(*(int *)(Task->data))=((*(int *)(Task->data))+1)&0xffff;
-	(*(int *)(Task->data))++;
+   //	(*(int *)(Task->data))=((*(int *)(Task->data))+1)&0xffff;
+   (*(int *)(Task->data))++;
 
 #if 0
 #if (DEVELOPMENT == 1)
@@ -243,7 +241,6 @@ static void ISR_Timer (task *Task)
 #endif
 }
 
-
 /*
 =====================
 =
@@ -256,13 +253,13 @@ static void ISR_Timer (task *Task)
 
 void I_SetTimer0(int speed)
 {
-	unsigned s;
-		  if (!((speed > 0 && speed < 150)))
-					 Error ("INT_SetTimer0: %i is a bad value",speed);
-		  s=1192030U/(unsigned)speed;
-		  OUTP(0x43,0x36);                            // Change timer 0
-		  OUTP(0x40,s);
-		  OUTP(0x40,s >> 8);
+   unsigned s;
+   if (!((speed > 0 && speed < 150)))
+      Error("INT_SetTimer0: %i is a bad value", speed);
+   s = 1192030U / (unsigned)speed;
+   OUTP(0x43, 0x36); // Change timer 0
+   OUTP(0x40, s);
+   OUTP(0x40, s >> 8);
 }
 
 /*
@@ -273,18 +270,18 @@ void I_SetTimer0(int speed)
 ================
 */
 
-void I_Delay ( int delay )
+void I_Delay(int delay)
 {
    int time;
 
-   delay=(VBLCOUNTER*delay)/10;
+   delay = (VBLCOUNTER * delay) / 10;
    IN_ClearKeysDown();
-   time=ticcount;
-   while (ticcount<time+delay)
-      {
+   time = ticcount;
+   while (ticcount < time + delay)
+   {
       if (LastScan)
          break;
-      }
+   }
 }
 
 /*
@@ -295,38 +292,38 @@ void I_Delay ( int delay )
 ===============
 */
 
-void I_StartupTimer (void)
+void I_StartupTimer(void)
 {
 #if PROFILE
    return;
 #else
    struct dostime_t cmostime;
 
-   if (TimerStarted==true)
+   if (TimerStarted == true)
       return;
-   TimerStarted=true;
+   TimerStarted = true;
 
-   I_GetCMOSTime ( &cmostime );
-   _dos_settime  ( &cmostime );
+   I_GetCMOSTime(&cmostime);
+   _dos_settime(&cmostime);
 
-//      I_SetTimer0(VBLCOUNTER);
-//      oldtimerisr = _dos_getvect(TIMERINT);
-//      _dos_setvect (TIMERINT, I_TimerISR);
+   //      I_SetTimer0(VBLCOUNTER);
+   //      oldtimerisr = _dos_getvect(TIMERINT);
+   //      _dos_setvect (TIMERINT, I_TimerISR);
 
-   timertask=TS_ScheduleTask( &ISR_Timer, VBLCOUNTER, 10, &ticcount);
+   timertask = TS_ScheduleTask(&ISR_Timer, VBLCOUNTER, 10, &ticcount);
 #if (DEVELOPMENT == 1)
-   fasttimertask=TS_ScheduleTask( &ISR_Timer, VBLCOUNTER*4, 10, &fasttics);
+   fasttimertask = TS_ScheduleTask(&ISR_Timer, VBLCOUNTER * 4, 10, &fasttics);
 #endif
    TS_Dispatch();
-   I_GetCMOSTime ( &cmostime );
-   memcpy(&starttime,&cmostime,sizeof(starttime));
-   ticcount=0;
+   I_GetCMOSTime(&cmostime);
+   memcpy(&starttime, &cmostime, sizeof(starttime));
+   ticcount = 0;
    if (!quiet)
       printf("I_StartupTimer: Timer Started\n");
 #endif
 }
 
-void I_ShutdownTimer (void)
+void I_ShutdownTimer(void)
 {
 #if PROFILE
    return;
@@ -337,32 +334,31 @@ void I_ShutdownTimer (void)
    int totaltime;
 #endif
 
-   if (TimerStarted==false)
+   if (TimerStarted == false)
       return;
-   TimerStarted=false;
+   TimerStarted = false;
 
-//      OUTP(0x43,0x36);                            // Change timer 0
-//      OUTP(0x40,0);
-//      OUTP(0x40,0);
-//      _dos_setvect (TIMERINT, oldtimerisr);
+   //      OUTP(0x43,0x36);                            // Change timer 0
+   //      OUTP(0x40,0);
+   //      OUTP(0x40,0);
+   //      _dos_setvect (TIMERINT, oldtimerisr);
 
-   I_GetCMOSTime ( &cmostime );
-   _dos_gettime  ( &dostime  );
+   I_GetCMOSTime(&cmostime);
+   _dos_gettime(&dostime);
 
 #if (DEVELOPMENT == 1)
-   SoftError("Time difference in seconds (DOS-CMOS) %ld\n",dostime.second-cmostime.second);
-   SoftError("Time difference in minutes (DOS-CMOS) %ld\n",dostime.minute-cmostime.minute);
-   SoftError("Time difference in hour (DOS-CMOS) %ld\n",dostime.hour-cmostime.hour);
-   totaltime=( ((cmostime.hour-starttime.hour)*3600) +
-               ((cmostime.minute-starttime.minute)*60) +
-                (cmostime.second-starttime.second)
-             );
-   SoftError("Total seconds = %ld Total Tics = %ld Game Tics = %ld\n",totaltime,totaltime*VBLCOUNTER,ticcount);
+   SoftError("Time difference in seconds (DOS-CMOS) %ld\n", dostime.second - cmostime.second);
+   SoftError("Time difference in minutes (DOS-CMOS) %ld\n", dostime.minute - cmostime.minute);
+   SoftError("Time difference in hour (DOS-CMOS) %ld\n", dostime.hour - cmostime.hour);
+   totaltime = (((cmostime.hour - starttime.hour) * 3600) +
+                ((cmostime.minute - starttime.minute) * 60) +
+                (cmostime.second - starttime.second));
+   SoftError("Total seconds = %ld Total Tics = %ld Game Tics = %ld\n", totaltime, totaltime * VBLCOUNTER, ticcount);
 #endif
 
-   TS_Terminate( timertask );
+   TS_Terminate(timertask);
 #if (DEVELOPMENT == 1)
-   TS_Terminate( fasttimertask );
+   TS_Terminate(fasttimertask);
 #endif
    TS_Shutdown();
 //   TS_Halt();
@@ -408,17 +404,17 @@ void I_ShutdownTimer (void)
 =
 ===============
 */
-void I_GetCMOSTime ( struct dostime_t * cmostime )
+void I_GetCMOSTime(struct dostime_t *cmostime)
 {
-   OUTP(0x70,0);
-   cmostime->second=inp(0x71);
-   OUTP(0x70,2);
-   cmostime->minute=inp(0x71);
-   OUTP(0x70,4);
-   cmostime->hour=inp(0x71);
-   cmostime->second=(cmostime->second&0x0f)+((cmostime->second>>4)*10);
-   cmostime->minute=(cmostime->minute&0x0f)+((cmostime->minute>>4)*10);
-   cmostime->hour=(cmostime->hour&0x0f)+((cmostime->hour>>4)*10);
+   OUTP(0x70, 0);
+   cmostime->second = inp(0x71);
+   OUTP(0x70, 2);
+   cmostime->minute = inp(0x71);
+   OUTP(0x70, 4);
+   cmostime->hour = inp(0x71);
+   cmostime->second = (cmostime->second & 0x0f) + ((cmostime->second >> 4) * 10);
+   cmostime->minute = (cmostime->minute & 0x0f) + ((cmostime->minute >> 4) * 10);
+   cmostime->hour = (cmostime->hour & 0x0f) + ((cmostime->hour >> 4) * 10);
 }
 
 /*
@@ -428,27 +424,27 @@ void I_GetCMOSTime ( struct dostime_t * cmostime )
 
 ============================================================================
 */
-#define ena_kbd           0xae
-#define caps_state        0x40
-#define num_state         0x20
-#define scroll_state      0x10
+#define ena_kbd 0xae
+#define caps_state 0x40
+#define num_state 0x20
+#define scroll_state 0x10
 
-#define kb_resend         0xfe
-#define kb_ack            0xfa
-#define kb_pr_led         0x40
-#define kb_error          0x80
-#define kb_fe             0x20
-#define kb_fa             0x10
+#define kb_resend 0xfe
+#define kb_ack 0xfa
+#define kb_pr_led 0x40
+#define kb_error 0x80
+#define kb_fe 0x20
+#define kb_fa 0x10
 
-#define porta             0x60
-#define kb_status_port    0x64
+#define porta 0x60
+#define kb_status_port 0x64
 #define input_buffer_full 0x02
-#define led_cmd           0xed
-#define kb_enable         0xf4
-#define leds_off          0
-#define caps_led_on       0x04
-#define num_led_on        0x02
-#define scroll_led_on     0x01
+#define led_cmd 0xed
+#define kb_enable 0xf4
+#define leds_off 0
+#define caps_led_on 0x04
+#define num_led_on 0x02
+#define scroll_led_on 0x01
 
 /*
 ================
@@ -458,52 +454,50 @@ void I_GetCMOSTime ( struct dostime_t * cmostime )
 ================
 */
 
-void I_SendKeyboardData
-   (
-   int val
-   )
+void I_SendKeyboardData(
+    int val)
 
-   {
+{
    int retry;
    volatile int count;
 
    _disable();
 
-   KBFlags &= ~( kb_fe | kb_fa );
+   KBFlags &= ~(kb_fe | kb_fa);
 
    count = 0xffff;
-   while( count-- )
+   while (count--)
+   {
+      if (!(inp(kb_status_port) & input_buffer_full))
       {
-      if ( !( inp( kb_status_port ) & input_buffer_full ) )
-         {
          break;
-         }
       }
+   }
 
-   outp( porta, val );
+   outp(porta, val);
 
    _enable();
 
    retry = 3;
-   while( retry-- )
-      {
+   while (retry--)
+   {
       count = 0x1a00;
-      while( count-- )
+      while (count--)
+      {
+         if (KBFlags & kb_fe)
          {
-         if ( KBFlags & kb_fe )
-            {
             break;
-            }
+         }
 
-         if ( KBFlags & kb_fa )
-            {
+         if (KBFlags & kb_fa)
+         {
             return;
-            }
          }
       }
+   }
 
    KBFlags |= kb_error;
-   }
+}
 
 /*
 ================
@@ -513,69 +507,65 @@ void I_SendKeyboardData
 ================
 */
 
-void I_SetKeyboardLEDs
-   (
-   int which,
-   boolean val
-   )
+void I_SetKeyboardLEDs(
+    int which,
+    boolean val)
 
-   {
+{
    int mask;
    int count;
 
    _disable();
    KBFlags |= kb_pr_led;
 
-   switch( which )
-      {
-      case scroll_lock :
-         mask = scroll_led_on;
-         break;
+   switch (which)
+   {
+   case scroll_lock:
+      mask = scroll_led_on;
+      break;
 
-      case num_lock :
-         mask = num_led_on;
-         break;
+   case num_lock:
+      mask = num_led_on;
+      break;
 
-      case caps_lock :
-         mask = caps_led_on;
-         break;
+   case caps_lock:
+      mask = caps_led_on;
+      break;
 
-      default :
-         mask = 0;
-         break;
-      }
+   default:
+      mask = 0;
+      break;
+   }
 
-   if ( val )
-      {
+   if (val)
+   {
       LEDs |= mask;
-      }
+   }
    else
-      {
+   {
       LEDs &= ~mask;
-      }
+   }
 
    count = 0;
    do
+   {
+      if (count > 3)
       {
-      if ( count > 3 )
-         {
          break;
-         }
+      }
 
-      I_SendKeyboardData( led_cmd );
+      I_SendKeyboardData(led_cmd);
       _disable();
-      I_SendKeyboardData( LEDs );
+      I_SendKeyboardData(LEDs);
       _disable();
-      I_SendKeyboardData( kb_enable );
+      I_SendKeyboardData(kb_enable);
       _disable();
       count++;
-      }
-   while( KBFlags & kb_error );
+   } while (KBFlags & kb_error);
 
    _enable();
-   KBFlags &= ~(kb_pr_led|kb_error);
-   }
-
+   KBFlags &= ~(kb_pr_led | kb_error);
+}
 
 /*
 ================
@@ -584,66 +574,66 @@ void I_SetKeyboardLEDs
 =
 ================
 */
-void __interrupt I_KeyboardISR (void)
+void __interrupt I_KeyboardISR(void)
 {
-	int k;
+   int k;
    int temp;
    int keyon;
    int strippedkey;
 
    // Get the scan code
-   k = inp( 0x60 );
+   k = inp(0x60);
 
    // Tell the XT keyboard controller to clear the key
-	temp = inp( 0x61 );
-	OUTP ( 0x61, temp | 0x80 );
-	OUTP ( 0x61, temp );
+   temp = inp(0x61);
+   OUTP(0x61, temp | 0x80);
+   OUTP(0x61, temp);
 
-   if ( KBFlags & kb_pr_led )
+   if (KBFlags & kb_pr_led)
+   {
+      if (k == kb_resend)
       {
-      if ( k == kb_resend )
-         {
          // Handle resend
          KBFlags |= kb_fe;
-         }
+      }
       else if (k == kb_ack)
-         {
+      {
          // Handle ack
          KBFlags |= kb_fa;
-         }
       }
-   else if ( pausecount )
-      {
+   }
+   else if (pausecount)
+   {
       pausecount--;
-      }
-   else if ( k == 0xe1 )         // Handle Pause key
-      {
+   }
+   else if (k == 0xe1) // Handle Pause key
+   {
       PausePressed = true;
       pausecount = 5;
-      }
-   else if ( k == 0x46 )         // Handle Panic key (Scroll Lock)
-      {
+   }
+   else if (k == 0x46) // Handle Panic key (Scroll Lock)
+   {
       PanicPressed = true;
-      }
+   }
    else
+   {
+      if (k == 0xE0)
       {
-      if ( k == 0xE0 )
-         {
          ExtendedKeyFlag = true;
-         }
+      }
       else
-         {
+      {
          keyon = k & 0x80;
          strippedkey = k & 0x7f;
 
-         if ( ExtendedKeyFlag )
+         if (ExtendedKeyFlag)
+         {
+            if ((strippedkey == sc_LShift) ||
+                (strippedkey == sc_RShift))
             {
-            if ( ( strippedkey == sc_LShift ) ||
-               ( strippedkey == sc_RShift ) )
-               {
                k = sc_None;
-               }
-/*
+            }
+            /*
             else
                {
                if ( strippedkey == sc_Alt )
@@ -656,41 +646,40 @@ void __interrupt I_KeyboardISR (void)
                   }
                }
 */
-            }
+         }
 
-         if ( k != sc_None )
+         if (k != sc_None)
+         {
+            if (strippedkey == sc_LShift)
             {
-            if ( strippedkey == sc_LShift )
-               {
                k = sc_RShift | keyon;
-               }
-
-            if ( !keyon )
-               {
-               LastScan = k;
-               }
-
-            if (k & 0x80)        // Up event
-               {
-               Keystate[k&0x7f]=0;
-               }
-            else                 // Down event
-               {
-               Keystate[k]=1;
-               }
-
-            KeyboardQueue[ Keytail ] = k;
-            Keytail = ( Keytail + 1 )&( KEYQMAX - 1 );
             }
+
+            if (!keyon)
+            {
+               LastScan = k;
+            }
+
+            if (k & 0x80) // Up event
+            {
+               Keystate[k & 0x7f] = 0;
+            }
+            else // Down event
+            {
+               Keystate[k] = 1;
+            }
+
+            KeyboardQueue[Keytail] = k;
+            Keytail = (Keytail + 1) & (KEYQMAX - 1);
+         }
 
          ExtendedKeyFlag = false;
-         }
       }
-
-   // acknowledge the interrupt
-   OUTP ( 0x20, 0x20 );
    }
 
+   // acknowledge the interrupt
+   OUTP(0x20, 0x20);
+}
 
 /*
 ===============
@@ -700,39 +689,36 @@ void __interrupt I_KeyboardISR (void)
 ===============
 */
 
-void I_StartupKeyboard (void)
+void I_StartupKeyboard(void)
 {
-   if (KeyboardStarted==true)
+   if (KeyboardStarted == true)
       return;
-   KeyboardStarted=true;
+   KeyboardStarted = true;
 
    LEDs = 0;
    KBFlags = 0;
    ExtendedKeyFlag = false;
 
-	oldkeyboardisr = _dos_getvect(KEYBOARDINT);
-	_dos_setvect (0x8000 | KEYBOARDINT, I_KeyboardISR);
+   oldkeyboardisr = _dos_getvect(KEYBOARDINT);
+   _dos_setvect(0x8000 | KEYBOARDINT, I_KeyboardISR);
 
-//   I_SetKeyboardLEDs( scroll_lock, 0 );
+   //   I_SetKeyboardLEDs( scroll_lock, 0 );
 
    Keyhead = Keytail = 0;
-   memset(Keystate,0,sizeof(Keystate));
+   memset(Keystate, 0, sizeof(Keystate));
    if (!quiet)
       printf("I_StartupKeyboard: Keyboard Started\n");
 }
 
-void I_ShutdownKeyboard (void)
+void I_ShutdownKeyboard(void)
 {
-   if (KeyboardStarted==false)
+   if (KeyboardStarted == false)
       return;
-   KeyboardStarted=false;
+   KeyboardStarted = false;
 
    // Clear LEDS
-//   *( (byte *)0x417 ) &= ~0x70;
+   //   *( (byte *)0x417 ) &= ~0x70;
 
-	_dos_setvect (KEYBOARDINT, oldkeyboardisr);
-	*(short *)0x41c = *(short *)0x41a;      // clear bios key buffer
+   _dos_setvect(KEYBOARDINT, oldkeyboardisr);
+   *(short *)0x41c = *(short *)0x41a; // clear bios key buffer
 }
-
-
-

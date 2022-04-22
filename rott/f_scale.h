@@ -25,12 +25,12 @@ extern int cin_yh;
 extern int cin_ycenter;
 extern int cin_iscale;
 extern int cin_texturemid;
-extern byte * cin_source;
+extern byte *cin_source;
 
-void R_DrawFilmColumn (byte * buf);
-#pragma aux R_DrawFilmColumn parm [EDI] modify exact [eax ebx ecx edx esi edi]
+void R_DrawFilmColumn(byte *buf);
+#pragma aux R_DrawFilmColumn parm[EDI] modify exact[eax ebx ecx edx esi edi]
 
-void DrawFilmPost (byte * buf, byte * src, int height);
-#pragma aux DrawFilmPost parm [EDI] [ESI] [ECX] modify exact [eax ecx edx edi esi ebx]
+void DrawFilmPost(byte *buf, byte *src, int height);
+#pragma aux DrawFilmPost parm[EDI][ESI][ECX] modify exact[eax ecx edx edi esi ebx]
 
 #endif

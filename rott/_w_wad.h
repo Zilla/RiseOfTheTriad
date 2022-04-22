@@ -24,12 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define CHECKPERIOD 20
 
+#if (SHAREWARE == 1)
 
-#if ( SHAREWARE == 1 )
-
-#if ( DELUXE == 1)
+#if (DELUXE == 1)
 #define WADCHECKSUM (54748)
-#elif ( LOWCOST == 1)
+#elif (LOWCOST == 1)
 #define WADCHECKSUM (12185)
 #else
 #define WADCHECKSUM (45677)
@@ -45,27 +44,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //   TYPES
 //===============
 
-
 typedef struct
 {
-        char            name[8];
-        int                     handle,position,size;
+        char name[8];
+        int handle, position, size;
 } lumpinfo_t;
 
-
 typedef struct
 {
-        char            identification[4];              // should be IWAD
-        int                     numlumps;
-        int                     infotableofs;
+        char identification[4]; // should be IWAD
+        int numlumps;
+        int infotableofs;
 } wadinfo_t;
 
-
 typedef struct
 {
-        int                     filepos;
-        int                     size;
-        char            name[8];
+        int filepos;
+        int size;
+        char name[8];
 } filelump_t;
 
 #endif

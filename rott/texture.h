@@ -20,15 +20,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _texture_public
 #define _texture_public
 
-extern int32  texture_u;
-extern int32  texture_v;
-extern int32  texture_count;
-extern int32  texture_du;
-extern int32  texture_dv;
-extern byte * texture_source;
-extern byte * texture_dest;
-extern byte * texture_destincr;
+extern int32 texture_u;
+extern int32 texture_v;
+extern int32 texture_count;
+extern int32 texture_du;
+extern int32 texture_dv;
+extern byte *texture_source;
+extern byte *texture_dest;
+extern byte *texture_destincr;
 
-void TextureLine( void );
+void TextureLine(void);
 
 #endif

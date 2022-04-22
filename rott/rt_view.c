@@ -44,8 +44,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //MED
 
 #define LIGHTNINGLEVEL 4
-#define MINLIGHTNINGLEVEL   2
-#define MAXLIGHTNINGLEVEL   10
+#define MINLIGHTNINGLEVEL 2
+#define MAXLIGHTNINGLEVEL 10
 
 /*
 =============================================================================
@@ -54,68 +54,65 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 =============================================================================
 */
-int    StatusBar = 0;
-int    lightninglevel=0;
-boolean  lightning=false;
-int    normalshade;
-int    darknesslevel;
-int    maxshade;
-int    minshade;
-int    baseminshade;
-int    basemaxshade;
-int    viewheight;
-int    viewwidth;
-longword   heightnumerator;
-fixed  scale;
-int    screenofs;
-int    centerx;
-int    centery;
-int    centeryfrac;
-int    fulllight;
-int    weaponscale;
-int    viewsize;
-byte * colormap;
-byte * redmap;
-byte * greenmap;
-byte * playermaps[MAXPLAYERCOLORS];
-short  pixelangle[MAXVIEWWIDTH];
-byte   gammatable[GAMMAENTRIES];
-int    gammaindex;
-int    focalwidth=FOCALWIDTH;
-int    yzangleconverter;
-byte   uniformcolors[MAXPLAYERCOLORS]={
-                                       25,
-                                       222,
-                                       29,
-                                       206,
-                                       52,
-                                       6,
-                                       155,
-                                       16,
-                                       90,
-                                       129,
-                                       109
-                                       };
+int StatusBar = 0;
+int lightninglevel = 0;
+boolean lightning = false;
+int normalshade;
+int darknesslevel;
+int maxshade;
+int minshade;
+int baseminshade;
+int basemaxshade;
+int viewheight;
+int viewwidth;
+longword heightnumerator;
+fixed scale;
+int screenofs;
+int centerx;
+int centery;
+int centeryfrac;
+int fulllight;
+int weaponscale;
+int viewsize;
+byte *colormap;
+byte *redmap;
+byte *greenmap;
+byte *playermaps[MAXPLAYERCOLORS];
+short pixelangle[MAXVIEWWIDTH];
+byte gammatable[GAMMAENTRIES];
+int gammaindex;
+int focalwidth = FOCALWIDTH;
+int yzangleconverter;
+byte uniformcolors[MAXPLAYERCOLORS] = {
+    25,
+    222,
+    29,
+    206,
+    52,
+    6,
+    155,
+    16,
+    90,
+    129,
+    109};
 
-byte    mapmasks1[4][9] = {
-{1 ,3 ,7 ,15,15,15,15,15,15},
-{2 ,6 ,14,14,14,14,14,14,14},
-{4 ,12,12,12,12,12,12,12,12},
-{8 ,8 ,8 ,8 ,8 ,8 ,8 ,8 ,8} };
+byte mapmasks1[4][9] = {
+    {1, 3, 7, 15, 15, 15, 15, 15, 15},
+    {2, 6, 14, 14, 14, 14, 14, 14, 14},
+    {4, 12, 12, 12, 12, 12, 12, 12, 12},
+    {8, 8, 8, 8, 8, 8, 8, 8, 8}};
 
-byte    mapmasks2[4][9] = {
-{0 ,0 ,0 ,0 ,1 ,3 ,7 ,15,15},
-{0 ,0 ,0 ,1 ,3 ,7 ,15,15,15},
-{0 ,0 ,1 ,3 ,7 ,15,15,15,15},
-{0 ,1 ,3 ,7 ,15,15,15,15,15} };
+byte mapmasks2[4][9] = {
+    {0, 0, 0, 0, 1, 3, 7, 15, 15},
+    {0, 0, 0, 1, 3, 7, 15, 15, 15},
+    {0, 0, 1, 3, 7, 15, 15, 15, 15},
+    {0, 1, 3, 7, 15, 15, 15, 15, 15}};
 
-byte    mapmasks3[4][9] = {
-{0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1},
-{0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,3},
-{0 ,0 ,0 ,0 ,0 ,0 ,1 ,3 ,7},
-{0 ,0 ,0 ,0 ,0 ,1 ,3 ,7 ,15} };
-
-
+byte mapmasks3[4][9] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {0, 0, 0, 0, 0, 0, 0, 1, 3},
+    {0, 0, 0, 0, 0, 0, 1, 3, 7},
+    {0, 0, 0, 0, 0, 1, 3, 7, 15}};
 
 /*
 =============================================================================
@@ -127,26 +124,26 @@ byte    mapmasks3[4][9] = {
 
 static char *YourComputerSucksString = "Buy a 486! :)";
 
-static int viewsizes[MAXVIEWSIZES*2]={ 80,48,
-                           128,72,
-                           160,88,
-                           192,104,
-                           224,120,
-                           256,136,
-                           288,152,
-                           320,168,
-                           320,184,
-                           320,200,
-                           320,200};
+static int viewsizes[MAXVIEWSIZES * 2] = {80, 48,
+                                          128, 72,
+                                          160, 88,
+                                          192, 104,
+                                          224, 120,
+                                          256, 136,
+                                          288, 152,
+                                          320, 168,
+                                          320, 184,
+                                          320, 200,
+                                          320, 200};
 
-static int ColorMapLoaded=0;
+static int ColorMapLoaded = 0;
 
-static int      lightningtime=0;
-static int      lightningdelta=0;
-static int      lightningdistance=0;
-static int      lightningsoundtime=0;
-static boolean  periodic=false;
-static int      periodictime=0;
+static int lightningtime = 0;
+static int lightningdelta = 0;
+static int lightningdistance = 0;
+static int lightningsoundtime = 0;
+static boolean periodic = false;
+static int periodictime = 0;
 
 /*
 ====================
@@ -155,9 +152,9 @@ static int      periodictime=0;
 =
 ====================
 */
-void ResetFocalWidth ( void )
+void ResetFocalWidth(void)
 {
-   focalwidth=FOCALWIDTH;
+   focalwidth = FOCALWIDTH;
    SetViewDelta();
 }
 
@@ -168,12 +165,11 @@ void ResetFocalWidth ( void )
 =
 ====================
 */
-void ChangeFocalWidth ( int amount )
+void ChangeFocalWidth(int amount)
 {
-   focalwidth=FOCALWIDTH+amount;
+   focalwidth = FOCALWIDTH + amount;
    SetViewDelta();
 }
-
 
 /*
 ====================
@@ -183,20 +179,20 @@ void ChangeFocalWidth ( int amount )
 ====================
 */
 
-void SetViewDelta ( void )
+void SetViewDelta(void)
 {
 
-//
-// calculate scale value for vertical height calculations
-// and sprite x calculations
-//
-   scale = (centerx*focalwidth)/160;
+   //
+   // calculate scale value for vertical height calculations
+   // and sprite x calculations
+   //
+   scale = (centerx * focalwidth) / 160;
 
-//
-// divide heightnumerator by a posts distance to get the posts height for
-// the heightbuffer.  The pixel height is height>>HEIGHTFRACTION
-//
-   heightnumerator = (((focalwidth/10)*centerx*4096)<<HEIGHTFRACTION);
+   //
+   // divide heightnumerator by a posts distance to get the posts height for
+   // the heightbuffer.  The pixel height is height>>HEIGHTFRACTION
+   //
+   heightnumerator = (((focalwidth / 10) * centerx * 4096) << HEIGHTFRACTION);
 }
 
 /*
@@ -207,53 +203,49 @@ void SetViewDelta ( void )
 ====================
 */
 
-void CalcProjection ( void )
+void CalcProjection(void)
 {
-    int   i;
-    int   frac;
-    long  intang;
-    byte * table;
-    byte * ptr;
-    int   length;
-    int  * pangle;
+   int i;
+   int frac;
+   long intang;
+   byte *table;
+   byte *ptr;
+   int length;
+   int *pangle;
 
+   // Already being called in ResetFocalWidth
+   //    SetViewDelta();
 
+   //
+   // load in tables file
+   //
 
-// Already being called in ResetFocalWidth
-//    SetViewDelta();
+   //Hey, isn't this stuff already loaded in?
+   //Why don't we make this a lump?
+   table = W_CacheLumpName("tables", PU_STATIC);
+   ptr = table;
 
-//
-// load in tables file
-//
+   //
+   // get size of table
+   //
 
+   memcpy(&length, ptr, sizeof(int));
+   ptr += sizeof(int);
+   pangle = SafeMalloc(length * sizeof(int));
+   memcpy(pangle, ptr, length * sizeof(int));
 
-//Hey, isn't this stuff already loaded in?
-//Why don't we make this a lump?
-   table=W_CacheLumpName("tables",PU_STATIC);
-   ptr=table;
-
-//
-// get size of table
-//
-
-   memcpy(&length,ptr,sizeof(int));
-   ptr+=sizeof(int);
-   pangle=SafeMalloc(length*sizeof(int));
-   memcpy(pangle,ptr,length*sizeof(int));
-
-   frac=((length*65536/centerx))>>1;
-   for (i=0;i<centerx;i++)
-      {
+   frac = ((length * 65536 / centerx)) >> 1;
+   for (i = 0; i < centerx; i++)
+   {
       // start 1/2 pixel over, so viewangle bisects two middle pixels
-      intang=pangle[frac>>16];
-      pixelangle[centerx-1-i] =(short) intang;
-      pixelangle[centerx+i] =(short) -intang;
-      frac+=(length*65536/centerx);
-      }
-   table=W_CacheLumpName("tables",PU_CACHE);
+      intang = pangle[frac >> 16];
+      pixelangle[centerx - 1 - i] = (short)intang;
+      pixelangle[centerx + i] = (short)-intang;
+      frac += (length * 65536 / centerx);
+   }
+   table = W_CacheLumpName("tables", PU_CACHE);
    SafeFree(pangle);
 }
-
 
 /*
 ==========================
@@ -263,101 +255,97 @@ void CalcProjection ( void )
 ==========================
 */
 
-void SetViewSize
-   (
-   int size
-   )
+void SetViewSize(
+    int size)
 
-   {
+{
    int height;
    int maxheight;
    int screenx;
    int screeny;
    int topy;
 
-   if ((size<0) || (size>=MAXVIEWSIZES))
-      Error("Illegal screen size = %ld\n",size);
+   if ((size < 0) || (size >= MAXVIEWSIZES))
+      Error("Illegal screen size = %ld\n", size);
 
-   viewwidth  = viewsizes[ size << 1 ];         // must be divisable by 16
-   viewheight = viewsizes[ ( size << 1 ) + 1 ]; // must be even
+   viewwidth = viewsizes[size << 1];        // must be divisable by 16
+   viewheight = viewsizes[(size << 1) + 1]; // must be even
 
    maxheight = 200;
-   topy      = 0;
+   topy = 0;
 
    // Only keep the kills flag
-   StatusBar &= ~( BOTTOM_STATUS_BAR | TOP_STATUS_BAR |
-      STATUS_PLAYER_STATS );
+   StatusBar &= ~(BOTTOM_STATUS_BAR | TOP_STATUS_BAR |
+                  STATUS_PLAYER_STATS);
 
-   if ( SHOW_KILLS() )
-      {
+   if (SHOW_KILLS())
+   {
       // Account for height of kill boxes
       maxheight -= 24;
-      }
+   }
 
-   if ( size < 9 )
-      {
+   if (size < 9)
+   {
       StatusBar |= TOP_STATUS_BAR;
 
       // Account for height of top status bar
       maxheight -= 16;
-      topy      += 16;
-      }
+      topy += 16;
+   }
 
-   if ( size < 8 )
-      {
+   if (size < 8)
+   {
       // Turn on health and ammo bar
       StatusBar |= BOTTOM_STATUS_BAR;
       maxheight -= 16;
-      }
-   else if ( size < 10 )
-      {
+   }
+   else if (size < 10)
+   {
       // Turn on transparent health and ammo bar
       StatusBar |= STATUS_PLAYER_STATS;
-      }
+   }
 
    height = viewheight;
-   if ( height > 168 )
-      {
+   if (height > 168)
+   {
       // Prevent weapon from being scaled too big
       height = 168;
-      }
+   }
 
-   weaponscale = ( height << 16 ) / 168;
-   centerx     = viewwidth >> 1;
-   centery     = viewheight >> 1;
+   weaponscale = (height << 16) / 168;
+   centerx = viewwidth >> 1;
+   centery = viewheight >> 1;
    centeryfrac = (centery << 16);
-   yzangleconverter = ( 0xaf85 * viewheight ) / 200;
+   yzangleconverter = (0xaf85 * viewheight) / 200;
 
    // Center the view horizontally
-   screenx = ( 320 - viewwidth ) >> 1;
+   screenx = (320 - viewwidth) >> 1;
 
-   if ( viewheight >= maxheight )
-      {
+   if (viewheight >= maxheight)
+   {
       screeny = topy;
       viewheight = maxheight;
-      }
+   }
    else
-      {
+   {
       // Center the view vertically
-      screeny = ( ( maxheight - viewheight ) >> 1 ) + topy;
-      }
+      screeny = ((maxheight - viewheight) >> 1) + topy;
+   }
 
    // Calculate offset of view window
-   screenofs = ( screenx >> 2 ) + ylookup[ screeny ];
+   screenofs = (screenx >> 2) + ylookup[screeny];
 
-//
-// calculate trace angles and projection constants
-//
+   //
+   // calculate trace angles and projection constants
+   //
 
    ResetFocalWidth();
 
-
-// Already being called in ResetFocalWidth
-//   SetViewDelta();
+   // Already being called in ResetFocalWidth
+   //   SetViewDelta();
 
    CalcProjection();
-   }
-
+}
 
 //******************************************************************************
 //
@@ -365,22 +353,19 @@ void SetViewSize
 //
 //******************************************************************************
 
-void DrawCPUJape
-   (
-   void
-   )
+void DrawCPUJape(
+    void)
 
-   {
+{
    int width;
    int height;
 
    CurrentFont = tinyfont;
-   VW_MeasurePropString( YourComputerSucksString, &width, &height );
+   VW_MeasurePropString(YourComputerSucksString, &width, &height);
 
-   DrawGameString( 160 - width / 2, 100 + 48 / 2 + 2,
-      YourComputerSucksString, true );
-   }
-
+   DrawGameString(160 - width / 2, 100 + 48 / 2 + 2,
+                  YourComputerSucksString, true);
+}
 
 /*
 ==========================
@@ -390,83 +375,80 @@ void DrawCPUJape
 ==========================
 */
 
-void SetupScreen ( boolean flip )
+void SetupScreen(boolean flip)
 {
    pic_t *shape;
 
    SetViewSize(viewsize);
-   if ( viewsize < 7 )
-      {
-      shape = W_CacheLumpName( "backtile", PU_CACHE );
-      DrawTiledRegion( 0, 16, 320, 200 - 32, 0, 16, shape );
-      }
+   if (viewsize < 7)
+   {
+      shape = W_CacheLumpName("backtile", PU_CACHE);
+      DrawTiledRegion(0, 16, 320, 200 - 32, 0, 16, shape);
+   }
 
-   if ( viewsize == 0 )
-      {
+   if (viewsize == 0)
+   {
       DrawCPUJape();
-      }
+   }
 
-   DrawPlayScreen (true);
-   if (flip==true)
-      {
+   DrawPlayScreen(true);
+   if (flip == true)
+   {
       ThreeDRefresh();
       VL_CopyDisplayToHidden();
-      }
+   }
 }
 
-
-
-void LoadColorMap( void )
+void LoadColorMap(void)
 {
-   int i,j;
+   int i, j;
    int lump, length;
 
-   if (ColorMapLoaded==1)
+   if (ColorMapLoaded == 1)
       Error("Called LoadColorMap twice\n");
-   ColorMapLoaded=1;
-//
-//   load in the light tables
-//   256 byte align tables
-//
+   ColorMapLoaded = 1;
+   //
+   //   load in the light tables
+   //   256 byte align tables
+   //
 
-	lump = W_GetNumForName("colormap");
-	length = W_LumpLength (lump) + 255;
-	colormap = SafeMalloc (length);
-	colormap = (byte *)( ((int)colormap + 255)&~0xff);
-	W_ReadLump (lump,colormap);
+   lump = W_GetNumForName("colormap");
+   length = W_LumpLength(lump) + 255;
+   colormap = SafeMalloc(length);
+   colormap = (byte *)(((int)colormap + 255) & ~0xff);
+   W_ReadLump(lump, colormap);
 
-// Fix fire colors in colormap
+   // Fix fire colors in colormap
 
-   for (i=31;i>=16;i--)
-		for (j=0xea;j<0xf9;j++)
-         colormap[i*256+j]=colormap[(((i-16)/4+16))*256+j];
+   for (i = 31; i >= 16; i--)
+      for (j = 0xea; j < 0xf9; j++)
+         colormap[i * 256 + j] = colormap[(((i - 16) / 4 + 16)) * 256 + j];
 
-// Get special maps
+   // Get special maps
 
-	lump = W_GetNumForName("specmaps");
-	length = W_LumpLength (lump+1) + 255;
-	redmap = SafeMalloc (length);
-	redmap = (byte *)( ((int)redmap + 255)&~0xff);
-	W_ReadLump (lump+1,redmap);
-   greenmap = redmap+(16*256);
+   lump = W_GetNumForName("specmaps");
+   length = W_LumpLength(lump + 1) + 255;
+   redmap = SafeMalloc(length);
+   redmap = (byte *)(((int)redmap + 255) & ~0xff);
+   W_ReadLump(lump + 1, redmap);
+   greenmap = redmap + (16 * 256);
 
-// Get player colormaps
+   // Get player colormaps
 
-//   if (modemgame==true)
+   //   if (modemgame==true)
+   {
+      lump = W_GetNumForName("playmaps") + 1;
+      for (i = 0; i < MAXPLAYERCOLORS; i++)
       {
-      lump = W_GetNumForName("playmaps")+1;
-      for (i=0;i<MAXPLAYERCOLORS;i++)
-         {
-	      length = W_LumpLength (lump+i) + 255;
-	      playermaps[i] = SafeMalloc (length);
-	      playermaps[i] = (byte *)( ((int)playermaps[i] + 255)&~0xff);
-	      W_ReadLump (lump+i,playermaps[i]);
-         }
+         length = W_LumpLength(lump + i) + 255;
+         playermaps[i] = SafeMalloc(length);
+         playermaps[i] = (byte *)(((int)playermaps[i] + 255) & ~0xff);
+         W_ReadLump(lump + i, playermaps[i]);
       }
+   }
 
    if (!quiet)
       printf("RT_VIEW: Colormaps Initialized\n");
-
 }
 
 /*
@@ -477,57 +459,57 @@ void LoadColorMap( void )
 ==========================
 */
 #define LIGHTRATEBASE 252
-#define LIGHTRATEEND  267
+#define LIGHTRATEEND 267
 #define LIGHTLEVELBASE 216
-#define LIGHTLEVELEND  223
-void SetupLightLevels ( void )
+#define LIGHTLEVELEND 223
+void SetupLightLevels(void)
 {
    int glevel;
 
-   periodic=false;
-	fog=0;
-	lightsource=0;
+   periodic = false;
+   fog = 0;
+   lightsource = 0;
 
-// Set up light level for level
+   // Set up light level for level
 
-	if (((word)MAPSPOT(2,0,1)>=104) && ((word)MAPSPOT(2,0,1)<=105))
-		fog=(word)MAPSPOT(2,0,1)-104;
-	else
-		Error ("There is no Fog icon on map %ld\n",gamestate.mapon);
-	if ((word)MAPSPOT(3,0,1)==139)
+   if (((word)MAPSPOT(2, 0, 1) >= 104) && ((word)MAPSPOT(2, 0, 1) <= 105))
+      fog = (word)MAPSPOT(2, 0, 1) - 104;
+   else
+      Error("There is no Fog icon on map %ld\n", gamestate.mapon);
+   if ((word)MAPSPOT(3, 0, 1) == 139)
+   {
+      if (fog == 0)
       {
-      if (fog==0)
-         {
-		   lightsource=1;
-         lights=Z_Malloc(MAPSIZE*MAPSIZE*(sizeof(unsigned long)),PU_LEVEL,NULL);
-         memset (lights,0,MAPSIZE*MAPSIZE*(sizeof(unsigned long)));
-         }
+         lightsource = 1;
+         lights = Z_Malloc(MAPSIZE * MAPSIZE * (sizeof(unsigned long)), PU_LEVEL, NULL);
+         memset(lights, 0, MAPSIZE * MAPSIZE * (sizeof(unsigned long)));
+      }
       else
-		   Error("You cannot use light sourcing on a level with fog on map %ld\n",gamestate.mapon);
-      }
-	else if ((word)MAPSPOT(3,0,1))
-		Error("You must use the lightsource icon or nothing at all at (3,0) in plane 1 on map %ld\n",gamestate.mapon);
-   if (((word)MAPSPOT(2,0,0)>=LIGHTLEVELBASE) && ((word)MAPSPOT(2,0,0)<=LIGHTLEVELEND))
-      glevel=(MAPSPOT(2,0,0)-LIGHTLEVELBASE);
-	else
-		Error("You must specify a valid darkness level icon at (2,0) on map %ld\n",gamestate.mapon);
+         Error("You cannot use light sourcing on a level with fog on map %ld\n", gamestate.mapon);
+   }
+   else if ((word)MAPSPOT(3, 0, 1))
+      Error("You must use the lightsource icon or nothing at all at (3,0) in plane 1 on map %ld\n", gamestate.mapon);
+   if (((word)MAPSPOT(2, 0, 0) >= LIGHTLEVELBASE) && ((word)MAPSPOT(2, 0, 0) <= LIGHTLEVELEND))
+      glevel = (MAPSPOT(2, 0, 0) - LIGHTLEVELBASE);
+   else
+      Error("You must specify a valid darkness level icon at (2,0) on map %ld\n", gamestate.mapon);
 
-   SetLightLevels ( glevel );
+   SetLightLevels(glevel);
 
-   if (((word)MAPSPOT(3,0,0)>=LIGHTRATEBASE) && ((word)MAPSPOT(3,0,0)<=LIGHTRATEEND))
-      glevel=(MAPSPOT(3,0,0)-LIGHTRATEBASE);
-	else
-      {
-//      Error("You must specify a valid darkness rate icon at (3,0) on map %ld\n",gamestate.mapon);
+   if (((word)MAPSPOT(3, 0, 0) >= LIGHTRATEBASE) && ((word)MAPSPOT(3, 0, 0) <= LIGHTRATEEND))
+      glevel = (MAPSPOT(3, 0, 0) - LIGHTRATEBASE);
+   else
+   {
+      //      Error("You must specify a valid darkness rate icon at (3,0) on map %ld\n",gamestate.mapon);
       glevel = 4;
-      }
+   }
 
-   SetLightRate ( glevel );
-   lightningtime=0;
-   lightningdistance=0;
-   lightninglevel=0;
-   lightningdelta=0;
-   lightningsoundtime=0;
+   SetLightRate(glevel);
+   lightningtime = 0;
+   lightningdistance = 0;
+   lightninglevel = 0;
+   lightningdelta = 0;
+   lightningsoundtime = 0;
 }
 
 /*
@@ -537,21 +519,21 @@ void SetupLightLevels ( void )
 =
 ==========================
 */
-void SetLightLevels ( int darkness )
+void SetLightLevels(int darkness)
 {
-   if (fog==0)
-      {
-      baseminshade=0x10+((7-darkness)>>1);
-      basemaxshade=0x1f-(darkness>>1);
-      }
+   if (fog == 0)
+   {
+      baseminshade = 0x10 + ((7 - darkness) >> 1);
+      basemaxshade = 0x1f - (darkness >> 1);
+   }
    else
-      {
-      baseminshade=darkness;
-      basemaxshade=0x10;
-      }
-   minshade=baseminshade;
-   maxshade=basemaxshade;
-   darknesslevel=darkness;
+   {
+      baseminshade = darkness;
+      basemaxshade = 0x10;
+   }
+   minshade = baseminshade;
+   maxshade = basemaxshade;
+   darknesslevel = darkness;
 }
 
 /*
@@ -561,18 +543,17 @@ void SetLightLevels ( int darkness )
 =
 ==========================
 */
-int GetLightLevelTile ( void )
+int GetLightLevelTile(void)
 {
-   if (fog==0)
-      {
-      return ((7-((baseminshade-0x10)<<1))+LIGHTLEVELBASE);
-      }
+   if (fog == 0)
+   {
+      return ((7 - ((baseminshade - 0x10) << 1)) + LIGHTLEVELBASE);
+   }
    else
-      {
-      return (baseminshade+LIGHTLEVELBASE);
-      }
+   {
+      return (baseminshade + LIGHTLEVELBASE);
+   }
 }
-
 
 /*
 ==========================
@@ -581,11 +562,13 @@ int GetLightLevelTile ( void )
 =
 ==========================
 */
-void SetLightRate ( int rate )
+void SetLightRate(int rate)
 {
-   normalshade=(HEIGHTFRACTION+8)-rate;
-   if (normalshade>14) normalshade=14;
-   if (normalshade<3) normalshade=3;
+   normalshade = (HEIGHTFRACTION + 8) - rate;
+   if (normalshade > 14)
+      normalshade = 14;
+   if (normalshade < 3)
+      normalshade = 3;
 }
 
 /*
@@ -595,9 +578,9 @@ void SetLightRate ( int rate )
 =
 ==========================
 */
-int GetLightRate ( void )
+int GetLightRate(void)
 {
-   return ((HEIGHTFRACTION+8)-normalshade);
+   return ((HEIGHTFRACTION + 8) - normalshade);
 }
 
 /*
@@ -607,12 +590,10 @@ int GetLightRate ( void )
 =
 ==========================
 */
-int GetLightRateTile ( void )
+int GetLightRateTile(void)
 {
-   return ((HEIGHTFRACTION+8)-normalshade+LIGHTRATEBASE);
+   return ((HEIGHTFRACTION + 8) - normalshade + LIGHTRATEBASE);
 }
-
-
 
 /*
 ==========================
@@ -621,39 +602,39 @@ int GetLightRateTile ( void )
 =
 ==========================
 */
-void UpdateLightLevel (int area)
+void UpdateLightLevel(int area)
 {
    int numlights;
    int targetmin;
    int targetmax;
    int numtiles;
 
-   if (fog==true)
+   if (fog == true)
       return;
 
-   numtiles=(numareatiles[area]>>5)-2;
-   numlights=(LightsInArea[area]-numtiles)>>1;
+   numtiles = (numareatiles[area] >> 5) - 2;
+   numlights = (LightsInArea[area] - numtiles) >> 1;
 
-   if (numlights<0)
-      numlights=0;
-   if (numlights>GENERALNUMLIGHTS)
-      numlights=GENERALNUMLIGHTS;
-   targetmin=baseminshade+(GENERALNUMLIGHTS-numlights);
-   targetmax=basemaxshade-numlights;
-   if (targetmax<baseminshade)
-      targetmax=baseminshade;
-   if (targetmin>targetmax)
-      targetmin=targetmax;
+   if (numlights < 0)
+      numlights = 0;
+   if (numlights > GENERALNUMLIGHTS)
+      numlights = GENERALNUMLIGHTS;
+   targetmin = baseminshade + (GENERALNUMLIGHTS - numlights);
+   targetmax = basemaxshade - numlights;
+   if (targetmax < baseminshade)
+      targetmax = baseminshade;
+   if (targetmin > targetmax)
+      targetmin = targetmax;
 
-   if (minshade>targetmin)
-      minshade-=1;
-   else if (minshade<targetmin)
-      minshade+=1;
+   if (minshade > targetmin)
+      minshade -= 1;
+   else if (minshade < targetmin)
+      minshade += 1;
 
-   if (maxshade>targetmax)
-      maxshade-=1;
-   else if (maxshade<targetmax)
-      maxshade+=1;
+   if (maxshade > targetmax)
+      maxshade -= 1;
+   else if (maxshade < targetmax)
+      maxshade += 1;
 
 #if 0
    targetlevel=baseminshade+(GENERALNUMLIGHTS-numlights);
@@ -676,20 +657,20 @@ void UpdateLightLevel (int area)
 =
 ==========================
 */
-void SetIllumination (int level)
+void SetIllumination(int level)
 {
    if (fog)
       return;
-	maxshade-=level;
-   if (maxshade>31)
-      maxshade=31;
-   if (maxshade<0x10)
-      maxshade=0x10;
-	minshade-=level;
-   if (minshade<0x10)
-      minshade=0x10;
-   if (minshade>31)
-      minshade=31;
+   maxshade -= level;
+   if (maxshade > 31)
+      maxshade = 31;
+   if (maxshade < 0x10)
+      maxshade = 0x10;
+   minshade -= level;
+   if (minshade < 0x10)
+      minshade = 0x10;
+   if (minshade > 31)
+      minshade = 31;
 }
 
 /*
@@ -699,12 +680,12 @@ void SetIllumination (int level)
 =
 ==========================
 */
-int GetIlluminationDelta (void)
+int GetIlluminationDelta(void)
 {
    if (fog)
       return 0;
    else
-      return maxshade-basemaxshade;
+      return maxshade - basemaxshade;
 }
 
 /*
@@ -714,57 +695,58 @@ int GetIlluminationDelta (void)
 =
 ==========================
 */
-void UpdateLightning (void)
+void UpdateLightning(void)
 {
-   if (periodic==true)
-      {
+   if (periodic == true)
+   {
       UpdatePeriodicLighting();
       return;
-      }
-   if ((fog==1) || (lightning==false))
+   }
+   if ((fog == 1) || (lightning == false))
       return;
 
-   if (lightningtime<=0)
+   if (lightningtime <= 0)
+   {
+      if (lightningsoundtime > 0)
+         SD_Play3D(SD_LIGHTNINGSND, 0, lightningdistance);
+      lightningtime = GameRandomNumber("UpdateLightning", 0) << 1;
+      lightningdistance = GameRandomNumber("UpdateLightning", 0);
+      lightninglevel = (255 - lightningdistance) >> LIGHTNINGLEVEL;
+      if (lightninglevel < MINLIGHTNINGLEVEL)
+         lightninglevel = MINLIGHTNINGLEVEL;
+      if (lightninglevel > MAXLIGHTNINGLEVEL)
+         lightninglevel = MAXLIGHTNINGLEVEL;
+      lightningdelta = lightninglevel >> 1;
+      lightningsoundtime = lightningdistance >> 1;
+      if (lightningdistance < 100)
       {
-      if (lightningsoundtime>0)
-         SD_Play3D (SD_LIGHTNINGSND, 0, lightningdistance);
-      lightningtime=GameRandomNumber("UpdateLightning",0)<<1;
-      lightningdistance=GameRandomNumber("UpdateLightning",0);
-      lightninglevel=(255-lightningdistance)>>LIGHTNINGLEVEL;
-      if (lightninglevel<MINLIGHTNINGLEVEL)
-         lightninglevel=MINLIGHTNINGLEVEL;
-      if (lightninglevel>MAXLIGHTNINGLEVEL)
-         lightninglevel=MAXLIGHTNINGLEVEL;
-      lightningdelta=lightninglevel>>1;
-      lightningsoundtime=lightningdistance>>1;
-      if (lightningdistance<100)
-         {
          SetIllumination(lightninglevel);
-         }
       }
-   else if (lightninglevel>0)
+   }
+   else if (lightninglevel > 0)
+   {
+      lightninglevel -= lightningdelta;
+      if (lightninglevel <= 0)
       {
-      lightninglevel-=lightningdelta;
-      if (lightninglevel<=0)
-         {
-         lightninglevel=0;
-         }
+         lightninglevel = 0;
       }
+   }
    else
       lightningtime--;
    if (lightningsoundtime)
-      {
+   {
       lightningsoundtime--;
-      if (lightningsoundtime<=0)
-         {
+      if (lightningsoundtime <= 0)
+      {
          int volume;
 
-         volume=255-lightningdistance;
-         if (volume>170) volume=170;
-         SD_PlayPitchedSound ( SD_LIGHTNINGSND, volume,-(lightningdistance<<2));
-         lightningsoundtime=0;
-         }
+         volume = 255 - lightningdistance;
+         if (volume > 170)
+            volume = 170;
+         SD_PlayPitchedSound(SD_LIGHTNINGSND, volume, -(lightningdistance << 2));
+         lightningsoundtime = 0;
       }
+   }
 }
 
 /*
@@ -777,14 +759,14 @@ void UpdateLightning (void)
 #define PERIODICMAG (6)
 #define PERIODICSTEP (20)
 #define PERIODICBASE (0x0f)
-void UpdatePeriodicLighting (void)
+void UpdatePeriodicLighting(void)
 {
    int val;
 
-   val=FixedMul(PERIODICMAG,sintable[periodictime]);
-   periodictime=(periodictime+PERIODICSTEP)&(FINEANGLES-1);
-   basemaxshade=PERIODICBASE+(PERIODICMAG)+val;
-   baseminshade=basemaxshade-GENERALNUMLIGHTS-1;
+   val = FixedMul(PERIODICMAG, sintable[periodictime]);
+   periodictime = (periodictime + PERIODICSTEP) & (FINEANGLES - 1);
+   basemaxshade = PERIODICBASE + (PERIODICMAG) + val;
+   baseminshade = basemaxshade - GENERALNUMLIGHTS - 1;
 }
 
 /*
@@ -794,53 +776,52 @@ void UpdatePeriodicLighting (void)
 =
 ==========================
 */
-void SetModemLightLevel ( int type )
+void SetModemLightLevel(int type)
 {
-   periodic=false;
-   fulllight=false;
+   periodic = false;
+   fulllight = false;
    switch (type)
+   {
+   case bo_light_dark:
+      MAPSPOT(2, 0, 0) = (word)216;
+      MAPSPOT(3, 0, 0) = (word)255;
+      MAPSPOT(3, 0, 1) = (word)139;
+      MAPSPOT(2, 0, 1) = (word)104;
+      SetupLightLevels();
+      break;
+   case bo_light_normal:
+      break;
+   case bo_light_bright:
+      MAPSPOT(2, 0, 0) = (word)223;
+      MAPSPOT(3, 0, 0) = (word)267;
+      MAPSPOT(3, 0, 1) = (word)0;
+      MAPSPOT(2, 0, 1) = (word)104;
+      SetupLightLevels();
+      break;
+   case bo_light_fog:
+      MAPSPOT(2, 0, 0) = (word)219;
+      MAPSPOT(3, 0, 0) = (word)259;
+      MAPSPOT(2, 0, 1) = (word)105;
+      MAPSPOT(3, 0, 1) = (word)0;
+      SetupLightLevels();
+      break;
+   case bo_light_periodic:
+      fog = 0;
+      MAPSPOT(2, 0, 1) = (word)104;
+      MAPSPOT(3, 0, 1) = (word)139;
+      SetupLightLevels();
+      periodic = true;
+      break;
+   case bo_light_lightning:
+      if (sky != 0)
       {
-      case bo_light_dark:
-         MAPSPOT(2,0,0)=(word)216;
-         MAPSPOT(3,0,0)=(word)255;
-         MAPSPOT(3,0,1)=(word)139;
-         MAPSPOT(2,0,1)=(word)104;
-         SetupLightLevels ();
-         break;
-      case bo_light_normal:
-         break;
-      case bo_light_bright:
-         MAPSPOT(2,0,0)=(word)223;
-         MAPSPOT(3,0,0)=(word)267;
-         MAPSPOT(3,0,1)=(word)0;
-         MAPSPOT(2,0,1)=(word)104;
-         SetupLightLevels ();
-         break;
-      case bo_light_fog:
-         MAPSPOT(2,0,0)=(word)219;
-         MAPSPOT(3,0,0)=(word)259;
-         MAPSPOT(2,0,1)=(word)105;
-         MAPSPOT(3,0,1)=(word)0;
-         SetupLightLevels ();
-         break;
-      case bo_light_periodic:
-         fog=0;
-         MAPSPOT(2,0,1)=(word)104;
-         MAPSPOT(3,0,1)=(word)139;
-         SetupLightLevels ();
-         periodic=true;
-         break;
-      case bo_light_lightning:
-         if (sky!=0)
-            {
-            MAPSPOT(2,0,0)=(word)222;
-            MAPSPOT(3,0,0)=(word)255;
-            MAPSPOT(3,0,1)=(word)139;
-            MAPSPOT(2,0,1)=(word)104;
-            SetupLightLevels ();
-            lightning=true;
-            }
-         break;
+         MAPSPOT(2, 0, 0) = (word)222;
+         MAPSPOT(3, 0, 0) = (word)255;
+         MAPSPOT(3, 0, 1) = (word)139;
+         MAPSPOT(2, 0, 1) = (word)104;
+         SetupLightLevels();
+         lightning = true;
       }
+      break;
+   }
 }
-

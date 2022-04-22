@@ -22,11 +22,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "rt_def.h"
 
-void SetupModemGame ( void );
-void ShutdownModemGame ( void );
-boolean ReadSerialPacket (void);
-void WriteSerialPacket (char *buffer, int len);
+void SetupModemGame(void);
+void ShutdownModemGame(void);
+boolean ReadSerialPacket(void);
+void WriteSerialPacket(char *buffer, int len);
 
-extern char  serialpacket[MAXPACKET];
-extern int   serialpacketlength;
+extern char serialpacket[MAXPACKET];
+extern int serialpacketlength;
 #endif

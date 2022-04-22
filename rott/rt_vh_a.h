@@ -26,8 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //***************************************************************************
 
-void VH_UpdateScreen (void);
-void JoyStick_Vals (void);
-#pragma aux JoyStick_Vals modify exact [eax ebx ecx edx esi edi]
+void VH_UpdateScreen(void);
+void JoyStick_Vals(void);
+#pragma aux JoyStick_Vals modify exact[eax ebx ecx edx esi edi]
 
 #endif

@@ -36,22 +36,23 @@ the express written permission of SpaceTec IMC Corporation.
 */
 //==================================================================
 
-typedef struct Spw_IntPacket {
-  unsigned char    command;	
-  unsigned char    res1;		
-  short            comspec;	
-  long             period;	
-  unsigned short   button;	
-  unsigned short   buttondown;	
-  short            tx;		
-  short            ty;		
-  short            tz;		
-  short            rx;		
-  short            ry;		
-  short            rz;		
-  short            res2;		
-  short            res3;		
-  unsigned short  checksum;
+typedef struct Spw_IntPacket
+{
+  unsigned char command;
+  unsigned char res1;
+  short comspec;
+  long period;
+  unsigned short button;
+  unsigned short buttondown;
+  short tx;
+  short ty;
+  short tz;
+  short rx;
+  short ry;
+  short rz;
+  short res2;
+  short res3;
+  unsigned short checksum;
 } Spw_IntPacket;
 
 #define SP_BTN_1 2
@@ -64,9 +65,9 @@ typedef struct Spw_IntPacket {
 #define MENU_AMT 0x855
 
 short SP_Open(void);
-void  SP_Get(Spw_IntPacket* sp);
-void  SP_Get_Btn(Spw_IntPacket* sp);
-void  SP_Close(void);
+void SP_Get(Spw_IntPacket *sp);
+void SP_Get_Btn(Spw_IntPacket *sp);
+void SP_Close(void);
 
 //==================================================================
 #endif /* SPW_INT_H */

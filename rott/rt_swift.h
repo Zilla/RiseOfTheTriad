@@ -34,14 +34,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //***************************************************************************
 
-int SWIFT_Initialize (void);
+int SWIFT_Initialize(void);
 //
 // Test for presence of SWIFT extensions and SWIFT device
 // Returns 1 (TRUE) if SWIFT features are available, 0 otherwise.
 // Remember to call SWIFT_Terminate() if SWIFT_Initialize succeeds!
 //
 
-void SWIFT_Terminate (void);
+void SWIFT_Terminate(void);
 //
 // Free resources required for SWIFT support.  If SWIFT_Initialize has
 // not been called, or returned FALSE, this function does nothing.
@@ -49,33 +49,32 @@ void SWIFT_Terminate (void);
 // SWIFT_Initialize has returned TRUE.
 //
 
-int SWIFT_GetAttachedDevice (void);
+int SWIFT_GetAttachedDevice(void);
 //
 // Returns the device-type code for the attached SWIFT device, if any.
 //
 
-int SWIFT_GetStaticDeviceInfo (SWIFT_StaticData far *psd);
+int SWIFT_GetStaticDeviceInfo(SWIFT_StaticData far *psd);
 //
-// Reads static device data.						
-//
-
-void SWIFT_Get3DStatus (SWIFT_3DStatus far *pstat);
-//
-// Read the current input state of the device.				
+// Reads static device data.
 //
 
-void SWIFT_TactileFeedback (int d, int on, int off);
+void SWIFT_Get3DStatus(SWIFT_3DStatus far *pstat);
 //
-// Generates tactile feedback to user.					
-// d   = duration of tactile burst, in milliseconds.			
-// on  = motor on-time per cycle, in milliseconds.			
-// off = motor off-time per cycle, in milliseconds.			
+// Read the current input state of the device.
 //
 
-unsigned SWIFT_GetDynamicDeviceData (void);
+void SWIFT_TactileFeedback(int d, int on, int off);
 //
-// Returns Dynamic Device Data word - see SDD_* above			
+// Generates tactile feedback to user.
+// d   = duration of tactile burst, in milliseconds.
+// on  = motor on-time per cycle, in milliseconds.
+// off = motor off-time per cycle, in milliseconds.
 //
 
+unsigned SWIFT_GetDynamicDeviceData(void);
+//
+// Returns Dynamic Device Data word - see SDD_* above
+//
 
 #endif

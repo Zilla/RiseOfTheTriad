@@ -43,7 +43,7 @@ boolean cinematicdone;
 static int cinematictime;
 static int cinematictics;
 static int cinematictictime;
-static int profiletics=-1;
+static int profiletics = -1;
 
 /*
 ================
@@ -52,24 +52,24 @@ static int profiletics=-1;
 =
 ================
 */
-void ProfileMachine ( void )
+void ProfileMachine(void)
 {
    int i;
    int time;
    int endtime;
 
-   if (profiletics>0)
+   if (profiletics > 0)
       return;
-   time=GetCinematicTime();
-   for (i=0;i<4;i++)
-      {
+   time = GetCinematicTime();
+   for (i = 0; i < 4; i++)
+   {
       ProfileDisplay();
-      }
-   endtime=GetCinematicTime();
+   }
+   endtime = GetCinematicTime();
 
-   profiletics = (endtime-time)>>2;
-   if (profiletics<1)
-      profiletics=1;
+   profiletics = (endtime - time) >> 2;
+   if (profiletics < 1)
+      profiletics = 1;
 }
 
 /*
@@ -79,17 +79,16 @@ void ProfileMachine ( void )
 =
 ================
 */
-void StartupCinematic ( void )
+void StartupCinematic(void)
 {
-   StartupEvents ();
-   StartupCinematicActors ();
-   cinematicdone=false;
-   cinematictime=0;
-   GetCinematicTics ();
+   StartupEvents();
+   StartupCinematicActors();
+   cinematicdone = false;
+   cinematictime = 0;
+   GetCinematicTics();
    ClearCinematicAbort();
    ProfileMachine();
 }
-
 
 /*
 ================
@@ -98,12 +97,11 @@ void StartupCinematic ( void )
 =
 ================
 */
-void ShutdownCinematic ( void )
+void ShutdownCinematic(void)
 {
-   ShutdownEvents ();
-   ShutdownCinematicActors ();
+   ShutdownEvents();
+   ShutdownCinematicActors();
 }
-
 
 /*
 ================
@@ -113,25 +111,23 @@ void ShutdownCinematic ( void )
 ================
 */
 
-void ParseCinematicScript (void)
+void ParseCinematicScript(void)
 {
    int time;
 
-   time=0;
+   time = 0;
    do
-      {
+   {
       //
       // get next command time
       //
-      GetToken (true);
+      GetToken(true);
       if (endofscript)
          break;
-      time+=ParseNum(token);
-      ParseEvent ( time );
-      }
-   while (script_p < scriptend_p);
+      time += ParseNum(token);
+      ParseEvent(time);
+   } while (script_p < scriptend_p);
 }
-
 
 /*
 ==============
@@ -141,23 +137,22 @@ void ParseCinematicScript (void)
 ==============
 */
 
-void CacheScriptFile (char *filename)
+void CacheScriptFile(char *filename)
 {
-	long            size;
+   long size;
    int lump;
 
-   lump=W_GetNumForName(filename);
+   lump = W_GetNumForName(filename);
 
-   scriptbuffer=W_CacheLumpNum(lump,PU_CACHE);
-	size = W_LumpLength(lump);
+   scriptbuffer = W_CacheLumpNum(lump, PU_CACHE);
+   size = W_LumpLength(lump);
 
-	script_p = scriptbuffer;
-	scriptend_p = script_p + size;
-	scriptline = 1;
-	endofscript = false;
-	tokenready = false;
+   script_p = scriptbuffer;
+   scriptend_p = script_p + size;
+   scriptline = 1;
+   endofscript = false;
+   tokenready = false;
 }
-
 
 /*
 =================
@@ -167,21 +162,21 @@ void CacheScriptFile (char *filename)
 =================
 */
 
-void GrabCinematicScript (char const *basename, boolean uselumpy)
+void GrabCinematicScript(char const *basename, boolean uselumpy)
 {
    char script[256];
 
-//
-// read in the script file
-//
-   strcpy (script, basename);
-   strcat (script,".ms");
-   if (uselumpy==false)
-      LoadScriptFile (script);
+   //
+   // read in the script file
+   //
+   strcpy(script, basename);
+   strcat(script, ".ms");
+   if (uselumpy == false)
+      LoadScriptFile(script);
    else
-      CacheScriptFile ((char *)basename);
+      CacheScriptFile((char *)basename);
 
-   ParseCinematicScript ();
+   ParseCinematicScript();
 }
 
 /*
@@ -192,109 +187,44 @@ void GrabCinematicScript (char const *basename, boolean uselumpy)
 ==============
 */
 
-void GetCinematicTics ( void )
+void GetCinematicTics(void)
 {
    int time;
 
-   time=GetCinematicTime();
-   while (time==cinematictictime)
-      {
-      time=GetCinematicTime();
-      }
-   cinematictics=(time-cinematictictime);
-   cinematictictime=time;
-   cinematictics=profiletics;
+   time = GetCinematicTime();
+   while (time == cinematictictime)
+   {
+      time = GetCinematicTime();
+   }
+   cinematictics = (time - cinematictictime);
+   cinematictictime = time;
+   cinematictics = profiletics;
 }
 
-
-void PlayMovie ( char * name, boolean uselumpy )
+void PlayMovie(char *name, boolean uselumpy)
 {
    int i;
 
-   StartupCinematic ( );
-   GrabCinematicScript (name, uselumpy);
+   StartupCinematic();
+   GrabCinematicScript(name, uselumpy);
 
-   PrecacheCinematic ( );
+   PrecacheCinematic();
    GetCinematicTics();
-   while (cinematicdone==false)
-      {
-      cinematicdone=CinematicAbort();
+   while (cinematicdone == false)
+   {
+      cinematicdone = CinematicAbort();
 #if DUMP
-      printf("time=%ld\n",cinematictime);
+      printf("time=%ld\n", cinematictime);
 #endif
-      for (i=0;i<cinematictics;i++)
-         {
-         UpdateCinematicEvents ( cinematictime );
-         UpdateCinematicActors ( );
+      for (i = 0; i < cinematictics; i++)
+      {
+         UpdateCinematicEvents(cinematictime);
+         UpdateCinematicActors();
          cinematictime++;
-         }
-      DrawCinematicActors ();
-      GetCinematicTics();
       }
+      DrawCinematicActors();
+      GetCinematicTics();
+   }
 
-   ShutdownCinematic ();
+   ShutdownCinematic();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

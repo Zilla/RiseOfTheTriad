@@ -28,7 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "lumpy.h"
 
-
 //***************************************************************************
 //
 // GLOBALS
@@ -37,30 +36,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int fontcolor;
 
-
 //***************************************************************************
 //
 // TYPEDEFS
 //
 //***************************************************************************
 
-typedef  struct
+typedef struct
 {
-   int   x,y;
+   int x, y;
 } Point;
 
-typedef  struct
+typedef struct
 {
-   int   x, y,
-         w, h,
-         px, py;
-} WindowRec;            // Record used to save & restore screen windows
+   int x, y,
+       w, h,
+       px, py;
+} WindowRec; // Record used to save & restore screen windows
 
-typedef  struct
+typedef struct
 {
-	Point ul,lr;
+   Point ul, lr;
 } Rect;
-
 
 //***************************************************************************
 //
@@ -72,53 +69,52 @@ typedef  struct
 // String rtns
 //
 
-void VW_DrawClippedString (int x, int y, char *string);
-void US_ClippedPrint (int x, int y, char *s);
+void VW_DrawClippedString(int x, int y, char *string);
+void US_ClippedPrint(int x, int y, char *s);
 
-void VWB_DrawPropString  (char *string);
-void VW_MeasurePropString (char *string, int *width, int *height);
+void VWB_DrawPropString(char *string);
+void VW_MeasurePropString(char *string, int *width, int *height);
 
-void US_MeasureStr (int *width, int *height, char * s, ...);
+void US_MeasureStr(int *width, int *height, char *s, ...);
 
-void VW_DrawPropString (char *string);
+void VW_DrawPropString(char *string);
 
-void US_SetPrintRoutines (void (*measure)(char *, int *, int *, font_t *),
-                          void (*print)(char *));
-void US_Print (char *s);
-void US_BufPrint (char *s);
-void US_PrintUnsigned (unsigned long int n);
-void US_PrintSigned (long int n);
-void USL_PrintInCenter (char *s, Rect r);
-void US_PrintCentered (char *s);
-void US_CPrintLine (char *s);
-void US_CPrint (char *s);
-
+void US_SetPrintRoutines(void (*measure)(char *, int *, int *, font_t *),
+                         void (*print)(char *));
+void US_Print(char *s);
+void US_BufPrint(char *s);
+void US_PrintUnsigned(unsigned long int n);
+void US_PrintSigned(long int n);
+void USL_PrintInCenter(char *s, Rect r);
+void US_PrintCentered(char *s);
+void US_CPrintLine(char *s);
+void US_CPrint(char *s);
 
 //
 // Input rtns
 //
 
-boolean US_LineInput (int x, int y, char *buf, char *def, boolean escok,
-                      int maxchars, int maxwidth, int color);
-boolean US_lineinput (int x, int y, char *buf, char *def, boolean escok,
-                      int maxchars, int maxwidth, int color);
+boolean US_LineInput(int x, int y, char *buf, char *def, boolean escok,
+                     int maxchars, int maxwidth, int color);
+boolean US_lineinput(int x, int y, char *buf, char *def, boolean escok,
+                     int maxchars, int maxwidth, int color);
 int CalibrateJoystick(void);
 
 //
 // Window rtns
 //
 
-void US_DrawWindow (int x, int y, int w, int h);
-void US_CenterWindow (int w, int h);
+void US_DrawWindow(int x, int y, int w, int h);
+void US_CenterWindow(int w, int h);
 
 //
 // Intensity font rtns
 //
 
-void DrawIString (unsigned short int x, unsigned short int y, char *string, int flags);
-void DrawIntensityString (unsigned short int x, unsigned short int y, char *string, int color);
-void VW_MeasureIntensityPropString (char *string, int *width, int *height);
-byte GetIntensityColor (byte pix);
+void DrawIString(unsigned short int x, unsigned short int y, char *string, int flags);
+void DrawIntensityString(unsigned short int x, unsigned short int y, char *string, int color);
+void VW_MeasureIntensityPropString(char *string, int *width, int *height);
+byte GetIntensityColor(byte pix);
 
 #include "myprint.h"
 

@@ -55,83 +55,76 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //===========================================================================
 
-
 static int tilesize;
 static fixed xscale;
 static fixed yscale;
-static int mapscale=2;
-static int oldw,oldh;
-static byte * skytile;
-static int mapcolor=8;
+static int mapscale = 2;
+static int oldw, oldh;
+static byte *skytile;
+static int mapcolor = 8;
 
-typedef struct PType {
-  int   x;
-  int   y;
+typedef struct PType
+{
+   int x;
+   int y;
 } Ptype;
 
-static Ptype arrows[8][7]=
-       {
-         { {4,2}, {2,4}, {2,3}, {0,3}, {0,1}, {2,1}, {2,0} },
-         { {4,0}, {4,3}, {3,2}, {1,4}, {0,3}, {2,1}, {1,0} },
-         { {2,0}, {4,2}, {3,2}, {3,4}, {1,4}, {1,2}, {0,2} },
-         { {0,0}, {3,0}, {2,1}, {4,3}, {3,4}, {1,2}, {0,3} },
-         { {0,2}, {2,0}, {2,1}, {4,1}, {4,3}, {2,3}, {2,4} },
-         { {0,4}, {0,1}, {1,2}, {3,0}, {4,1}, {2,3}, {3,4} },
-         { {2,4}, {0,2}, {1,2}, {1,0}, {3,0}, {3,2}, {4,2} },
-         { {4,4}, {1,4}, {2,3}, {0,1}, {1,0}, {3,2}, {4,1} },
-     };
+static Ptype arrows[8][7] =
+    {
+        {{4, 2}, {2, 4}, {2, 3}, {0, 3}, {0, 1}, {2, 1}, {2, 0}},
+        {{4, 0}, {4, 3}, {3, 2}, {1, 4}, {0, 3}, {2, 1}, {1, 0}},
+        {{2, 0}, {4, 2}, {3, 2}, {3, 4}, {1, 4}, {1, 2}, {0, 2}},
+        {{0, 0}, {3, 0}, {2, 1}, {4, 3}, {3, 4}, {1, 2}, {0, 3}},
+        {{0, 2}, {2, 0}, {2, 1}, {4, 1}, {4, 3}, {2, 3}, {2, 4}},
+        {{0, 4}, {0, 1}, {1, 2}, {3, 0}, {4, 1}, {2, 3}, {3, 4}},
+        {{2, 4}, {0, 2}, {1, 2}, {1, 0}, {3, 0}, {3, 2}, {4, 2}},
+        {{4, 4}, {1, 4}, {2, 3}, {0, 1}, {1, 0}, {3, 2}, {4, 1}},
+};
 
-void CheatMap( void )
+void CheatMap(void)
 {
    int i;
    int j;
-   statobj_t * temp;
-   objtype * a;
+   statobj_t *temp;
+   objtype *a;
 
-   for(temp=FIRSTSTAT;temp;temp=temp->statnext)
-      temp->flags|=FL_SEEN;
+   for (temp = FIRSTSTAT; temp; temp = temp->statnext)
+      temp->flags |= FL_SEEN;
 
-	for(a=FIRSTACTOR;a;a=a->next)
-      a->flags|=FL_SEEN;
+   for (a = FIRSTACTOR; a; a = a->next)
+      a->flags |= FL_SEEN;
 
-
-   for (j=0;j<MAPSIZE;j++)
-      for (i=0;i<MAPSIZE;i++)
-         mapseen[i][j]=1;
+   for (j = 0; j < MAPSIZE; j++)
+      for (i = 0; i < MAPSIZE; i++)
+         mapseen[i][j] = 1;
 }
 
-
-void FixMapSeen( void )
+void FixMapSeen(void)
 {
    int i;
    int j;
 
-   for (j=0;j<MAPSIZE;j++)
-      for (i=0;i<MAPSIZE;i++)
+   for (j = 0; j < MAPSIZE; j++)
+      for (i = 0; i < MAPSIZE; i++)
          if (!mapseen[i][j])
-            {
-            if (i==0 && ((mapseen[i][j+1] && j<MAPSIZE-1) || (mapseen[i][j-1] && j>0)) && mapseen[i+1][j])
-               mapseen[i][j]=1;
-            else if (i==MAPSIZE-1 && mapseen[i-1][j] && ((mapseen[i][j+1] && j<MAPSIZE-1) || (mapseen[i][j-1] && j>0)))
-               mapseen[i][j]=1;
-            else if (j==0 && ((mapseen[i+1][j] && i<MAPSIZE-1) || (mapseen[i-1][j] && i>0)) && mapseen[i][j+1])
-               mapseen[i][j]=1;
-            else if (j==MAPSIZE-1 && mapseen[i][j-1] && ((mapseen[i+1][j] && i<MAPSIZE-1) || (mapseen[i-1][j] && i>0)))
-               mapseen[i][j]=1;
+         {
+            if (i == 0 && ((mapseen[i][j + 1] && j < MAPSIZE - 1) || (mapseen[i][j - 1] && j > 0)) && mapseen[i + 1][j])
+               mapseen[i][j] = 1;
+            else if (i == MAPSIZE - 1 && mapseen[i - 1][j] && ((mapseen[i][j + 1] && j < MAPSIZE - 1) || (mapseen[i][j - 1] && j > 0)))
+               mapseen[i][j] = 1;
+            else if (j == 0 && ((mapseen[i + 1][j] && i < MAPSIZE - 1) || (mapseen[i - 1][j] && i > 0)) && mapseen[i][j + 1])
+               mapseen[i][j] = 1;
+            else if (j == MAPSIZE - 1 && mapseen[i][j - 1] && ((mapseen[i + 1][j] && i < MAPSIZE - 1) || (mapseen[i - 1][j] && i > 0)))
+               mapseen[i][j] = 1;
             else if (
-               (  ((mapseen[i-1][j]) && (mapseen[i][j+1]) && (!(tilemap[i-1][j+1])))
-                   ||
-                  ((mapseen[i-1][j]) && (mapseen[i][j-1]) && (!(tilemap[i-1][j-1])))
-                   ||
-                  ((mapseen[i+1][j]) && (mapseen[i][j+1]) && (!(tilemap[i+1][j+1])))
-                   ||
-                  ((mapseen[i+1][j]) && (mapseen[i][j-1]) && (!(tilemap[i+1][j-1])))
-               ) &&
-               tilemap[i][j])
-                  mapseen[i][j]=1;
-            }
+                (((mapseen[i - 1][j]) && (mapseen[i][j + 1]) && (!(tilemap[i - 1][j + 1]))) ||
+                 ((mapseen[i - 1][j]) && (mapseen[i][j - 1]) && (!(tilemap[i - 1][j - 1]))) ||
+                 ((mapseen[i + 1][j]) && (mapseen[i][j + 1]) && (!(tilemap[i + 1][j + 1]))) ||
+                 ((mapseen[i + 1][j]) && (mapseen[i][j - 1]) && (!(tilemap[i + 1][j - 1])))) &&
+                tilemap[i][j])
+               mapseen[i][j] = 1;
+         }
 }
-
 
 /*
 =======================
@@ -141,30 +134,30 @@ void FixMapSeen( void )
 =======================
 */
 
-void DrawMap_Wall (int x, int y, int tile)
+void DrawMap_Wall(int x, int y, int tile)
 {
-   byte * buf;
+   byte *buf;
    int p;
-   byte * b;
-   byte * source;
-   byte * s;
+   byte *b;
+   byte *source;
+   byte *s;
    int i;
 
-   x*=tilesize;
-   y*=tilesize;
-   buf=(byte *)bufferofs+ylookup[y]+(x>>2);
-   source=W_CacheLumpNum(tile,PU_CACHE);
-   for (p=0;p<4;p++)
-      {
+   x *= tilesize;
+   y *= tilesize;
+   buf = (byte *)bufferofs + ylookup[y] + (x >> 2);
+   source = W_CacheLumpNum(tile, PU_CACHE);
+   for (p = 0; p < 4; p++)
+   {
       VGAWRITEMAP(p);
-      s=source+((p*hp_srcstep)>>10);
-      b=buf;
-      for (i=p;i<tilesize;i+=4,b++)
-         {
-         DrawMapPost(tilesize,s,b);
-         s+=(hp_srcstep>>8);
-         }
+      s = source + ((p * hp_srcstep) >> 10);
+      b = buf;
+      for (i = p; i < tilesize; i += 4, b++)
+      {
+         DrawMapPost(tilesize, s, b);
+         s += (hp_srcstep >> 8);
       }
+   }
 }
 
 /*
@@ -175,9 +168,9 @@ void DrawMap_Wall (int x, int y, int tile)
 =======================
 */
 
-void DrawMap_AnimatedWall (int x, int y, int tile)
+void DrawMap_AnimatedWall(int x, int y, int tile)
 {
-   DrawMap_Wall(x,y,animwalls[tile].texture);
+   DrawMap_Wall(x, y, animwalls[tile].texture);
 }
 
 /*
@@ -188,28 +181,28 @@ void DrawMap_AnimatedWall (int x, int y, int tile)
 =======================
 */
 
-void DrawMap_SkyTile (int x, int y)
+void DrawMap_SkyTile(int x, int y)
 {
-   byte * buf;
+   byte *buf;
    int p;
-   byte * b;
-   byte * s;
+   byte *b;
+   byte *s;
    int i;
 
-   x*=tilesize;
-   y*=tilesize;
-   buf=(byte *)bufferofs+ylookup[y]+(x>>2);
-   for (p=0;p<4;p++)
-      {
+   x *= tilesize;
+   y *= tilesize;
+   buf = (byte *)bufferofs + ylookup[y] + (x >> 2);
+   for (p = 0; p < 4; p++)
+   {
       VGAWRITEMAP(p);
-      s=skytile+((p*hp_srcstep)>>10);
-      b=buf;
-      for (i=p;i<tilesize;i+=4,b++)
-         {
-         DrawMapPost(tilesize,s,b);
-         s+=(hp_srcstep>>8);
-         }
+      s = skytile + ((p * hp_srcstep) >> 10);
+      b = buf;
+      for (i = p; i < tilesize; i += 4, b++)
+      {
+         DrawMapPost(tilesize, s, b);
+         s += (hp_srcstep >> 8);
       }
+   }
 }
 
 /*
@@ -220,21 +213,21 @@ void DrawMap_SkyTile (int x, int y)
 =======================
 */
 
-void DrawMap_MaskedWall (int x, int y, int tile)
+void DrawMap_MaskedWall(int x, int y, int tile)
 {
-   if (IsPlatform(maskobjlist[tile]->tilex,maskobjlist[tile]->tiley))
-      {
-      if (!(maskobjlist[tile]->flags&MW_ABOVEPASSABLE))
-         DrawMap_MaskedShape(x,y,maskobjlist[tile]->toptexture,0);
-      else if (!(maskobjlist[tile]->flags&MW_BOTTOMPASSABLE))
-         DrawMap_MaskedShape(x,y,maskobjlist[tile]->bottomtexture,1);
+   if (IsPlatform(maskobjlist[tile]->tilex, maskobjlist[tile]->tiley))
+   {
+      if (!(maskobjlist[tile]->flags & MW_ABOVEPASSABLE))
+         DrawMap_MaskedShape(x, y, maskobjlist[tile]->toptexture, 0);
+      else if (!(maskobjlist[tile]->flags & MW_BOTTOMPASSABLE))
+         DrawMap_MaskedShape(x, y, maskobjlist[tile]->bottomtexture, 1);
       else
-         DrawMap_MaskedShape(x,y,maskobjlist[tile]->midtexture,0);
-      }
+         DrawMap_MaskedShape(x, y, maskobjlist[tile]->midtexture, 0);
+   }
    else
-      {
-      DrawMap_MaskedShape(x,y,maskobjlist[tile]->bottomtexture,1);
-      }
+   {
+      DrawMap_MaskedShape(x, y, maskobjlist[tile]->bottomtexture, 1);
+   }
 }
 
 /*
@@ -245,17 +238,16 @@ void DrawMap_MaskedWall (int x, int y, int tile)
 =======================
 */
 
-void DrawMap_Door (int x, int y, int tile)
+void DrawMap_Door(int x, int y, int tile)
 {
    if (
        (doorobjlist[tile]->lock > 0) &&
-       (doorobjlist[tile]->lock <= 4)
-      )
-      DrawMap_Wall(x,y,W_GetNumForName("lock1")+doorobjlist[tile]->lock-1);
-   else if (doorobjlist[tile]->texture==doorobjlist[tile]->basetexture)
-      DrawMap_Wall(x,y,doorobjlist[tile]->texture);
+       (doorobjlist[tile]->lock <= 4))
+      DrawMap_Wall(x, y, W_GetNumForName("lock1") + doorobjlist[tile]->lock - 1);
+   else if (doorobjlist[tile]->texture == doorobjlist[tile]->basetexture)
+      DrawMap_Wall(x, y, doorobjlist[tile]->texture);
    else
-      DrawMap_MaskedShape(x,y,doorobjlist[tile]->texture,0);
+      DrawMap_MaskedShape(x, y, doorobjlist[tile]->texture, 0);
 }
 
 /*
@@ -266,12 +258,12 @@ void DrawMap_Door (int x, int y, int tile)
 =======================
 */
 
-void DrawMap_PushWall (int x, int y, pwallobj_t * pw)
+void DrawMap_PushWall(int x, int y, pwallobj_t *pw)
 {
-   if (pw->texture&0x1000)
-      DrawMap_AnimatedWall(x,y,pw->texture&0x3ff);
+   if (pw->texture & 0x1000)
+      DrawMap_AnimatedWall(x, y, pw->texture & 0x3ff);
    else
-      DrawMap_Wall(x,y,pw->texture&0x3ff);
+      DrawMap_Wall(x, y, pw->texture & 0x3ff);
 }
 
 /*
@@ -282,17 +274,17 @@ void DrawMap_PushWall (int x, int y, pwallobj_t * pw)
 =======================
 */
 
-void DrawMap_Actor (int x, int y, objtype * a)
+void DrawMap_Actor(int x, int y, objtype *a)
 {
    int translucent;
 
-	if (!(a->flags&FL_SEEN))
+   if (!(a->flags & FL_SEEN))
       return;
 
-   translucent=0;
-	if (a->flags&FL_TRANSLUCENT)
-      translucent=1;
-   DrawMap_MaskedShape(x,y,a->shapenum+shapestart,translucent);
+   translucent = 0;
+   if (a->flags & FL_TRANSLUCENT)
+      translucent = 1;
+   DrawMap_MaskedShape(x, y, a->shapenum + shapestart, translucent);
 }
 
 /*
@@ -303,17 +295,17 @@ void DrawMap_Actor (int x, int y, objtype * a)
 =======================
 */
 
-void DrawMap_Sprite (int x, int y, statobj_t * s)
+void DrawMap_Sprite(int x, int y, statobj_t *s)
 {
    int translucent;
 
-	if (!(s->flags&FL_SEEN))
+   if (!(s->flags & FL_SEEN))
       return;
 
-   translucent=0;
-	if (s->flags&FL_TRANSLUCENT)
-      translucent=1;
-   DrawMap_MaskedShape(x,y,s->shapenum+shapestart,translucent);
+   translucent = 0;
+   if (s->flags & FL_TRANSLUCENT)
+      translucent = 1;
+   DrawMap_MaskedShape(x, y, s->shapenum + shapestart, translucent);
 }
 
 /*
@@ -324,16 +316,16 @@ void DrawMap_Sprite (int x, int y, statobj_t * s)
 =======================
 */
 
-void DrawMap_MaskedShape (int x, int y, int lump, int type)
+void DrawMap_MaskedShape(int x, int y, int lump, int type)
 {
 
    // Calculate center coordinates for sprites
 
-   x*=tilesize;
-   y*=tilesize;
-   x+=tilesize>>1;
-   y+=tilesize>>1;
-   DrawPositionedScaledSprite(x,y,lump,tilesize,type);
+   x *= tilesize;
+   y *= tilesize;
+   x += tilesize >> 1;
+   y += tilesize >> 1;
+   DrawPositionedScaledSprite(x, y, lump, tilesize, type);
 }
 
 /*
@@ -344,28 +336,26 @@ void DrawMap_MaskedShape (int x, int y, int lump, int type)
 =======================
 */
 
-void DrawMap_PlayerArrow (int x, int y, int dir)
+void DrawMap_PlayerArrow(int x, int y, int dir)
 {
    int i;
 
-   x*=tilesize;
-   y*=tilesize;
+   x *= tilesize;
+   y *= tilesize;
 
-   for (i=0;i<6;i++)
-      {
-      VL_DrawLine ((arrows[dir][i].x<<(4-mapscale))+x,
-                   (arrows[dir][i].y<<(4-mapscale))+y,
-                   (arrows[dir][i+1].x<<(4-mapscale))+x,
-                   (arrows[dir][i+1].y<<(4-mapscale))+y,
-                   244
-                  );
-      }
-   VL_DrawLine (  (arrows[dir][6].x<<(4-mapscale))+x,
-                  (arrows[dir][6].y<<(4-mapscale))+y,
-                  (arrows[dir][0].x<<(4-mapscale))+x,
-                  (arrows[dir][0].y<<(4-mapscale))+y,
-                  244
-               );
+   for (i = 0; i < 6; i++)
+   {
+      VL_DrawLine((arrows[dir][i].x << (4 - mapscale)) + x,
+                  (arrows[dir][i].y << (4 - mapscale)) + y,
+                  (arrows[dir][i + 1].x << (4 - mapscale)) + x,
+                  (arrows[dir][i + 1].y << (4 - mapscale)) + y,
+                  244);
+   }
+   VL_DrawLine((arrows[dir][6].x << (4 - mapscale)) + x,
+               (arrows[dir][6].y << (4 - mapscale)) + y,
+               (arrows[dir][0].x << (4 - mapscale)) + x,
+               (arrows[dir][0].y << (4 - mapscale)) + y,
+               244);
 }
 
 /*
@@ -376,13 +366,13 @@ void DrawMap_PlayerArrow (int x, int y, int dir)
 =======================
 */
 
-void DrawMap_Player (int x, int y)
+void DrawMap_Player(int x, int y)
 {
-   if (player->flags&FL_SHROOMS)
-      DrawMap_PlayerArrow(x,y,( RandomNumber("DrawMap_PLAYER",0)>>5) );
+   if (player->flags & FL_SHROOMS)
+      DrawMap_PlayerArrow(x, y, (RandomNumber("DrawMap_PLAYER", 0) >> 5));
    else
-      DrawMap_PlayerArrow(x,y,( ( (player->angle+(FINEANGLES/16)) & (FINEANGLES-1) ) >>8) );
-   DrawMap_MaskedShape(x,y,player->shapenum+shapestart,0);
+      DrawMap_PlayerArrow(x, y, (((player->angle + (FINEANGLES / 16)) & (FINEANGLES - 1)) >> 8));
+   DrawMap_MaskedShape(x, y, player->shapenum + shapestart, 0);
 }
 
 /*
@@ -393,145 +383,142 @@ void DrawMap_Player (int x, int y)
 =======================
 */
 
-void DrawMap( int cx, int cy )
+void DrawMap(int cx, int cy)
 {
-   fixed x,y;
-   statobj_t * s;
-   objtype * a;
-   int i,j;
-   int mapx,mapy;
+   fixed x, y;
+   statobj_t *s;
+   objtype *a;
+   int i, j;
+   int mapx, mapy;
    int wall;
 
    // Clear buffer
 
-   VL_ClearBuffer (bufferofs, egacolor[mapcolor]);
+   VL_ClearBuffer(bufferofs, egacolor[mapcolor]);
 
-   x=cx>>16;
-   y=cy>>16;
+   x = cx >> 16;
+   y = cy >> 16;
 
    // Draw Walls,Doors,maskedwalls,animatingwalls
 
-   for (j=0;j<yscale;j++)
-      {
+   for (j = 0; j < yscale; j++)
+   {
 
       // Don't go off the bottom of the map
 
-      mapy=j+y;
+      mapy = j + y;
 
-      if (mapy<0)
+      if (mapy < 0)
          continue;
 
-      if (mapy>127)
+      if (mapy > 127)
          break;
 
-      for (i=0;i<xscale;i++)
-         {
+      for (i = 0; i < xscale; i++)
+      {
 
          // Don't go off the right side of the map
 
-         mapx=i+x;
+         mapx = i + x;
 
-         if (mapx<0)
+         if (mapx < 0)
             continue;
 
-         if (mapx>127)
+         if (mapx > 127)
             break;
 
-         if ((mapx==player->tilex ) && (mapy==player->tiley))
-            {
-            DrawMap_Player(i,j);
+         if ((mapx == player->tilex) && (mapy == player->tiley))
+         {
+            DrawMap_Player(i, j);
             continue;
-            }
+         }
 
-         wall=tilemap[mapx][mapy];
+         wall = tilemap[mapx][mapy];
 
          // Check for absence of wall
 
          if (wall)
-            {
+         {
 
             if (!mapseen[mapx][mapy])
                continue;
 
             // Check to see if it is a door or masked wall
 
-            if (wall&0x8000)
+            if (wall & 0x8000)
+            {
+               if (wall & 0x4000)
                {
-               if (wall&0x4000)
-                  {
                   // Must be a masked wall
-                  DrawMap_MaskedWall(i,j,wall&0x3ff);
-                  }
-               else
-                  {
-                  // Must be a door
-                  DrawMap_Door(i,j,wall&0x3ff);
-                  }
+                  DrawMap_MaskedWall(i, j, wall & 0x3ff);
                }
+               else
+               {
+                  // Must be a door
+                  DrawMap_Door(i, j, wall & 0x3ff);
+               }
+            }
 
             // Check to see if it is an animating wall
 
-            else if (wall&0x1000)
-               {
-               DrawMap_AnimatedWall(i,j,wall&0x3ff);
-               }
-            else if (IsWindow(mapx,mapy))
-               {
-               if (sky!=0)
-                  DrawMap_SkyTile(i,j);
+            else if (wall & 0x1000)
+            {
+               DrawMap_AnimatedWall(i, j, wall & 0x3ff);
+            }
+            else if (IsWindow(mapx, mapy))
+            {
+               if (sky != 0)
+                  DrawMap_SkyTile(i, j);
                else
                   Error("Trying to draw a sky on a level without sky\n");
-               }
-            else
-               {
-               // Must be a normal wall or a wall with something above
-               DrawMap_Wall(i,j,wall&0x3ff);
-               }
             }
-         else
+            else
             {
-            a=actorat[mapx][mapy];
+               // Must be a normal wall or a wall with something above
+               DrawMap_Wall(i, j, wall & 0x3ff);
+            }
+         }
+         else
+         {
+            a = actorat[mapx][mapy];
 
             // Check for absence of actor
 
             if (a)
+            {
+               switch (a->which)
                {
-               switch(a->which)
-                  {
-                  case PWALL:
-                     if (!mapseen[mapx][mapy])
-                        continue;
-                     DrawMap_PushWall(i,j,(pwallobj_t *)a);
-                     break;
-                  case ACTOR:
-                     DrawMap_Actor(i,j,a);
-                     break;
-                  case SPRITE:
-                     DrawMap_Actor(i,j,a);
-                     break;
-                  default:
-                     SoftError("Unable to resolve actorat at x=%ld y=%ld which=%ld\n",mapx,mapy,a->which);
-                     break;
-                  }
+               case PWALL:
+                  if (!mapseen[mapx][mapy])
+                     continue;
+                  DrawMap_PushWall(i, j, (pwallobj_t *)a);
+                  break;
+               case ACTOR:
+                  DrawMap_Actor(i, j, a);
+                  break;
+               case SPRITE:
+                  DrawMap_Actor(i, j, a);
+                  break;
+               default:
+                  SoftError("Unable to resolve actorat at x=%ld y=%ld which=%ld\n", mapx, mapy, a->which);
+                  break;
                }
+            }
             else
-               {
-               s=sprites[mapx][mapy];
+            {
+               s = sprites[mapx][mapy];
 
                // Check for absence of sprite
 
                if (s)
-                  {
-                  DrawMap_Sprite(i,j,s);
-                  }
+               {
+                  DrawMap_Sprite(i, j, s);
                }
             }
          }
       }
+   }
 }
-
-
-
 
 /*
 =======================
@@ -541,22 +528,22 @@ void DrawMap( int cx, int cy )
 =======================
 */
 
-void SetupFullMap( void )
+void SetupFullMap(void)
 {
    int ty;
    pic_t *pic;
 
    // Fill in backgrounds
 
-   pic = (pic_t *) W_CacheLumpNum (W_GetNumForName ("mmbk"), PU_CACHE);
-   VWB_DrawPic (0, 0, pic);
+   pic = (pic_t *)W_CacheLumpNum(W_GetNumForName("mmbk"), PU_CACHE);
+   VWB_DrawPic(0, 0, pic);
    CheckHolidays();
 
    // Clear area for map
 
    VGAMAPMASK(15);
-   for (ty=37;ty<37+127;ty++)
-      memset((byte *)bufferofs+ylookup[ty]+24,0,32);
+   for (ty = 37; ty < 37 + 127; ty++)
+      memset((byte *)bufferofs + ylookup[ty] + 24, 0, 32);
 }
 
 /*
@@ -567,122 +554,122 @@ void SetupFullMap( void )
 =======================
 */
 
-void DrawFullMap( void )
+void DrawFullMap(void)
 {
-   statobj_t * s;
-   objtype * a;
-   int mapx,mapy;
+   statobj_t *s;
+   objtype *a;
+   int mapx, mapy;
    int wall;
-   byte * buf;
+   byte *buf;
 
    SetupFullMap();
 
    // Draw Walls,Doors,maskedwalls,animatingwalls
 
-   for (mapx=0;mapx<mapwidth;mapx++)
+   for (mapx = 0; mapx < mapwidth; mapx++)
+   {
+      VGAWRITEMAP(mapx & 3);
+      buf = (byte *)bufferofs + ylookup[37] + ((96 + mapx) >> 2);
+      for (mapy = 0; mapy < mapheight; mapy++, buf += SCREENBWIDE)
       {
-      VGAWRITEMAP(mapx&3);
-      buf=(byte *)bufferofs+ylookup[37]+((96+mapx)>>2);
-      for (mapy=0;mapy<mapheight;mapy++,buf+=SCREENBWIDE)
+         if ((mapx == player->tilex) && (mapy == player->tiley))
          {
-         if ((mapx==player->tilex ) && (mapy==player->tiley))
-            {
-            *buf=egacolor[MAP_PLAYERCOLOR];
+            *buf = egacolor[MAP_PLAYERCOLOR];
             continue;
-            }
+         }
 
-         wall=tilemap[mapx][mapy];
+         wall = tilemap[mapx][mapy];
 
          // Check for absence of wall
 
          if (wall)
-            {
+         {
 
             if (!mapseen[mapx][mapy])
                continue;
 
             // Check to see if it is a door or masked wall
 
-            if (wall&0x8000)
+            if (wall & 0x8000)
+            {
+               if (wall & 0x4000)
                {
-               if (wall&0x4000)
-                  {
                   // Must be a maskedwall
-                  *(buf)=egacolor[MAP_MWALLCOLOR];
-                  }
-               else
-                  {
-                  // Must be a door
-                  *(buf)=egacolor[MAP_DOORCOLOR];
-                  }
+                  *(buf) = egacolor[MAP_MWALLCOLOR];
                }
+               else
+               {
+                  // Must be a door
+                  *(buf) = egacolor[MAP_DOORCOLOR];
+               }
+            }
 
             // Check to see if it is an animating wall
 
-            else if (wall&0x1000)
-               {
-               *(buf)=egacolor[MAP_AWALLCOLOR];
-               }
-            else if (IsWindow(mapx,mapy))
-               {
-               if (sky!=0)
-                  *(buf)=egacolor[MAP_SKYCOLOR];
+            else if (wall & 0x1000)
+            {
+               *(buf) = egacolor[MAP_AWALLCOLOR];
+            }
+            else if (IsWindow(mapx, mapy))
+            {
+               if (sky != 0)
+                  *(buf) = egacolor[MAP_SKYCOLOR];
                else
                   Error("Trying to draw a sky on a level without sky\n");
-               }
-            else
-               {
-               // Must be a normal wall or a wall with something above
-               *(buf)=egacolor[MAP_WALLCOLOR];
-               }
             }
-         else
+            else
             {
-            a=actorat[mapx][mapy];
+               // Must be a normal wall or a wall with something above
+               *(buf) = egacolor[MAP_WALLCOLOR];
+            }
+         }
+         else
+         {
+            a = actorat[mapx][mapy];
 
             // Check for absence of actor
 
             if (a)
+            {
+               switch (a->which)
                {
-               switch(a->which)
+               case PWALL:
+                  if (!mapseen[mapx][mapy])
+                     continue;
+                  *(buf) = egacolor[MAP_PWALLCOLOR];
+                  break;
+               case ACTOR:
+                  if (a->flags & FL_SEEN)
                   {
-                  case PWALL:
-                     if (!mapseen[mapx][mapy])
-                        continue;
-                     *(buf)=egacolor[MAP_PWALLCOLOR];
-                     break;
-                  case ACTOR:
-                     if (a->flags&FL_SEEN)
-                        {
-                        if (a->obclass==inertobj)
-                           *(buf)=egacolor[MAP_SPRITECOLOR];
-                        else
-                           *(buf)=egacolor[MAP_ACTORCOLOR];
-                        }
-                     break;
-                  case SPRITE:
-                     if (a->flags&FL_SEEN)
-                        *(buf)=egacolor[MAP_SPRITECOLOR];
-                     break;
-                  default:
-                     SoftError("Unable to resolve actorat at x=%ld y=%ld which=%ld\n",mapx,mapy,a->which);
-                     break;
+                     if (a->obclass == inertobj)
+                        *(buf) = egacolor[MAP_SPRITECOLOR];
+                     else
+                        *(buf) = egacolor[MAP_ACTORCOLOR];
                   }
+                  break;
+               case SPRITE:
+                  if (a->flags & FL_SEEN)
+                     *(buf) = egacolor[MAP_SPRITECOLOR];
+                  break;
+               default:
+                  SoftError("Unable to resolve actorat at x=%ld y=%ld which=%ld\n", mapx, mapy, a->which);
+                  break;
                }
+            }
             else
-               {
-               s=sprites[mapx][mapy];
+            {
+               s = sprites[mapx][mapy];
 
                // Check for absence of sprite
 
-               if (s && (s->flags&FL_SEEN))
-                  {
-                  *(buf)=egacolor[MAP_SPRITECOLOR];
-                  }
+               if (s && (s->flags & FL_SEEN))
+               {
+                  *(buf) = egacolor[MAP_SPRITECOLOR];
                }
             }
          }
       }
+   }
    FlipPage();
 }
 
@@ -694,37 +681,37 @@ void DrawFullMap( void )
 =======================
 */
 
-void DrawMapInfo ( void )
+void DrawMapInfo(void)
 {
    char temp[80];
-   int width,height;
+   int width, height;
 
-   CurrentFont=tinyfont;
+   CurrentFont = tinyfont;
 
    PrintX = 2;
    PrintY = 2;
-   strcpy (&temp[0], &(LevelName[0]));
-   US_MeasureStr (&width, &height, &temp[0]);
+   strcpy(&temp[0], &(LevelName[0]));
+   US_MeasureStr(&width, &height, &temp[0]);
 
-   VWB_TBar (0, 0, 320, height+4);
+   VWB_TBar(0, 0, 320, height + 4);
 
-   US_BufPrint (&temp[0]);
+   US_BufPrint(&temp[0]);
 
-   strcpy (&temp[0], "TAB=EXIT");
-   US_MeasureStr (&width, &height, &temp[0]);
+   strcpy(&temp[0], "TAB=EXIT");
+   US_MeasureStr(&width, &height, &temp[0]);
 
-   PrintX = 316-width;
+   PrintX = 316 - width;
    PrintY = 2;
 
-   US_BufPrint (&temp[0]);
+   US_BufPrint(&temp[0]);
 
-   strcpy (&temp[0], "< > CHANGE BACKGROUND COLOR");
-   US_MeasureStr (&width, &height, &temp[0]);
+   strcpy(&temp[0], "< > CHANGE BACKGROUND COLOR");
+   US_MeasureStr(&width, &height, &temp[0]);
 
-   PrintX = (320-width)>>1;
+   PrintX = (320 - width) >> 1;
    PrintY = 2;
 
-   US_BufPrint (&temp[0]);
+   US_BufPrint(&temp[0]);
 }
 
 /*
@@ -735,15 +722,14 @@ void DrawMapInfo ( void )
 =======================
 */
 
-void SetupMapScale( int s )
+void SetupMapScale(int s)
 {
-   mapscale=s;
-   tilesize=64>>mapscale;
-   xscale=320/tilesize;
-   yscale=200/tilesize;
-   hp_srcstep=0x10000<<mapscale;
+   mapscale = s;
+   tilesize = 64 >> mapscale;
+   xscale = 320 / tilesize;
+   yscale = 200 / tilesize;
+   hp_srcstep = 0x10000 << mapscale;
 }
-
 
 /*
 =======================
@@ -753,25 +739,24 @@ void SetupMapScale( int s )
 =======================
 */
 
-void ChangeMapScale( int * newx, int * newy, int newmapscale )
+void ChangeMapScale(int *newx, int *newy, int newmapscale)
 {
-   if (newmapscale<0)
+   if (newmapscale < 0)
       return;
-   if (newmapscale>FULLMAP_SCALE)
+   if (newmapscale > FULLMAP_SCALE)
       return;
 
-   if (newmapscale==FULLMAP_SCALE)
+   if (newmapscale == FULLMAP_SCALE)
       DrawFullMap();
 
-   *newx=*newx+(xscale<<15);
-   *newy=*newy+(yscale<<15);
+   *newx = *newx + (xscale << 15);
+   *newy = *newy + (yscale << 15);
 
    SetupMapScale(newmapscale);
 
-   *newx=*newx-(xscale<<15);
-   *newy=*newy-(yscale<<15);
+   *newx = *newx - (xscale << 15);
+   *newy = *newy - (yscale << 15);
 }
-
 
 /*
 =======================
@@ -780,21 +765,21 @@ void ChangeMapScale( int * newx, int * newy, int newmapscale )
 =
 =======================
 */
-void SetupMapper ( void )
+void SetupMapper(void)
 {
    FixMapSeen();
 
-   tics=0;
-   oldw=viewwidth;
-   oldh=viewheight;
-   viewwidth=320;
-   viewheight=200;
+   tics = 0;
+   oldw = viewwidth;
+   oldh = viewheight;
+   viewwidth = 320;
+   viewheight = 200;
 
-   if (sky!=0)
-      {
-      skytile=SafeMalloc(64*64);
+   if (sky != 0)
+   {
+      skytile = SafeMalloc(64 * 64);
       MakeSkyTile(skytile);
-      }
+   }
 }
 
 /*
@@ -804,14 +789,14 @@ void SetupMapper ( void )
 =
 =======================
 */
-void ShutdownMapper ( void )
+void ShutdownMapper(void)
 {
-   VL_ClearVideo (0);
-   viewwidth=oldw;
-   viewheight=oldh;
-   SetupScreen (true);
+   VL_ClearVideo(0);
+   viewwidth = oldw;
+   viewheight = oldh;
+   SetupScreen(true);
 
-   if (sky!=0)
+   if (sky != 0)
       SafeFree(skytile);
    if (mouseenabled && MousePresent)
       PollMouseMove();
@@ -825,161 +810,160 @@ void ShutdownMapper ( void )
 =======================
 */
 
-void DoMap (int cx, int cy)
+void DoMap(int cx, int cy)
 {
-   int x,y;
+   int x, y;
    int dx;
    int dy;
    boolean done;
    int quitkey;
    ControlInfo control;
 
-
    ShutdownClientControls();
 
-   done=false;
+   done = false;
 
    while (Keyboard[sc_Tab])
-      IN_UpdateKeyboard ();
+      IN_UpdateKeyboard();
    if (SpaceBallPresent && spaceballenabled)
-      {
-      while (GetSpaceBallButtons()) ;
-      }
+   {
+      while (GetSpaceBallButtons())
+         ;
+   }
 
-   x=(cx-(xscale>>1))<<16;
-   y=(cy-(yscale>>1))<<16;
+   x = (cx - (xscale >> 1)) << 16;
+   y = (cy - (yscale >> 1)) << 16;
 
    SetupMapper();
 
-   transparentlevel=25;
+   transparentlevel = 25;
 
    ChangeMapScale(&x, &y, mapscale);
 
-   while (done==false)
-     {
-     IN_UpdateKeyboard ();
-     if ((Keyboard[sc_Tab]) || (Keyboard[sc_Escape]))
-        {
-        if (Keyboard[sc_Tab])
-           quitkey=sc_Tab;
-        else
-           quitkey=sc_Escape;
-        done=true;
-        }
-     if (SpaceBallPresent && spaceballenabled)
-        {
-        if (GetSpaceBallButtons()!=0)
-           done=true;
-        }
-     if ( Keyboard[ sc_Home ] )
-        {
-        x=(cx-(xscale>>1))<<16;
-        y=(cy-(yscale>>1))<<16;
-        }
-     dx=0;
-     dy=0;
-     if (mapscale==FULLMAP_SCALE)
-        CalcTics();
-     else
-        {
-        DrawMap(x,y);
-        DrawMapInfo ();
-        FlipPage();
-        CalcTics();
-        DoSprites();
-	     AnimateWalls();
-        }
-     ReadAnyControl (&control);
-     if ((Keyboard[sc_PgUp]) ||
-         (Keyboard[sc_Plus])  ||
-         (control.button1))
-        {
-        ChangeMapScale(&x, &y, mapscale+1);
-        while(Keyboard[sc_PgUp])
-           IN_UpdateKeyboard ();
-        while(Keyboard[sc_Plus])
-           IN_UpdateKeyboard ();
-        while(control.button1)
-           ReadAnyControl (&control);
-        }
-     if ((Keyboard[sc_PgDn]) ||
-         (Keyboard[sc_Minus])  ||
-         (control.button0))
-        {
-        ChangeMapScale(&x, &y, mapscale-1);
-        while(Keyboard[sc_PgDn])
-           IN_UpdateKeyboard ();
-        while(Keyboard[sc_Minus])
-           IN_UpdateKeyboard ();
-        while(control.button0)
-           ReadAnyControl (&control);
-        }
-     if (Keyboard[sc_CapsLock] && Keyboard[sc_C])
-        {
-        inhmenu=true;
-        SaveScreen (true);
-        inhmenu=false;
-        }
-     if (Keyboard[sc_CapsLock] && Keyboard[sc_X])
-        {
-        inhmenu=true;
-        SaveScreen (false);
-        inhmenu=false;
-        }
-     if (Keyboard[sc_Comma])
-        {
-        if (mapcolor>0)
-           mapcolor--;
-        while(Keyboard[sc_Comma])
-           IN_UpdateKeyboard ();
-        }
-     if (Keyboard[sc_Period])
-        {
-        if (mapcolor<15)
-           mapcolor++;
-        while(Keyboard[sc_Period])
-           IN_UpdateKeyboard ();
-        }
-     if (mapscale!=FULLMAP_SCALE)
-        {
-        if (control.dir==dir_East)
-           dx=(tics<<17)/(5-mapscale);
-        if (control.dir==dir_West)
-           dx=-(tics<<17)/(5-mapscale);
-        if (control.dir==dir_South)
-           dy=(tics<<17)/(5-mapscale);
-        if (control.dir==dir_North)
-           dy=-(tics<<17)/(5-mapscale);
-        }
+   while (done == false)
+   {
+      IN_UpdateKeyboard();
+      if ((Keyboard[sc_Tab]) || (Keyboard[sc_Escape]))
+      {
+         if (Keyboard[sc_Tab])
+            quitkey = sc_Tab;
+         else
+            quitkey = sc_Escape;
+         done = true;
+      }
+      if (SpaceBallPresent && spaceballenabled)
+      {
+         if (GetSpaceBallButtons() != 0)
+            done = true;
+      }
+      if (Keyboard[sc_Home])
+      {
+         x = (cx - (xscale >> 1)) << 16;
+         y = (cy - (yscale >> 1)) << 16;
+      }
+      dx = 0;
+      dy = 0;
+      if (mapscale == FULLMAP_SCALE)
+         CalcTics();
+      else
+      {
+         DrawMap(x, y);
+         DrawMapInfo();
+         FlipPage();
+         CalcTics();
+         DoSprites();
+         AnimateWalls();
+      }
+      ReadAnyControl(&control);
+      if ((Keyboard[sc_PgUp]) ||
+          (Keyboard[sc_Plus]) ||
+          (control.button1))
+      {
+         ChangeMapScale(&x, &y, mapscale + 1);
+         while (Keyboard[sc_PgUp])
+            IN_UpdateKeyboard();
+         while (Keyboard[sc_Plus])
+            IN_UpdateKeyboard();
+         while (control.button1)
+            ReadAnyControl(&control);
+      }
+      if ((Keyboard[sc_PgDn]) ||
+          (Keyboard[sc_Minus]) ||
+          (control.button0))
+      {
+         ChangeMapScale(&x, &y, mapscale - 1);
+         while (Keyboard[sc_PgDn])
+            IN_UpdateKeyboard();
+         while (Keyboard[sc_Minus])
+            IN_UpdateKeyboard();
+         while (control.button0)
+            ReadAnyControl(&control);
+      }
+      if (Keyboard[sc_CapsLock] && Keyboard[sc_C])
+      {
+         inhmenu = true;
+         SaveScreen(true);
+         inhmenu = false;
+      }
+      if (Keyboard[sc_CapsLock] && Keyboard[sc_X])
+      {
+         inhmenu = true;
+         SaveScreen(false);
+         inhmenu = false;
+      }
+      if (Keyboard[sc_Comma])
+      {
+         if (mapcolor > 0)
+            mapcolor--;
+         while (Keyboard[sc_Comma])
+            IN_UpdateKeyboard();
+      }
+      if (Keyboard[sc_Period])
+      {
+         if (mapcolor < 15)
+            mapcolor++;
+         while (Keyboard[sc_Period])
+            IN_UpdateKeyboard();
+      }
+      if (mapscale != FULLMAP_SCALE)
+      {
+         if (control.dir == dir_East)
+            dx = (tics << 17) / (5 - mapscale);
+         if (control.dir == dir_West)
+            dx = -(tics << 17) / (5 - mapscale);
+         if (control.dir == dir_South)
+            dy = (tics << 17) / (5 - mapscale);
+         if (control.dir == dir_North)
+            dy = -(tics << 17) / (5 - mapscale);
+      }
 #if (DEVELOPMENT == 1)
-     if (Keyboard[sc_M])
-        {
-        CheatMap();
-        ChangeMapScale( &x, &y, mapscale );
-        }
+      if (Keyboard[sc_M])
+      {
+         CheatMap();
+         ChangeMapScale(&x, &y, mapscale);
+      }
 #endif
 
-     x+=dx;
-     y+=dy;
+      x += dx;
+      y += dy;
 
-     if (x>0x7effff)
-        x=0x7effff;
-     else if (x<-(xscale<<15))
-        x=-(xscale<<15);
-     if (y>0x7effff)
-        y=0x7effff;
-     else if (y<-(yscale<<15))
-        y=-(yscale<<15);
-     }
+      if (x > 0x7effff)
+         x = 0x7effff;
+      else if (x < -(xscale << 15))
+         x = -(xscale << 15);
+      if (y > 0x7effff)
+         y = 0x7effff;
+      else if (y < -(yscale << 15))
+         y = -(yscale << 15);
+   }
    while (Keyboard[quitkey])
-      IN_UpdateKeyboard ();
+      IN_UpdateKeyboard();
 
-   LastScan=0;
-   Keyboard[sc_Escape]=0;
-   Keyboard[sc_Tab]=0;
+   LastScan = 0;
+   Keyboard[sc_Escape] = 0;
+   Keyboard[sc_Tab] = 0;
 
    ShutdownMapper();
 
    StartupClientControls();
 }
-

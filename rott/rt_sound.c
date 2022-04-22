@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "rt_str.h"
 
-#if (SHAREWARE==0)
+#if (SHAREWARE == 0)
 #include "snd_reg.h"
 #else
 #include "snd_shar.h"
@@ -53,33 +53,32 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static soundstart;
 static soundtype;
-int SD_Started=false;
-static boolean PositionStored=false;
-static int NumBadSounds=0;
+int SD_Started = false;
+static boolean PositionStored = false;
+static int NumBadSounds = 0;
 static int remotestart;
 static boolean SoundsRemapped = false;
 
-int musicnums[ 11 ] = {
-   -1, UltraSound, SoundBlaster, SoundMan16, ProAudioSpectrum,
-   Awe32, SoundScape, WaveBlaster, GenMidi, SoundCanvas, Adlib
-   };
+int musicnums[11] = {
+    -1, UltraSound, SoundBlaster, SoundMan16, ProAudioSpectrum,
+    Awe32, SoundScape, WaveBlaster, GenMidi, SoundCanvas, Adlib};
 
-int fxnums[ 11 ] = {
-   -1, UltraSound, SoundBlaster, SoundMan16, ProAudioSpectrum,
-   Awe32, SoundScape, Adlib, SoundSource, TandySoundSource, PC
-   };
+int fxnums[11] = {
+    -1, UltraSound, SoundBlaster, SoundMan16, ProAudioSpectrum,
+    Awe32, SoundScape, Adlib, SoundSource, TandySoundSource, PC};
 
-int MUSIC_GetPosition( void ) {
+int MUSIC_GetPosition(void)
+{
    songposition pos;
 
-   MUSIC_GetSongPosition( &pos );
+   MUSIC_GetSongPosition(&pos);
    return pos.milliseconds;
 }
 
-void MUSIC_SetPosition( int time ) {
-   MUSIC_SetSongTime( ( unsigned long )time );
+void MUSIC_SetPosition(int time)
+{
+   MUSIC_SetSongTime((unsigned long)time);
 }
-
 
 //***************************************************************************
 //
@@ -87,38 +86,37 @@ void MUSIC_SetPosition( int time ) {
 //
 //***************************************************************************
 
-int SoundNumber ( int x )
+int SoundNumber(int x)
 {
-   if ((x>=SD_REMOTEM1SND) && (x<=SD_REMOTEM10SND))
+   if ((x >= SD_REMOTEM1SND) && (x <= SD_REMOTEM10SND))
       return remotestart + x - SD_REMOTEM1SND;
-//      sounds[x].snds[soundtype]+remotestart;
+   //      sounds[x].snds[soundtype]+remotestart;
    else
-      return sounds[x].snds[soundtype]+soundstart;
+      return sounds[x].snds[soundtype] + soundstart;
 }
-
 
 //***************************************************************************
 //
 // SD_MakeCacheable - Make a sound that has just finished playing cacheable again
 //
 //***************************************************************************
-void SD_MakeCacheable( unsigned long sndnum )
+void SD_MakeCacheable(unsigned long sndnum)
 {
-   if (sndnum == (unsigned long) -1)
-      {
+   if (sndnum == (unsigned long)-1)
+   {
       return;
-      }
+   }
 
-   if (sndnum>=MAXSOUNDS)
-      {
-      SoftError ("Illegal sound value in SD_MakeCacheable value=%ld\n",sndnum);
+   if (sndnum >= MAXSOUNDS)
+   {
+      SoftError("Illegal sound value in SD_MakeCacheable value=%ld\n", sndnum);
       return;
-      }
+   }
    sounds[sndnum].count--;
-   if (sounds[sndnum].count>0)
+   if (sounds[sndnum].count > 0)
       return;
    else
-      W_CacheLumpNum(SoundNumber(sndnum),PU_CACHE);
+      W_CacheLumpNum(SoundNumber(sndnum), PU_CACHE);
 }
 
 #if 0
@@ -148,43 +146,43 @@ void SD_PrintActive ( void )
 //
 //***************************************************************************
 
-int SD_SetupFXCard ( int * numvoices, int * numbits, int * numchannels)
+int SD_SetupFXCard(int *numvoices, int *numbits, int *numchannels)
 {
    fx_device device;
    int status;
    int card;
 
-   if (SD_Started==true)
+   if (SD_Started == true)
       SD_Shutdown();
 
-   if ( ( FXMode < 0 ) || ( FXMode >= 11 ) )
-      {
-      return( 0 );
-      }
-
-   card = fxnums[ FXMode ];
-   if (card==-1) // Check if it is off
+   if ((FXMode < 0) || (FXMode >= 11))
+   {
       return (0);
-   if ( ( card == SoundBlaster ) || ( card == Awe32 ) )
-      {
+   }
+
+   card = fxnums[FXMode];
+   if (card == -1) // Check if it is off
+      return (0);
+   if ((card == SoundBlaster) || (card == Awe32))
+   {
       extern fx_blaster_config SBSettings;
 
-      status = FX_SetupSoundBlaster( SBSettings, numvoices,
-         numbits, numchannels );
-      }
+      status = FX_SetupSoundBlaster(SBSettings, numvoices,
+                                    numbits, numchannels);
+   }
    else
+   {
+      status = FX_SetupCard(card, &device);
+      if (status == FX_Ok)
       {
-      status=FX_SetupCard( card, &device );
-      if ( status == FX_Ok )
-         {
-         *numvoices=device.MaxVoices;
-         *numbits=device.MaxSampleBits;
-         *numchannels=device.MaxChannels;
-         }
+         *numvoices = device.MaxVoices;
+         *numbits = device.MaxSampleBits;
+         *numchannels = device.MaxChannels;
       }
+   }
 
    return (status);
-   }
+}
 
 //***************************************************************************
 //
@@ -192,7 +190,7 @@ int SD_SetupFXCard ( int * numvoices, int * numbits, int * numchannels)
 //
 //***************************************************************************
 
-int SD_Startup ( boolean bombonerror )
+int SD_Startup(boolean bombonerror)
 {
    int status;
    int card;
@@ -202,99 +200,99 @@ int SD_Startup ( boolean bombonerror )
    int i;
    extern boolean IS8250;
 
-   if (SD_Started==true)
+   if (SD_Started == true)
       SD_Shutdown();
 
-   if ( ( FXMode < 0 ) || ( FXMode >= 11 ) )
-      {
-      return( 0 );
-      }
-   card = fxnums[ FXMode ];
-   if (card==-1) // Check if it is off
+   if ((FXMode < 0) || (FXMode >= 11))
+   {
+      return (0);
+   }
+   card = fxnums[FXMode];
+   if (card == -1) // Check if it is off
       return (0);
 
    switch (card)
-      {
-      case UltraSound:
-      case SoundBlaster:
-      case SoundMan16:
-      case ProAudioSpectrum:
-      case Awe32:
-      case SoundSource:
-      case TandySoundSource:
-      case SoundScape:
-         soundstart=W_GetNumForName("digistrt")+1;
-         soundtype=fx_digital;
-         break;
-      case Adlib:
-         soundstart=W_GetNumForName("adstart")+1;
-         soundtype=fx_muse;
-         break;
-      case PC:
-         soundstart=W_GetNumForName("pcstart")+1;
-         soundtype=fx_muse;
-         break;
-      default:
-         Error("FX: Unsupported Card number %d",FXMode);
-         break;
-      }
+   {
+   case UltraSound:
+   case SoundBlaster:
+   case SoundMan16:
+   case ProAudioSpectrum:
+   case Awe32:
+   case SoundSource:
+   case TandySoundSource:
+   case SoundScape:
+      soundstart = W_GetNumForName("digistrt") + 1;
+      soundtype = fx_digital;
+      break;
+   case Adlib:
+      soundstart = W_GetNumForName("adstart") + 1;
+      soundtype = fx_muse;
+      break;
+   case PC:
+      soundstart = W_GetNumForName("pcstart") + 1;
+      soundtype = fx_muse;
+      break;
+   default:
+      Error("FX: Unsupported Card number %d", FXMode);
+      break;
+   }
 
-   if ( soundtype == fx_digital )
+   if (soundtype == fx_digital)
+   {
+      if (SoundsRemapped == false)
       {
-      if ( SoundsRemapped == false )
+         for (i = 0; i < SD_LASTSOUND; i++)
          {
-         for( i = 0; i < SD_LASTSOUND; i++ )
-            {
             int snd;
 
-            snd = sounds[ i ].snds[ fx_digital ];
-            if ( snd >= 0)
-               {
-               sounds[ i ].snds[ fx_digital ] = W_GetNumForName(
-                  W_GetNameForNum( snd + soundstart ) );
-               }
+            snd = sounds[i].snds[fx_digital];
+            if (snd >= 0)
+            {
+               sounds[i].snds[fx_digital] = W_GetNumForName(
+                   W_GetNameForNum(snd + soundstart));
             }
-         SoundsRemapped = true;
          }
+         SoundsRemapped = true;
+      }
       soundstart = 0;
-      }
+   }
 
-   voices   = NumVoices;
+   voices = NumVoices;
    channels = NumChannels;
-   bits     = NumBits;
+   bits = NumBits;
 
-   if ( IS8250 )
-      {
-      voices   = max( voices, 4 );
+   if (IS8250)
+   {
+      voices = max(voices, 4);
       channels = 1;
-      bits     = 8;
-      }
+      bits = 8;
+   }
 
-   status=FX_Init( card, voices, channels, bits, 11000 );
+   status = FX_Init(card, voices, channels, bits, 11000);
 
    if (status != FX_Ok)
-      {
+   {
       if (bombonerror)
-         {
-         DeleteSoundFile ();
-         Error( "%s\n", FX_ErrorString( status ) );
-         }
+      {
+         DeleteSoundFile();
+         Error("%s\n", FX_ErrorString(status));
+      }
 
       return (status);
-      }
+   }
 
    if (stereoreversed == true)
-      {
+   {
       FX_SetReverseStereo(!FX_GetReverseStereo());
-      }
+   }
 
-   FX_SetCallBack( SD_MakeCacheable );
+   FX_SetCallBack(SD_MakeCacheable);
 
-   remotestart=W_GetNumForName("remostrt")+1;
+   remotestart = W_GetNumForName("remostrt") + 1;
 
-   SD_Started=true;
+   SD_Started = true;
 
-   FX_SetVolume (FXvolume);
+   FX_SetVolume(FXvolume);
 
    return (0);
 }
@@ -305,22 +303,22 @@ int SD_Startup ( boolean bombonerror )
 //
 //***************************************************************************
 
-boolean SD_SoundOkay ( int sndnum )
+boolean SD_SoundOkay(int sndnum)
 {
-   if (SD_Started==false)
+   if (SD_Started == false)
       return false;
 
-   if (sndnum>=MAXSOUNDS)
-      Error ("Illegal sound number, sound number = %d\n",sndnum);
+   if (sndnum >= MAXSOUNDS)
+      Error("Illegal sound number, sound number = %d\n", sndnum);
 
-   if (SoundOffset(sndnum)==-1)
+   if (SoundOffset(sndnum) == -1)
       return false;
 
-   if ( ( sounds[ sndnum ].flags & SD_PLAYONCE ) &&
-      ( SD_SoundActive( sounds[ sndnum ].prevhandle ) ) )
-      {
+   if ((sounds[sndnum].flags & SD_PLAYONCE) &&
+       (SD_SoundActive(sounds[sndnum].prevhandle)))
+   {
       return false;
-      }
+   }
 
    return true;
 }
@@ -331,76 +329,75 @@ boolean SD_SoundOkay ( int sndnum )
 //
 //***************************************************************************
 
-int SD_PlayIt ( int sndnum, int angle, int distance, int pitch )
+int SD_PlayIt(int sndnum, int angle, int distance, int pitch)
 {
    int voice;
-   byte * snd;
+   byte *snd;
 
 #if (DEVELOPMENT == 1)
 #if (SOUNDTEST == 1)
-   SoftError("SOUND =%d \n",sndnum);
+   SoftError("SOUND =%d \n", sndnum);
 #endif
 #endif
 
    if (!(sounds[sndnum].flags & SD_WRITE))
-      {
+   {
       if (sounds[sndnum].count)
-         {
-         if (distance<=sounds[sndnum].prevdistance)
+      {
+         if (distance <= sounds[sndnum].prevdistance)
             FX_StopSound(sounds[sndnum].prevhandle);
          else
             return 0;
-         }
       }
+   }
 
-   if ( !FX_VoiceAvailable( sounds[sndnum].priority ) )
-      {
-      return( 0 );
-      }
+   if (!FX_VoiceAvailable(sounds[sndnum].priority))
+   {
+      return (0);
+   }
 
    sounds[sndnum].count++;
 
-   snd=W_CacheLumpNum(SoundNumber(sndnum),PU_STATIC);
+   snd = W_CacheLumpNum(SoundNumber(sndnum), PU_STATIC);
 
-   if ( *snd == 'C' )
-      {
-      voice = FX_PlayVOC3D( snd, pitch, angle, distance,
-         sounds[sndnum].priority, (unsigned long) sndnum );
-      }
+   if (*snd == 'C')
+   {
+      voice = FX_PlayVOC3D(snd, pitch, angle, distance,
+                           sounds[sndnum].priority, (unsigned long)sndnum);
+   }
    else
-      {
-      voice = FX_PlayWAV3D( snd, pitch, angle, distance,
-         sounds[sndnum].priority, (unsigned long) sndnum );
-      }
+   {
+      voice = FX_PlayWAV3D(snd, pitch, angle, distance,
+                           sounds[sndnum].priority, (unsigned long)sndnum);
+   }
 
-   if ( voice < FX_Ok )
-      {
+   if (voice < FX_Ok)
+   {
 #if (DEVELOPMENT == 1)
-/*
+      /*
       if (MV_ErrorCode == MV_InvalidVOCFile)
          {
          Error("SD_PlayIt: Invalid VOC File snd=%p sndnum=%ld lump=%ld\n",snd,sndnum,SoundNumber(sndnum));
          }
 */
       NumBadSounds++;
-      SoftError("SD_PlayIt: Error/Warning %s\n",FX_ErrorString( FX_Error ));
-      SoftError("BadSoundNumber %ld time %ld\n",NumBadSounds,ticcount);
+      SoftError("SD_PlayIt: Error/Warning %s\n", FX_ErrorString(FX_Error));
+      SoftError("BadSoundNumber %ld time %ld\n", NumBadSounds, ticcount);
 #endif
-      SD_MakeCacheable( sndnum );
+      SD_MakeCacheable(sndnum);
 
       return 0;
-      }
+   }
 
-   NumBadSounds=0;
+   NumBadSounds = 0;
 
    if (!(sounds[sndnum].flags & SD_WRITE))
-      {
-      sounds[sndnum].prevhandle=voice;
-      sounds[sndnum].prevdistance=distance;
-      }
+   {
+      sounds[sndnum].prevhandle = voice;
+      sounds[sndnum].prevdistance = distance;
+   }
    return voice;
 }
-
 
 //***************************************************************************
 //
@@ -408,25 +405,24 @@ int SD_PlayIt ( int sndnum, int angle, int distance, int pitch )
 //
 //***************************************************************************
 
-int SD_Play ( int sndnum )
+int SD_Play(int sndnum)
 {
    int voice;
    int pitch;
 
-   if ( SD_SoundOkay ( sndnum ) == false )
+   if (SD_SoundOkay(sndnum) == false)
       return 0;
 
    pitch = 0;
 
-   if ( !( sounds[ sndnum ].flags & SD_PITCHSHIFTOFF ) )
-      {
+   if (!(sounds[sndnum].flags & SD_PITCHSHIFTOFF))
+   {
       pitch = PitchOffset();
-      }
+   }
 
-   voice = SD_PlayIt ( sndnum, 0, 0, pitch );
+   voice = SD_PlayIt(sndnum, 0, 0, pitch);
 
    return voice;
-
 }
 
 //***************************************************************************
@@ -435,24 +431,23 @@ int SD_Play ( int sndnum )
 //
 //***************************************************************************
 
-int SD_Play3D ( int sndnum, int angle, int distance )
+int SD_Play3D(int sndnum, int angle, int distance)
 {
    int voice;
    int pitch;
 
-   if ( SD_SoundOkay ( sndnum ) == false )
+   if (SD_SoundOkay(sndnum) == false)
       return 0;
 
    pitch = 0;
-   if ( !( sounds[ sndnum ].flags & SD_PITCHSHIFTOFF ) )
-      {
+   if (!(sounds[sndnum].flags & SD_PITCHSHIFTOFF))
+   {
       pitch = PitchOffset();
-      }
+   }
 
-   voice = SD_PlayIt ( sndnum, angle, distance, pitch );
+   voice = SD_PlayIt(sndnum, angle, distance, pitch);
 
    return voice;
-
 }
 
 //***************************************************************************
@@ -461,7 +456,7 @@ int SD_Play3D ( int sndnum, int angle, int distance )
 //
 //***************************************************************************
 
-int SD_PlayPositionedSound ( int sndnum, int px, int py, int x, int y )
+int SD_PlayPositionedSound(int sndnum, int px, int py, int x, int y)
 {
    int voice;
    int angle;
@@ -470,37 +465,36 @@ int SD_PlayPositionedSound ( int sndnum, int px, int py, int x, int y )
    int dy;
    int pitch;
 
-   if ( SD_SoundOkay ( sndnum ) == false )
+   if (SD_SoundOkay(sndnum) == false)
       return 0;
 
-   dx=(x-px);
-   dy=(py-y);
+   dx = (x - px);
+   dy = (py - y);
 
-   distance=FindDistance(dx,dy) >> SD_DISTANCESHIFT;
+   distance = FindDistance(dx, dy) >> SD_DISTANCESHIFT;
 
-   if (distance>255)
+   if (distance > 255)
       return 0;
 
-   if (distance!=0)
-      {
-      angle = ( atan2_appx(dx,dy) & (FINEANGLES-1) ) >> 6;
-      }
+   if (distance != 0)
+   {
+      angle = (atan2_appx(dx, dy) & (FINEANGLES - 1)) >> 6;
+   }
    else
-      {
-      angle=0;
-      }
+   {
+      angle = 0;
+   }
 
    pitch = 0;
 
-   if ( !( sounds[ sndnum ].flags & SD_PITCHSHIFTOFF ) )
-      {
+   if (!(sounds[sndnum].flags & SD_PITCHSHIFTOFF))
+   {
       pitch = PitchOffset();
-      }
+   }
 
-   voice = SD_PlayIt ( sndnum, angle, distance, pitch );
+   voice = SD_PlayIt(sndnum, angle, distance, pitch);
 
    return voice;
-
 }
 
 //***************************************************************************
@@ -509,7 +503,7 @@ int SD_PlayPositionedSound ( int sndnum, int px, int py, int x, int y )
 //
 //***************************************************************************
 
-int SD_PlaySoundRTP ( int sndnum, int x, int y )
+int SD_PlaySoundRTP(int sndnum, int x, int y)
 {
    int voice;
    int angle;
@@ -518,35 +512,34 @@ int SD_PlaySoundRTP ( int sndnum, int x, int y )
    int dy;
    int pitch;
 
-
-   if ( SD_SoundOkay ( sndnum ) == false )
+   if (SD_SoundOkay(sndnum) == false)
       return 0;
 
-   dx=(x-player->x);
-   dy=(player->y-y);
+   dx = (x - player->x);
+   dy = (player->y - y);
 
-   distance=FindDistance(dx,dy) >> SD_DISTANCESHIFT;
+   distance = FindDistance(dx, dy) >> SD_DISTANCESHIFT;
 
-   if (distance>255)
+   if (distance > 255)
       return 0;
 
-   if (distance!=0)
-      {
-      angle = ( (player->angle - atan2_appx(dx,dy)) & (FINEANGLES-1) ) >> 6;
-      }
+   if (distance != 0)
+   {
+      angle = ((player->angle - atan2_appx(dx, dy)) & (FINEANGLES - 1)) >> 6;
+   }
    else
-      {
-      angle=0;
-      }
+   {
+      angle = 0;
+   }
 
    pitch = 0;
 
-   if ( !( sounds[ sndnum ].flags & SD_PITCHSHIFTOFF ) )
-      {
+   if (!(sounds[sndnum].flags & SD_PITCHSHIFTOFF))
+   {
       pitch = PitchOffset();
-      }
+   }
 
-   voice = SD_PlayIt ( sndnum, angle, distance, pitch );
+   voice = SD_PlayIt(sndnum, angle, distance, pitch);
 
    return voice;
 }
@@ -557,17 +550,17 @@ int SD_PlaySoundRTP ( int sndnum, int x, int y )
 //
 //***************************************************************************
 
-int SD_PlayPitchedSound ( int sndnum, int volume, int pitch )
+int SD_PlayPitchedSound(int sndnum, int volume, int pitch)
 {
    int voice;
    int distance;
 
-   if ( SD_SoundOkay ( sndnum ) == false )
+   if (SD_SoundOkay(sndnum) == false)
       return 0;
 
    distance = 255 - volume;
 
-   voice = SD_PlayIt ( sndnum, 0, distance, pitch );
+   voice = SD_PlayIt(sndnum, 0, distance, pitch);
 
    return voice;
 }
@@ -578,23 +571,23 @@ int SD_PlayPitchedSound ( int sndnum, int volume, int pitch )
 //
 //***************************************************************************
 
-void SD_SetSoundPitch ( int sndnum, int pitch )
+void SD_SetSoundPitch(int sndnum, int pitch)
 {
    int status;
 
-   if (SD_Started==false)
+   if (SD_Started == false)
       return;
 
    if (!FX_SoundActive(sndnum))
       return;
 
-   status=FX_SetPitch( sndnum, pitch );
+   status = FX_SetPitch(sndnum, pitch);
    if (status != FX_Ok)
-      {
+   {
 #if (DEVELOPMENT == 1)
-      SoftError("SD_SetSoundPitch : %s\n",FX_ErrorString( status ));
+      SoftError("SD_SetSoundPitch : %s\n", FX_ErrorString(status));
 #endif
-      }
+   }
 }
 
 //***************************************************************************
@@ -603,7 +596,7 @@ void SD_SetSoundPitch ( int sndnum, int pitch )
 //
 //***************************************************************************
 
-void SD_PanRTP ( int handle, int x, int y )
+void SD_PanRTP(int handle, int x, int y)
 {
    int angle;
    int distance;
@@ -611,37 +604,37 @@ void SD_PanRTP ( int handle, int x, int y )
    int dy;
    int status;
 
-   if (SD_Started==false)
+   if (SD_Started == false)
       return;
 
    if (!FX_SoundActive(handle))
       return;
 
-   dx=(x-player->x);
-   dy=(player->y-y);
+   dx = (x - player->x);
+   dy = (player->y - y);
 
-   distance=FindDistance(dx,dy) >> SD_DISTANCESHIFT;
+   distance = FindDistance(dx, dy) >> SD_DISTANCESHIFT;
 
-   if (distance>255)
+   if (distance > 255)
       return;
 
-   if (distance!=0)
-      {
-      angle = ( (player->angle - atan2_appx(dx,dy)) & (FINEANGLES-1) ) >> 6;
-      }
+   if (distance != 0)
+   {
+      angle = ((player->angle - atan2_appx(dx, dy)) & (FINEANGLES - 1)) >> 6;
+   }
    else
-      {
+   {
       angle = 0;
-      }
+   }
 
-   status = FX_Pan3D ( handle, angle, distance );
+   status = FX_Pan3D(handle, angle, distance);
 
    if (status != FX_Ok)
-      {
+   {
 #if (DEVELOPMENT == 1)
-      SoftError("SD_PanPositionedSound: %s\n",FX_ErrorString( status ));
+      SoftError("SD_PanPositionedSound: %s\n", FX_ErrorString(status));
 #endif
-      }
+   }
 }
 
 //***************************************************************************
@@ -650,24 +643,24 @@ void SD_PanRTP ( int handle, int x, int y )
 //
 //***************************************************************************
 
-void SD_SetPan ( int handle, int vol, int left, int right )
+void SD_SetPan(int handle, int vol, int left, int right)
 {
    int status;
 
-   if (SD_Started==false)
+   if (SD_Started == false)
       return;
 
    if (!FX_SoundActive(handle))
       return;
 
-   status=FX_SetPan( handle, vol, left, right );
+   status = FX_SetPan(handle, vol, left, right);
 
    if (status != FX_Ok)
-      {
+   {
 #if (DEVELOPMENT == 1)
-      SoftError("SD_SetPan: %s\n",FX_ErrorString( status ));
+      SoftError("SD_SetPan: %s\n", FX_ErrorString(status));
 #endif
-      }
+   }
 }
 
 //***************************************************************************
@@ -676,7 +669,7 @@ void SD_SetPan ( int handle, int vol, int left, int right )
 //
 //***************************************************************************
 
-void SD_PanPositionedSound ( int handle, int px, int py, int x, int y )
+void SD_PanPositionedSound(int handle, int px, int py, int x, int y)
 {
    int angle;
    int distance;
@@ -684,39 +677,38 @@ void SD_PanPositionedSound ( int handle, int px, int py, int x, int y )
    int dy;
    int status;
 
-   if (SD_Started==false)
+   if (SD_Started == false)
       return;
 
    if (!FX_SoundActive(handle))
       return;
 
-   dx=(x-px);
-   dy=(py-y);
+   dx = (x - px);
+   dy = (py - y);
 
-   distance=FindDistance(dx,dy) >> SD_DISTANCESHIFT;
+   distance = FindDistance(dx, dy) >> SD_DISTANCESHIFT;
 
-   if (distance>255)
+   if (distance > 255)
       return;
 
-   if (distance!=0)
-      {
-      angle = ( atan2_appx(dx,dy) & (FINEANGLES-1) ) >> 6;
-      }
+   if (distance != 0)
+   {
+      angle = (atan2_appx(dx, dy) & (FINEANGLES - 1)) >> 6;
+   }
    else
-      {
+   {
       angle = 0;
-      }
+   }
 
-   status=FX_Pan3D( handle, angle, distance );
+   status = FX_Pan3D(handle, angle, distance);
 
    if (status != FX_Ok)
-      {
+   {
 #if (DEVELOPMENT == 1)
-      SoftError("SD_PanPositionedSound: %s\n",FX_ErrorString( status ));
+      SoftError("SD_PanPositionedSound: %s\n", FX_ErrorString(status));
 #endif
-      }
+   }
 }
-
 
 //***************************************************************************
 //
@@ -724,21 +716,21 @@ void SD_PanPositionedSound ( int handle, int px, int py, int x, int y )
 //
 //***************************************************************************
 
-void SD_StopSound ( int handle )
+void SD_StopSound(int handle)
 {
    int status;
 
-   if (SD_Started==false)
+   if (SD_Started == false)
       return;
 
-   status=FX_StopSound( handle);
+   status = FX_StopSound(handle);
 
    if (status != FX_Ok)
-      {
+   {
 #if (DEVELOPMENT == 1)
-      SoftError("SD_StopSound: %s\n",FX_ErrorString( status ));
+      SoftError("SD_StopSound: %s\n", FX_ErrorString(status));
 #endif
-      }
+   }
 }
 
 //***************************************************************************
@@ -747,21 +739,21 @@ void SD_StopSound ( int handle )
 //
 //***************************************************************************
 
-void  SD_StopAllSounds ( void )
+void SD_StopAllSounds(void)
 {
    int status;
 
-   if (SD_Started==false)
+   if (SD_Started == false)
       return;
 
-   status=FX_StopAllSounds();
+   status = FX_StopAllSounds();
 
    if (status != FX_Ok)
-      {
+   {
 #if (DEVELOPMENT == 1)
-      SoftError("SD_StopAllSounds: %s\n",FX_ErrorString( status ));
+      SoftError("SD_StopAllSounds: %s\n", FX_ErrorString(status));
 #endif
-      }
+   }
 }
 
 //***************************************************************************
@@ -770,16 +762,16 @@ void  SD_StopAllSounds ( void )
 //
 //***************************************************************************
 
-int SD_SoundActive ( int handle )
+int SD_SoundActive(int handle)
 {
-   if (SD_Started==false)
-      {
+   if (SD_Started == false)
+   {
       return false;
-      }
+   }
    else
-      {
+   {
       return (FX_SoundActive(handle));
-      }
+   }
 }
 
 //***************************************************************************
@@ -787,21 +779,22 @@ int SD_SoundActive ( int handle )
 // SD_WaitSound - wait until a sound has finished
 //
 //***************************************************************************
-void SD_WaitSound ( int handle )
+void SD_WaitSound(int handle)
 {
    int time;
 
    IN_ClearKeysDown();
 
-   while (FX_SoundActive(handle)!=0)
+   while (FX_SoundActive(handle) != 0)
+   {
+      time = ticcount + 1;
+      while (time > ticcount)
       {
-      time=ticcount+1;
-      while (time>ticcount) {}
+      }
       if ((LastScan) || IN_GetMouseButtons())
          break;
-      }
+   }
 }
-
 
 //***************************************************************************
 //
@@ -809,15 +802,14 @@ void SD_WaitSound ( int handle )
 //
 //***************************************************************************
 
-void SD_Shutdown (void)
+void SD_Shutdown(void)
 {
-   if (SD_Started==false)
+   if (SD_Started == false)
       return;
 
    FX_Shutdown();
-   SD_Started=false;
+   SD_Started = false;
 }
-
 
 //***************************************************************************
 //
@@ -825,12 +817,12 @@ void SD_Shutdown (void)
 //
 //***************************************************************************
 
-void SD_PreCacheSound ( int num )
+void SD_PreCacheSound(int num)
 {
-   if ( SD_SoundOkay ( num ) == false )
+   if (SD_SoundOkay(num) == false)
       return;
 
-   PreCacheLump(SoundNumber(num),PU_CACHESOUNDS+sounds[num].priority);
+   PreCacheLump(SoundNumber(num), PU_CACHESOUNDS + sounds[num].priority);
 }
 
 //***************************************************************************
@@ -839,84 +831,82 @@ void SD_PreCacheSound ( int num )
 //
 //***************************************************************************
 
-void SD_PreCacheSoundGroup ( int lo, int hi )
+void SD_PreCacheSoundGroup(int lo, int hi)
 {
    int i;
 
-   if (SD_Started==false)
+   if (SD_Started == false)
       return;
 
-   for (i=lo;i<=hi;i++)
+   for (i = lo; i <= hi; i++)
       SD_PreCacheSound(i);
 }
-
 
 #if (SHAREWARE == 1)
 #define MAXSONGS 18
 static song_t rottsongs[MAXSONGS] = {
-      { loop_no,  song_apogee  ,"FANFARE2","Apogee Fanfare"},
-      { loop_yes, song_title   ,"RISE",    "Rise"},
-      { loop_yes, song_menu    ,"MMMENU",  "MMMenu"},
-      { loop_yes, song_christmas,"DEADLY", "Deadly Gentlemen"},
-      { loop_yes, song_elevator,"GOINGUP", "Going up?"},
-      { loop_yes, song_endlevel,"HOWDIDO", "How'd I do?"},
-      { loop_yes, song_secretmenu,"FISHPOLK","Fish Polka"},
-      { loop_yes, song_gameover,"YOUSUCK", "You Suck"},
-      { loop_yes, song_youwin  ,"WATZNEXT","Watz Next?"},
-      { loop_no,  song_gason   ,"GAZZ!",   "Gazz!"},
-      { loop_yes, song_level   ,"FASTWAY", "Goin' Down The Fast Way"},
-      { loop_yes, song_level   ,"MISTACHE","Mist Ache"},
-      { loop_yes, song_level   ,"OWW",     "Oww!!!"},
-      { loop_yes, song_level   ,"SMOKE",   "Smoke And Mirrors"},
-      { loop_yes, song_level   ,"SPRAY",   "Spray"},
-      { loop_yes, song_level   ,"RUNLIKE", "Run Like Smeg"},
-      { loop_yes, song_level   ,"SMOOTH",  "Havana Smooth"},
-      { loop_yes, song_level   ,"CHANT",   "Chant"},
-      };
+    {loop_no, song_apogee, "FANFARE2", "Apogee Fanfare"},
+    {loop_yes, song_title, "RISE", "Rise"},
+    {loop_yes, song_menu, "MMMENU", "MMMenu"},
+    {loop_yes, song_christmas, "DEADLY", "Deadly Gentlemen"},
+    {loop_yes, song_elevator, "GOINGUP", "Going up?"},
+    {loop_yes, song_endlevel, "HOWDIDO", "How'd I do?"},
+    {loop_yes, song_secretmenu, "FISHPOLK", "Fish Polka"},
+    {loop_yes, song_gameover, "YOUSUCK", "You Suck"},
+    {loop_yes, song_youwin, "WATZNEXT", "Watz Next?"},
+    {loop_no, song_gason, "GAZZ!", "Gazz!"},
+    {loop_yes, song_level, "FASTWAY", "Goin' Down The Fast Way"},
+    {loop_yes, song_level, "MISTACHE", "Mist Ache"},
+    {loop_yes, song_level, "OWW", "Oww!!!"},
+    {loop_yes, song_level, "SMOKE", "Smoke And Mirrors"},
+    {loop_yes, song_level, "SPRAY", "Spray"},
+    {loop_yes, song_level, "RUNLIKE", "Run Like Smeg"},
+    {loop_yes, song_level, "SMOOTH", "Havana Smooth"},
+    {loop_yes, song_level, "CHANT", "Chant"},
+};
 #else
 #define MAXSONGS 34
 static song_t rottsongs[MAXSONGS] = {
-      { loop_no,  song_apogee  ,"FANFARE2","Apogee Fanfare"},
-      { loop_yes, song_title   ,"RISE",    "Rise"},
-      { loop_yes, song_menu    ,"MMMENU",  "MMMenu"},
-      { loop_yes, song_christmas,"DEADLY", "Deadly Gentlemen"},
-      { loop_yes, song_elevator,"GOINGUP", "Going up?"},
-      { loop_yes, song_secretmenu,"FISHPOLK","Fish Polka"},
-      { loop_yes, song_endlevel,"HOWDIDO", "How'd I do?"},
-      { loop_yes, song_gameover,"YOUSUCK", "You Suck"},
-      { loop_yes, song_cinematic2,"WATZNEXT","Watz Next?"},
-      { loop_no,  song_gason   ,"GAZZ!",   "Gazz!"},
-      { loop_yes, song_level   ,"FASTWAY", "Goin' Down The Fast Way"},
-      { loop_yes, song_level   ,"MISTACHE","Mist Ache"},
-      { loop_yes, song_level   ,"OWW",     "Oww!!!"},
-      { loop_yes, song_level   ,"SMOKE",   "Smoke And Mirrors"},
-      { loop_yes, song_level   ,"SPRAY",   "Spray"},
-      { loop_yes, song_level   ,"RUNLIKE", "Run Like Smeg"},
-      { loop_yes, song_level   ,"SMOOTH",  "Havana Smooth"},
-      { loop_yes, song_level   ,"CHANT",   "Chant"},
-      { loop_yes, song_level   ,"MEDIEV1A","Funeral of Queen Mary"},
-      { loop_yes, song_level   ,"TASKFORC","Task Force"},
-      { loop_yes, song_level   ,"KISSOFF", "KISS Off"},
-      { loop_yes, song_level   ,"RADAGIO", "Adagio For Strings"},
-      { loop_yes, song_level   ,"SHARDS",  "Shards"},
-      { loop_yes, song_level   ,"STAIRS",  "I Choose the Stairs"},
-      { loop_yes, song_level   ,"SUCKTHIS","Suck This"},
-      { loop_yes, song_level   ,"EXCALIBR","Excalibur"},
-      { loop_yes, song_level   ,"CCCOOL",   "CCCool"},
-      { loop_yes, song_level   ,"WORK_DAY","Work Day"},
-      { loop_yes, song_level   ,"WHERIZIT","Where Iz It?"},
-      { loop_no,  song_bossdie,"BOSSBLOW", "Boss Blow"},
-      { loop_yes, song_bosssee ,"HELLERO", "Hellero"},
-      { loop_yes, song_cinematic1,"EVINRUDE","Evin Rude"},
-      { loop_yes, song_youwin  ,"VICTORY", "Victory!"},
-      { loop_yes, song_dogend  ,"HERE_BOY","Here Boy"}
-      };
+    {loop_no, song_apogee, "FANFARE2", "Apogee Fanfare"},
+    {loop_yes, song_title, "RISE", "Rise"},
+    {loop_yes, song_menu, "MMMENU", "MMMenu"},
+    {loop_yes, song_christmas, "DEADLY", "Deadly Gentlemen"},
+    {loop_yes, song_elevator, "GOINGUP", "Going up?"},
+    {loop_yes, song_secretmenu, "FISHPOLK", "Fish Polka"},
+    {loop_yes, song_endlevel, "HOWDIDO", "How'd I do?"},
+    {loop_yes, song_gameover, "YOUSUCK", "You Suck"},
+    {loop_yes, song_cinematic2, "WATZNEXT", "Watz Next?"},
+    {loop_no, song_gason, "GAZZ!", "Gazz!"},
+    {loop_yes, song_level, "FASTWAY", "Goin' Down The Fast Way"},
+    {loop_yes, song_level, "MISTACHE", "Mist Ache"},
+    {loop_yes, song_level, "OWW", "Oww!!!"},
+    {loop_yes, song_level, "SMOKE", "Smoke And Mirrors"},
+    {loop_yes, song_level, "SPRAY", "Spray"},
+    {loop_yes, song_level, "RUNLIKE", "Run Like Smeg"},
+    {loop_yes, song_level, "SMOOTH", "Havana Smooth"},
+    {loop_yes, song_level, "CHANT", "Chant"},
+    {loop_yes, song_level, "MEDIEV1A", "Funeral of Queen Mary"},
+    {loop_yes, song_level, "TASKFORC", "Task Force"},
+    {loop_yes, song_level, "KISSOFF", "KISS Off"},
+    {loop_yes, song_level, "RADAGIO", "Adagio For Strings"},
+    {loop_yes, song_level, "SHARDS", "Shards"},
+    {loop_yes, song_level, "STAIRS", "I Choose the Stairs"},
+    {loop_yes, song_level, "SUCKTHIS", "Suck This"},
+    {loop_yes, song_level, "EXCALIBR", "Excalibur"},
+    {loop_yes, song_level, "CCCOOL", "CCCool"},
+    {loop_yes, song_level, "WORK_DAY", "Work Day"},
+    {loop_yes, song_level, "WHERIZIT", "Where Iz It?"},
+    {loop_no, song_bossdie, "BOSSBLOW", "Boss Blow"},
+    {loop_yes, song_bosssee, "HELLERO", "Hellero"},
+    {loop_yes, song_cinematic1, "EVINRUDE", "Evin Rude"},
+    {loop_yes, song_youwin, "VICTORY", "Victory!"},
+    {loop_yes, song_dogend, "HERE_BOY", "Here Boy"}};
 #endif
 
-static byte * currentsong;
-static int MU_Started=false;
-static int lastsongnumber=-1;
-int storedposition=0;
+static byte *currentsong;
+static int MU_Started = false;
+static int lastsongnumber = -1;
+int storedposition = 0;
 
 //****************************************************************************
 //
@@ -924,74 +914,66 @@ int storedposition=0;
 //
 //****************************************************************************
 
-void MU_PlayJukeBoxSong
-   (
-   int which
-   )
+void MU_PlayJukeBoxSong(
+    int which)
 
+{
+   if ((MusicMode > 0) && (MU_Started == true))
    {
-   if ( ( MusicMode > 0 ) && ( MU_Started == true ) )
-      {
-      SetMenuHeader( rottsongs[ which ].songname );
-      MU_PlaySong( which );
-      }
+      SetMenuHeader(rottsongs[which].songname);
+      MU_PlaySong(which);
+   }
+}
+
+//****************************************************************************
+//
+// MU_JukeBoxMenu()
+//
+//****************************************************************************
+
+void MU_JukeBoxRedraw(
+    void)
+
+{
+   if ((MusicMode > 0) && (MU_Started == true))
+   {
+      SetMenuHeader(rottsongs[lastsongnumber].songname);
+   }
+}
+
+//****************************************************************************
+//
+// MU_JukeBoxMenu()
+//
+//****************************************************************************
+
+void MU_JukeBoxMenu(
+    void)
+
+{
+   char *SongNames[MAXSONGS];
+   int i;
+
+   for (i = 0; i < MAXSONGS; i++)
+   {
+      SongNames[i] = rottsongs[i].songname;
    }
 
+   HandleMultiPageCustomMenu(SongNames, MAXSONGS, lastsongnumber,
+                             "Jukebox", MU_PlayJukeBoxSong, MU_JukeBoxRedraw, false);
 
-//****************************************************************************
-//
-// MU_JukeBoxMenu()
-//
-//****************************************************************************
-
-void MU_JukeBoxRedraw
-   (
-   void
-   )
-
+   if (rottsongs[lastsongnumber].loopflag == loop_no)
    {
-   if ( ( MusicMode > 0 ) && ( MU_Started == true ) )
-      {
-      SetMenuHeader( rottsongs[ lastsongnumber ].songname );
-      }
-   }
-
-
-//****************************************************************************
-//
-// MU_JukeBoxMenu()
-//
-//****************************************************************************
-
-void MU_JukeBoxMenu
-   (
-   void
-   )
-
-   {
-   char *SongNames[ MAXSONGS ];
-   int   i;
-
-   for( i = 0; i < MAXSONGS; i++ )
-      {
-      SongNames[ i ] = rottsongs[ i ].songname;
-      }
-
-   HandleMultiPageCustomMenu( SongNames, MAXSONGS, lastsongnumber,
-      "Jukebox", MU_PlayJukeBoxSong, MU_JukeBoxRedraw, false );
-
-   if ( rottsongs[ lastsongnumber ].loopflag == loop_no )
-      {
       MU_StartSong(song_level);
-      }
    }
+}
 
 //***************************************************************************
 //
 // MusicStarted - see if the music is started
 //
 //***************************************************************************
-boolean MusicStarted( void )
+boolean MusicStarted(void)
 {
    return MU_Started;
 }
@@ -1002,59 +984,59 @@ boolean MusicStarted( void )
 //
 //***************************************************************************
 
-int MU_Startup ( boolean bombonerror )
+int MU_Startup(boolean bombonerror)
 {
    int status;
    int card;
 
-   if (MU_Started==true)
-      {
+   if (MU_Started == true)
+   {
       MU_StopSong();
       MU_Shutdown();
-      }
-   if ( ( MusicMode < 0 ) || ( MusicMode >= 11 ) )
-      {
-      return( 0 );
-      }
-   card = musicnums[ MusicMode ];
-   if (card==-1) // Check if it is off
+   }
+   if ((MusicMode < 0) || (MusicMode >= 11))
+   {
+      return (0);
+   }
+   card = musicnums[MusicMode];
+   if (card == -1) // Check if it is off
       return (0);
 
-   if ( ( card == SoundBlaster ) || ( card == Awe32 ) || ( card == WaveBlaster ) )
+   if ((card == SoundBlaster) || (card == Awe32) || (card == WaveBlaster))
+   {
+      if (SD_Started == false)
       {
-      if ( SD_Started == false )
-         {
          extern fx_blaster_config SBSettings;
          int numvoices;
          int numbits;
          int numchannels;
 
-         FX_SetupSoundBlaster( SBSettings, &numvoices,
-            &numbits, &numchannels );
-         }
+         FX_SetupSoundBlaster(SBSettings, &numvoices,
+                              &numbits, &numchannels);
       }
+   }
 
-   if (card== UltraSound)
-      {
+   if (card == UltraSound)
+   {
       MU_SetupGUSInitFile();
-      }
+   }
 
-   status=MUSIC_Init( card, MidiAddress );
+   status = MUSIC_Init(card, MidiAddress);
 
    if (status != MUSIC_Ok)
       if (bombonerror)
-         {
-         DeleteSoundFile ();
-         Error( "%s\n", MUSIC_ErrorString( status ) );
-         }
+      {
+         DeleteSoundFile();
+         Error("%s\n", MUSIC_ErrorString(status));
+      }
       else
          return (status);
 
-   currentsong=0;
+   currentsong = 0;
 
-   MU_Started=true;
+   MU_Started = true;
 
-   MU_SetVolume (MUvolume);
+   MU_SetVolume(MUvolume);
 
    return (0);
 }
@@ -1065,12 +1047,12 @@ int MU_Startup ( boolean bombonerror )
 //
 //***************************************************************************
 
-void MU_Shutdown (void)
+void MU_Shutdown(void)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
    MUSIC_Shutdown();
-   MU_Started=false;
+   MU_Started = false;
 }
 //***************************************************************************
 //
@@ -1078,19 +1060,19 @@ void MU_Shutdown (void)
 //
 //***************************************************************************
 
-void MU_SetupGUSInitFile( void )
+void MU_SetupGUSInitFile(void)
 {
-   char filename[ 128 ];
+   char filename[128];
 
-   GetPathFromEnvironment( filename, ApogeePath, GUSMIDIINIFILE );
-   if (access (filename, F_OK) != 0)
-      {
+   GetPathFromEnvironment(filename, ApogeePath, GUSMIDIINIFILE);
+   if (access(filename, F_OK) != 0)
+   {
       int lump;
 
-      lump=W_GetNumForName("gusmidi");
+      lump = W_GetNumForName("gusmidi");
 
-      SaveFile (filename, W_CacheLumpNum(lump,PU_CACHE), W_LumpLength(lump));
-      }
+      SaveFile(filename, W_CacheLumpNum(lump, PU_CACHE), W_LumpLength(lump));
+   }
 }
 
 //***************************************************************************
@@ -1098,19 +1080,18 @@ void MU_SetupGUSInitFile( void )
 // MU_GetNumForType - returns number of song in rottsongs of specific type
 //
 //***************************************************************************
-int MU_GetNumForType ( int type )
+int MU_GetNumForType(int type)
 {
    int i;
 
-   for (i=0;i<MAXSONGS;i++)
-      {
+   for (i = 0; i < MAXSONGS; i++)
+   {
       if (rottsongs[i].songtype == type)
          return i;
-      }
+   }
    Error("MU_GetNumForType: could not find song type in list\n");
    return -1;
 }
-
 
 //***************************************************************************
 //
@@ -1118,27 +1099,27 @@ int MU_GetNumForType ( int type )
 //
 //***************************************************************************
 
-void MU_PlaySong ( int num )
+void MU_PlaySong(int num)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
 
-   if (num<0)
+   if (num < 0)
       return;
 
-   if (num>=MAXSONGS)
+   if (num >= MAXSONGS)
       Error("Song number out of range\n");
 
    MU_StopSong();
 
-   lastsongnumber=num;
+   lastsongnumber = num;
 
-   currentsong=W_CacheLumpName(rottsongs[num].lumpname,PU_STATIC);
+   currentsong = W_CacheLumpName(rottsongs[num].lumpname, PU_STATIC);
    if (rottsongs[num].loopflag == loop_yes)
-      MUSIC_PlaySong(currentsong,MUSIC_LoopSong);
+      MUSIC_PlaySong(currentsong, MUSIC_LoopSong);
    else
-      MUSIC_PlaySong(currentsong,MUSIC_PlayOnce);
-   MU_SetVolume (MUvolume);
+      MUSIC_PlaySong(currentsong, MUSIC_PlayOnce);
+   MU_SetVolume(MUvolume);
 }
 
 //***************************************************************************
@@ -1147,17 +1128,17 @@ void MU_PlaySong ( int num )
 //
 //***************************************************************************
 
-void MU_StopSong ( void )
+void MU_StopSong(void)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
 
-   MUSIC_StopSong ();
+   MUSIC_StopSong();
    if (currentsong)
-      {
-      W_CacheLumpName(rottsongs[lastsongnumber].lumpname,PU_CACHE);
-      currentsong=0;
-      }
+   {
+      W_CacheLumpName(rottsongs[lastsongnumber].lumpname, PU_CACHE);
+      currentsong = 0;
+   }
 }
 
 //***************************************************************************
@@ -1166,11 +1147,10 @@ void MU_StopSong ( void )
 //
 //***************************************************************************
 
-int MU_GetSongNumber ( void )
+int MU_GetSongNumber(void)
 {
    return lastsongnumber;
 }
-
 
 //***************************************************************************
 //
@@ -1178,22 +1158,24 @@ int MU_GetSongNumber ( void )
 //
 //***************************************************************************
 
-void MU_FadeToSong ( int num, int time )
+void MU_FadeToSong(int num, int time)
 {
    int t;
 
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
 
-   MU_FadeOut(time>>1);
+   MU_FadeOut(time >> 1);
 
    while (MU_FadeActive())
+   {
+      t = ticcount;
+      while (ticcount == t)
       {
-      t=ticcount;
-      while (ticcount==t) {}
       }
+   }
 
-   MU_FadeIn (num,time>>1);
+   MU_FadeIn(num, time >> 1);
 }
 
 //***************************************************************************
@@ -1202,14 +1184,14 @@ void MU_FadeToSong ( int num, int time )
 //
 //***************************************************************************
 
-void MU_FadeIn ( int num, int time )
+void MU_FadeIn(int num, int time)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
 
    MUSIC_SetVolume(0);
-   MU_PlaySong ( num );
-   MUSIC_FadeVolume (MUvolume, time);
+   MU_PlaySong(num);
+   MUSIC_FadeVolume(MUvolume, time);
 }
 
 //***************************************************************************
@@ -1218,20 +1200,19 @@ void MU_FadeIn ( int num, int time )
 //
 //***************************************************************************
 
-void MU_FadeOut ( int time )
+void MU_FadeOut(int time)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
    if (!MUSIC_SongPlaying())
-      {
+   {
 #if (DEVELOPMENT == 1)
       SoftError("Called FadeOut with no song playing\n");
 #endif
       return;
-      }
-   MUSIC_FadeVolume(0,time);
+   }
+   MUSIC_FadeVolume(0, time);
 }
-
 
 //***************************************************************************
 //
@@ -1239,30 +1220,30 @@ void MU_FadeOut ( int time )
 //
 //***************************************************************************
 
-void MU_StartSong ( int songtype )
+void MU_StartSong(int songtype)
 {
    int songnum;
 
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
 
    MU_StopSong();
 
-   songnum = MU_GetNumForType ( songtype );
+   songnum = MU_GetNumForType(songtype);
    switch (songtype)
+   {
+   case song_level:
+      if (IsChristmas())
       {
-      case song_level:
-         if (IsChristmas())
-            {
-            songnum = MU_GetNumForType ( song_christmas );
-            }
-         else
-            {
-            songnum += GetSongForLevel ();
-            }
-         break;
+         songnum = MU_GetNumForType(song_christmas);
       }
-   MU_PlaySong (songnum);
+      else
+      {
+         songnum += GetSongForLevel();
+      }
+      break;
+   }
+   MU_PlaySong(songnum);
 }
 
 //***************************************************************************
@@ -1271,12 +1252,12 @@ void MU_StartSong ( int songtype )
 //
 //***************************************************************************
 
-void MU_StoreSongPosition ( void )
+void MU_StoreSongPosition(void)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
-   PositionStored=true;
-   storedposition=MUSIC_GetPosition();
+   PositionStored = true;
+   storedposition = MUSIC_GetPosition();
 }
 
 //***************************************************************************
@@ -1285,13 +1266,13 @@ void MU_StoreSongPosition ( void )
 //
 //***************************************************************************
 
-void MU_RestoreSongPosition ( void )
+void MU_RestoreSongPosition(void)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
-   if (PositionStored==false)
+   if (PositionStored == false)
       return;
-   PositionStored=false;
+   PositionStored = false;
 
    MUSIC_SetPosition(storedposition);
 }
@@ -1302,7 +1283,7 @@ void MU_RestoreSongPosition ( void )
 //
 //***************************************************************************
 
-int MU_GetStoredPosition ( void )
+int MU_GetStoredPosition(void)
 {
    if (PositionStored)
       return storedposition;
@@ -1316,17 +1297,15 @@ int MU_GetStoredPosition ( void )
 //
 //***************************************************************************
 
-void MU_SetStoredPosition ( int position )
+void MU_SetStoredPosition(int position)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
-   if (position==-1)
+   if (position == -1)
       return;
-   PositionStored=true;
-   storedposition=position;
+   PositionStored = true;
+   storedposition = position;
 }
-
-
 
 //***************************************************************************
 //
@@ -1334,9 +1313,9 @@ void MU_SetStoredPosition ( int position )
 //
 //***************************************************************************
 
-int MU_GetSongPosition ( void )	
+int MU_GetSongPosition(void)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return 0;
    return MUSIC_GetPosition();
 }
@@ -1347,9 +1326,9 @@ int MU_GetSongPosition ( void )
 //
 //***************************************************************************
 
-void MU_SetSongPosition ( int position )
+void MU_SetSongPosition(int position)
 {
-   if (MU_Started==false)
+   if (MU_Started == false)
       return;
    MUSIC_SetPosition(position);
 }
@@ -1360,7 +1339,7 @@ void MU_SetSongPosition ( int position )
 //
 //***************************************************************************
 
-void MU_SaveMusic (byte ** buf, int * size)
+void MU_SaveMusic(byte **buf, int *size)
 {
    int unitsize;
    byte *ptr;
@@ -1371,62 +1350,60 @@ void MU_SaveMusic (byte ** buf, int * size)
    // Size
    //
 
-   unitsize=0;
+   unitsize = 0;
 
-	unitsize+=sizeof(i);
-	unitsize+=sizeof(i);
-	unitsize+=sizeof(i);
-
+   unitsize += sizeof(i);
+   unitsize += sizeof(i);
+   unitsize += sizeof(i);
 
    *size = unitsize;
-   *buf = (byte *) SafeMalloc (*size);
+   *buf = (byte *)SafeMalloc(*size);
 
    ptr = *buf;
 
-   i=MU_GetSongNumber();
+   i = MU_GetSongNumber();
    if (rottsongs[i].songtype == song_menu)
-      {
-      i = MU_GetNumForType ( song_level );
+   {
+      i = MU_GetNumForType(song_level);
       if (IsChristmas())
-         {
-         i = MU_GetNumForType ( song_christmas );
-         }
-      else
-         {
-         i += GetSongForLevel ();
-         }
-      vsize=sizeof(i);
-      memcpy(ptr,&i,vsize);
-      ptr+=vsize;
-
-      i=MU_GetStoredPosition();
-      vsize=sizeof(i);
-      memcpy(ptr,&i,vsize);
-      ptr+=vsize;
-
-      i=-1;
-      vsize=sizeof(i);
-      memcpy(ptr,&i,vsize);
-      ptr+=vsize;
-      }
-   else
       {
-      vsize=sizeof(i);
-      memcpy(ptr,&i,vsize);
-      ptr+=vsize;
-
-      i=MU_GetSongPosition();
-      vsize=sizeof(i);
-      memcpy(ptr,&i,vsize);
-      ptr+=vsize;
-
-      i=MU_GetStoredPosition();
-      vsize=sizeof(i);
-      memcpy(ptr,&i,vsize);
-      ptr+=vsize;
+         i = MU_GetNumForType(song_christmas);
       }
-}
+      else
+      {
+         i += GetSongForLevel();
+      }
+      vsize = sizeof(i);
+      memcpy(ptr, &i, vsize);
+      ptr += vsize;
 
+      i = MU_GetStoredPosition();
+      vsize = sizeof(i);
+      memcpy(ptr, &i, vsize);
+      ptr += vsize;
+
+      i = -1;
+      vsize = sizeof(i);
+      memcpy(ptr, &i, vsize);
+      ptr += vsize;
+   }
+   else
+   {
+      vsize = sizeof(i);
+      memcpy(ptr, &i, vsize);
+      ptr += vsize;
+
+      i = MU_GetSongPosition();
+      vsize = sizeof(i);
+      memcpy(ptr, &i, vsize);
+      ptr += vsize;
+
+      i = MU_GetStoredPosition();
+      vsize = sizeof(i);
+      memcpy(ptr, &i, vsize);
+      ptr += vsize;
+   }
+}
 
 //***************************************************************************
 //
@@ -1434,56 +1411,56 @@ void MU_SaveMusic (byte ** buf, int * size)
 //
 //***************************************************************************
 
-void MU_LoadMusic (byte * buf, int size)
+void MU_LoadMusic(byte *buf, int size)
 {
    int unitsize;
    byte *ptr;
    int i;
    int songnumber;
-   boolean differentsong=false;
+   boolean differentsong = false;
    int vsize;
 
    //
    // Size
    //
 
-   unitsize=0;
+   unitsize = 0;
 
-	unitsize+=sizeof(i);
-	unitsize+=sizeof(i);
-	unitsize+=sizeof(i);
+   unitsize += sizeof(i);
+   unitsize += sizeof(i);
+   unitsize += sizeof(i);
 
-   if (size!=unitsize)
+   if (size != unitsize)
       Error("LoadMusic: Different number of parameters\n");
 
-   ptr  = buf;
+   ptr = buf;
 
-   vsize=sizeof(songnumber);
-   memcpy(&songnumber,ptr,vsize);
-   ptr+=vsize;
-   if (MU_GetSongNumber () != songnumber)
-      {
+   vsize = sizeof(songnumber);
+   memcpy(&songnumber, ptr, vsize);
+   ptr += vsize;
+   if (MU_GetSongNumber() != songnumber)
+   {
       MU_PlaySong(songnumber);
-      differentsong=true;
-      }
+      differentsong = true;
+   }
 
-   vsize=sizeof(i);
-   memcpy(&i,ptr,vsize);
-   ptr+=vsize;
-   if (differentsong==true)
-      {
+   vsize = sizeof(i);
+   memcpy(&i, ptr, vsize);
+   ptr += vsize;
+   if (differentsong == true)
+   {
       MU_SetSongPosition(i);
-      }
+   }
 
-   vsize=sizeof(i);
-   memcpy(&i,ptr,vsize);
-   ptr+=vsize;
+   vsize = sizeof(i);
+   memcpy(&i, ptr, vsize);
+   ptr += vsize;
    MU_SetStoredPosition(i);
 
    // Check if game was saved with NOSOUND
 
-   if (MU_GetSongNumber () != songnumber)
-      {
-      MU_StartSong ( song_level );
-      }
+   if (MU_GetSongNumber() != songnumber)
+   {
+      MU_StartSong(song_level);
+   }
 }

@@ -30,14 +30,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 //MED
 
-eventtype * firstevent;
-eventtype * lastevent;
+eventtype *firstevent;
+eventtype *lastevent;
 
 // LOCALS
 
-static int numevents=0;
-static boolean eventsystemstarted=false;
-
+static int numevents = 0;
+static boolean eventsystemstarted = false;
 
 /*
 ===============
@@ -47,18 +46,17 @@ static boolean eventsystemstarted=false;
 ===============
 */
 
-void AddEvent (eventtype * event)
+void AddEvent(eventtype *event)
 {
    if (!firstevent)
-      firstevent  = event;
+      firstevent = event;
    else
-      {
+   {
       event->prev = lastevent;
       lastevent->next = event;
-      }
+   }
    lastevent = event;
 }
-
 
 /*
 ===============
@@ -68,7 +66,7 @@ void AddEvent (eventtype * event)
 ===============
 */
 
-void DeleteEvent(eventtype * event)
+void DeleteEvent(eventtype *event)
 {
    if (event == lastevent)
       lastevent = event->prev;
@@ -83,7 +81,7 @@ void DeleteEvent(eventtype * event)
    event->prev = NULL;
    event->next = NULL;
 
-   SafeFree ( event );
+   SafeFree(event);
 }
 
 /*
@@ -94,19 +92,19 @@ void DeleteEvent(eventtype * event)
 ===============
 */
 
-eventtype * GetNewEvent ( void )
+eventtype *GetNewEvent(void)
 {
-   eventtype * event;
+   eventtype *event;
 
    numevents++;
 
-   if ( numevents > MAXCINEMATICEVENTS )
-      Error ("Too many Cinematic events\n");
+   if (numevents > MAXCINEMATICEVENTS)
+      Error("Too many Cinematic events\n");
 
-   event = SafeMalloc( sizeof (eventtype) );
+   event = SafeMalloc(sizeof(eventtype));
 
-   event->next=NULL;
-   event->prev=NULL;
+   event->next = NULL;
+   event->prev = NULL;
 
    return event;
 }
@@ -119,15 +117,15 @@ eventtype * GetNewEvent ( void )
 ===============
 */
 
-void StartupEvents ( void )
+void StartupEvents(void)
 {
-   if (eventsystemstarted==true)
+   if (eventsystemstarted == true)
       return;
-   eventsystemstarted=true;
+   eventsystemstarted = true;
    firstevent = NULL;
-   lastevent  = NULL;
+   lastevent = NULL;
 
-   numevents=0;
+   numevents = 0;
 }
 
 /*
@@ -138,23 +136,23 @@ void StartupEvents ( void )
 ===============
 */
 
-void ShutdownEvents ( void )
+void ShutdownEvents(void)
 {
-   eventtype * event;
+   eventtype *event;
 
-   if (eventsystemstarted==false)
+   if (eventsystemstarted == false)
       return;
-   eventsystemstarted=false;
+   eventsystemstarted = false;
 
-   event=firstevent;
+   event = firstevent;
    while (event != NULL)
-      {
-      eventtype * nextevent;
+   {
+      eventtype *nextevent;
 
-      nextevent=event->next;
+      nextevent = event->next;
       DeleteEvent(event);
-      event=nextevent;
-      }
+      event = nextevent;
+   }
 }
 
 /*
@@ -164,17 +162,17 @@ void ShutdownEvents ( void )
 =
 ===============
 */
-eventtype * CreateEvent ( int time, int type )
+eventtype *CreateEvent(int time, int type)
 {
-   eventtype * event;
+   eventtype *event;
 
-   event = GetNewEvent ();
+   event = GetNewEvent();
 
    event->time = time;
    event->effecttype = type;
    event->effect = NULL;
 
-   AddEvent (event);
+   AddEvent(event);
 
    return event;
 }
@@ -188,84 +186,84 @@ eventtype * CreateEvent ( int time, int type )
 =
 ===============
 */
-enum_eventtype GetEventType ( void )
+enum_eventtype GetEventType(void)
 {
    // Get Event Token
 
-   GetToken (false);
+   GetToken(false);
 
-   if (!strcmpi (token,"BACKGROUND"))
+   if (!strcmpi(token, "BACKGROUND"))
+   {
+      GetToken(false);
+      if (!strcmpi(token, "SCROLL"))
       {
-      GetToken (false);
-      if (!strcmpi (token,"SCROLL"))
-         {
          return background_scrolling;
-         }
-      else if (!strcmpi (token,"NOSCROLL"))
-         {
+      }
+      else if (!strcmpi(token, "NOSCROLL"))
+      {
          return background_noscrolling;
-         }
-      else if (!strcmpi (token,"MULTISCROLL"))
-         {
+      }
+      else if (!strcmpi(token, "MULTISCROLL"))
+      {
          return background_multi;
-         }
+      }
       else
-         {
+      {
          Error("Illegal Background Scrolling token\n");
-         }
       }
-   else if (!strcmpi (token,"BACKDROP"))
+   }
+   else if (!strcmpi(token, "BACKDROP"))
+   {
+      GetToken(false);
+      if (!strcmpi(token, "SCROLL"))
       {
-      GetToken (false);
-      if (!strcmpi (token,"SCROLL"))
-         {
          return backdrop_scrolling;
-         }
-      else if (!strcmpi (token,"NOSCROLL"))
-         {
+      }
+      else if (!strcmpi(token, "NOSCROLL"))
+      {
          return backdrop_noscrolling;
-         }
+      }
       else
-         {
+      {
          Error("Illegal Backdrop Scrolling token\n");
-         }
       }
-   else if (!strcmpi (token,"BACKGROUNDSPRITE"))
-      {
+   }
+   else if (!strcmpi(token, "BACKGROUNDSPRITE"))
+   {
       return sprite_background;
-      }
-   else if (!strcmpi (token,"FOREGROUNDSPRITE"))
-      {
+   }
+   else if (!strcmpi(token, "FOREGROUNDSPRITE"))
+   {
       return sprite_foreground;
-      }
-   else if (!strcmpi (token,"PALETTE"))
-      {
+   }
+   else if (!strcmpi(token, "PALETTE"))
+   {
       return palette;
-      }
-   else if (!strcmpi (token,"FADEOUT"))
-      {
+   }
+   else if (!strcmpi(token, "FADEOUT"))
+   {
       return fadeout;
-      }
-   else if (!strcmpi (token,"FLIC"))
-      {
+   }
+   else if (!strcmpi(token, "FLIC"))
+   {
       return flic;
-      }
-   else if (!strcmpi (token,"MOVIEEND"))
-      {
+   }
+   else if (!strcmpi(token, "MOVIEEND"))
+   {
       return cinematicend;
-      }
-   else if (!strcmpi (token,"BLANKSCREEN"))
-      {
+   }
+   else if (!strcmpi(token, "BLANKSCREEN"))
+   {
       return blankscreen;
-      }
-   else if (!strcmpi (token,"CLEARBUFFER"))
-      {
+   }
+   else if (!strcmpi(token, "CLEARBUFFER"))
+   {
       return clearbuffer;
-      }
+   }
    else
-      {
-      Error("GetEventType: Illegal Token %s\n",token);
-      }
+   {
+      Error("GetEventType: Illegal Token %s\n", token);
+   }
    return -1;
 }
 
@@ -276,7 +274,7 @@ enum_eventtype GetEventType ( void )
 =
 ===============
 */
-void ParseBack ( eventtype * event )
+void ParseBack(eventtype *event)
 {
    char name[10];
    char name2[10];
@@ -286,55 +284,53 @@ void ParseBack ( eventtype * event )
    int startx;
    int endx;
 
-   GetToken (false);
-   strcpy(&(name[0]),token);
+   GetToken(false);
+   strcpy(&(name[0]), token);
 
-   if (event->effecttype==background_multi)
-      {
-      GetToken (false);
-      strcpy(&(name2[0]),token);
-      }
+   if (event->effecttype == background_multi)
+   {
+      GetToken(false);
+      strcpy(&(name2[0]), token);
+   }
 
-   GetToken (false);
-   duration=ParseNum(token);
-   GetToken (false);
-   yoffset=ParseNum(token);
+   GetToken(false);
+   duration = ParseNum(token);
+   GetToken(false);
+   yoffset = ParseNum(token);
    if (
-       (event->effecttype==background_noscrolling) ||
-       (event->effecttype==background_scrolling)
-      )
-      {
-      lpic_t * lpic;
+       (event->effecttype == background_noscrolling) ||
+       (event->effecttype == background_scrolling))
+   {
+      lpic_t *lpic;
 
-      lpic = (lpic_t *)W_CacheLumpName(name,PU_CACHE);
+      lpic = (lpic_t *)W_CacheLumpName(name, PU_CACHE);
       width = lpic->width;
-      }
-   else if (event->effecttype!=background_multi)
-      {
-      patch_t * patch;
+   }
+   else if (event->effecttype != background_multi)
+   {
+      patch_t *patch;
 
-      patch = (patch_t *)W_CacheLumpName(name,PU_CACHE);
+      patch = (patch_t *)W_CacheLumpName(name, PU_CACHE);
       width = patch->width;
-      }
+   }
 
-   startx=0;
-   endx=0;
+   startx = 0;
+   endx = 0;
    if (
-       (event->effecttype==backdrop_scrolling) ||
-       (event->effecttype==background_scrolling) ||
-       (event->effecttype==background_multi)
-      )
-      {
-      GetToken (false);
-      startx=ParseNum(token);
-      GetToken (false);
-      endx=ParseNum(token);
-      }
+       (event->effecttype == backdrop_scrolling) ||
+       (event->effecttype == background_scrolling) ||
+       (event->effecttype == background_multi))
+   {
+      GetToken(false);
+      startx = ParseNum(token);
+      GetToken(false);
+      endx = ParseNum(token);
+   }
 
-   if (event->effecttype==background_multi)
-      event->effect = SpawnCinematicMultiBack ( name, name2, duration, startx, endx, yoffset);
+   if (event->effecttype == background_multi)
+      event->effect = SpawnCinematicMultiBack(name, name2, duration, startx, endx, yoffset);
    else
-      event->effect = SpawnCinematicBack ( name, duration, width, startx, endx, yoffset);
+      event->effect = SpawnCinematicBack(name, duration, width, startx, endx, yoffset);
 }
 
 /*
@@ -344,40 +340,39 @@ void ParseBack ( eventtype * event )
 =
 ===============
 */
-void ParseSprite ( eventtype * event )
+void ParseSprite(eventtype *event)
 {
    char name[10];
    int duration;
    int numframes;
    int framedelay;
-   int x,y,scale;
-   int endx,endy,endscale;
+   int x, y, scale;
+   int endx, endy, endscale;
 
-   GetToken (false);
-   strcpy(&(name[0]),token);
-   GetToken (false);
-   duration=ParseNum(token);
-   GetToken (false);
-   numframes=ParseNum(token);
-   GetToken (false);
-   framedelay=ParseNum(token);
-   GetToken (false);
-   x=ParseNum(token);
-   GetToken (false);
-   y=ParseNum(token);
-   GetToken (false);
-   scale=ParseNum(token);
-   GetToken (false);
-   endx=ParseNum(token);
-   GetToken (false);
-   endy=ParseNum(token);
-   GetToken (false);
-   endscale=ParseNum(token);
+   GetToken(false);
+   strcpy(&(name[0]), token);
+   GetToken(false);
+   duration = ParseNum(token);
+   GetToken(false);
+   numframes = ParseNum(token);
+   GetToken(false);
+   framedelay = ParseNum(token);
+   GetToken(false);
+   x = ParseNum(token);
+   GetToken(false);
+   y = ParseNum(token);
+   GetToken(false);
+   scale = ParseNum(token);
+   GetToken(false);
+   endx = ParseNum(token);
+   GetToken(false);
+   endy = ParseNum(token);
+   GetToken(false);
+   endscale = ParseNum(token);
 
-   event->effect = SpawnCinematicSprite ( name, duration, numframes,
-                                          framedelay, x, y, scale,
-                                          endx, endy, endscale
-                                        );
+   event->effect = SpawnCinematicSprite(name, duration, numframes,
+                                        framedelay, x, y, scale,
+                                        endx, endy, endscale);
 }
 
 /*
@@ -387,40 +382,40 @@ void ParseSprite ( eventtype * event )
 =
 ===============
 */
-void ParseFlic ( eventtype * event )
+void ParseFlic(eventtype *event)
 {
    char name[10];
    boolean loop;
    boolean usefile;
 
-   GetToken (false);
-   strcpy(&(name[0]),token);
+   GetToken(false);
+   strcpy(&(name[0]), token);
 
-   GetToken (false);
-   if (!strcmpi (token,"LOOP"))
-      {
+   GetToken(false);
+   if (!strcmpi(token, "LOOP"))
+   {
       loop = true;
-      }
-   else if (!strcmpi (token,"NOLOOP"))
-      {
+   }
+   else if (!strcmpi(token, "NOLOOP"))
+   {
       loop = false;
-      }
+   }
    else
-      Error("ParseFlic: Illegal or missing flic loop token %s\n",token);
+      Error("ParseFlic: Illegal or missing flic loop token %s\n", token);
 
-   GetToken (false);
-   if (!strcmpi (token,"FILE"))
-      {
-      usefile=true;
-      }
-   else if (!strcmpi (token,"LUMP"))
-      {
-      usefile=false;
-      }
+   GetToken(false);
+   if (!strcmpi(token, "FILE"))
+   {
+      usefile = true;
+   }
+   else if (!strcmpi(token, "LUMP"))
+   {
+      usefile = false;
+   }
    else
-      Error("ParseFlic: Illegal or missing flic use token %s\n",token);
+      Error("ParseFlic: Illegal or missing flic use token %s\n", token);
 
-   event->effect = SpawnCinematicFlic ( name, loop, usefile );
+   event->effect = SpawnCinematicFlic(name, loop, usefile);
 }
 
 /*
@@ -430,14 +425,14 @@ void ParseFlic ( eventtype * event )
 =
 ===============
 */
-void ParsePalette ( eventtype * event )
+void ParsePalette(eventtype *event)
 {
    char name[10];
 
-   GetToken (false);
-   strcpy(&(name[0]),token);
+   GetToken(false);
+   strcpy(&(name[0]), token);
 
-   event->effect = SpawnCinematicPalette ( name );
+   event->effect = SpawnCinematicPalette(name);
 }
 
 /*
@@ -447,37 +442,37 @@ void ParsePalette ( eventtype * event )
 =
 ===============
 */
-void ParseEvent ( int time )
+void ParseEvent(int time)
 {
-   eventtype * event;
+   eventtype *event;
 
-   event = CreateEvent ( time, GetEventType() );
+   event = CreateEvent(time, GetEventType());
 
    switch (event->effecttype)
-      {
-      case background_noscrolling:
-      case background_scrolling:
-      case background_multi:
-      case backdrop_scrolling:
-      case backdrop_noscrolling:
-         ParseBack(event);
-         break;
-      case sprite_background:
-      case sprite_foreground:
-         ParseSprite(event);
-         break;
-      case palette:
-         ParsePalette(event);
-         break;
-      case flic:
-         ParseFlic(event);
-         break;
-      case fadeout:
-      case blankscreen:
-      case clearbuffer:
-      case cinematicend:
-         break;
-      }
+   {
+   case background_noscrolling:
+   case background_scrolling:
+   case background_multi:
+   case backdrop_scrolling:
+   case backdrop_noscrolling:
+      ParseBack(event);
+      break;
+   case sprite_background:
+   case sprite_foreground:
+      ParseSprite(event);
+      break;
+   case palette:
+      ParsePalette(event);
+      break;
+   case flic:
+      ParseFlic(event);
+      break;
+   case fadeout:
+   case blankscreen:
+   case clearbuffer:
+   case cinematicend:
+      break;
+   }
 }
 
 /*
@@ -487,26 +482,26 @@ void ParseEvent ( int time )
 =
 ===============
 */
-void UpdateCinematicEvents ( int time )
+void UpdateCinematicEvents(int time)
 {
-   eventtype * event;
+   eventtype *event;
 
-   for (event=firstevent;event != NULL;)
+   for (event = firstevent; event != NULL;)
+   {
+      if (event->time == time)
       {
-      if (event->time==time)
-         {
-         eventtype * nextevent;
+         eventtype *nextevent;
 
-         nextevent=event->next;
-         SpawnCinematicActor ( event->effecttype, event->effect );
+         nextevent = event->next;
+         SpawnCinematicActor(event->effecttype, event->effect);
          DeleteEvent(event);
-         event=nextevent;
-         }
-      else if (event->time>time)
+         event = nextevent;
+      }
+      else if (event->time > time)
          break;
       else
-         event=event->next;
-      }
+         event = event->next;
+   }
 }
 
 /*
@@ -516,14 +511,13 @@ void UpdateCinematicEvents ( int time )
 =
 ===============
 */
-void PrecacheCinematic ( void )
+void PrecacheCinematic(void)
 {
-   eventtype * event;
+   eventtype *event;
 
-   for (event=firstevent;event != NULL;)
-      {
-      PrecacheCinematicEffect ( event->effecttype, event->effect );
-      event=event->next;
-      }
+   for (event = firstevent; event != NULL;)
+   {
+      PrecacheCinematicEffect(event->effecttype, event->effect);
+      event = event->next;
+   }
 }
-

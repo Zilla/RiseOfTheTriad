@@ -20,11 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _rt_map_private
 #define _rt_map_private
 
-#pragma aux FastFill =  \
-        "rep stosb"       \
-        parm    [edi] [eax] [ecx] \
-        modify exact [ecx]
-void FastFill(byte * buf, int color, int count);
+#pragma aux FastFill = \
+    "rep stosb" parm[edi][eax][ecx] modify exact[ecx]
+void FastFill(byte *buf, int color, int count);
 
 #define MAP_PLAYERCOLOR 4
 #define MAP_MWALLCOLOR 13

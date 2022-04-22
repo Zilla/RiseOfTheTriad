@@ -22,23 +22,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_draw.h"
 //MED
 
-void CinematicDelay ( void )
+void CinematicDelay(void)
 {
    CalcTics();
 }
 
-int GetCinematicTime ( void )
+int GetCinematicTime(void)
 {
    return ticcount;
 }
 
-boolean CinematicAbort( void )
+boolean CinematicAbort(void)
 {
-   return (IN_CheckAck ());
+   return (IN_CheckAck());
 }
 
-void ClearCinematicAbort( void )
+void ClearCinematicAbort(void)
 {
-   IN_StartAck ();
+   IN_StartAck();
 }
-

@@ -32,22 +32,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "modexlib.h"
 //MED
 
-
-
 // GLOBAL VARIABLES
 
-
-int    linewidth;
-int    ylookup[MAXSCREENHEIGHT];
-int    page1start;
-int    page2start;
-int    page3start;
-int    screensize;
+int linewidth;
+int ylookup[MAXSCREENHEIGHT];
+int page1start;
+int page2start;
+int page3start;
+int screensize;
 unsigned bufferofs;
 unsigned displayofs;
-boolean graphicsmode=false;
-
-
+boolean graphicsmode = false;
 
 /*
 ====================
@@ -56,15 +51,14 @@ boolean graphicsmode=false;
 =
 ====================
 */
-void GraphicsMode ( void )
+void GraphicsMode(void)
 {
 
-union REGS regs;
+   union REGS regs;
 
-regs.w.ax = 0x13;
-int386(0x10,&regs,&regs);
-graphicsmode=true;
-
+   regs.w.ax = 0x13;
+   int386(0x10, &regs, &regs);
+   graphicsmode = true;
 }
 
 /*
@@ -74,15 +68,14 @@ graphicsmode=true;
 =
 ====================
 */
-void TextMode ( void )
+void TextMode(void)
 {
 
-union REGS regs;
+   union REGS regs;
 
-regs.w.ax = 0x03;
-int386(0x10,&regs,&regs);
-graphicsmode=false;
-
+   regs.w.ax = 0x03;
+   int386(0x10, &regs, &regs);
+   graphicsmode = false;
 }
 
 /*
@@ -92,15 +85,14 @@ graphicsmode=false;
 =
 ====================
 */
-void TurnOffTextCursor ( void )
+void TurnOffTextCursor(void)
 {
 
-union REGS regs;
+   union REGS regs;
 
-regs.w.ax = 0x0100;
-regs.w.cx = 0x2000;
-int386(0x10,&regs,&regs);
-
+   regs.w.ax = 0x0100;
+   regs.w.cx = 0x2000;
+   int386(0x10, &regs, &regs);
 }
 
 #if 0
@@ -129,17 +121,16 @@ int386(0x10,&regs,&regs);
 =
 ====================
 */
-void WaitVBL( void )
+void WaitVBL(void)
 {
    unsigned char i;
 
-   i=inp(0x03da);
-   while ((i&8)==0)
-      i=inp(0x03da);
-   while ((i&8)==1)
-      i=inp(0x03da);
+   i = inp(0x03da);
+   while ((i & 8) == 0)
+      i = inp(0x03da);
+   while ((i & 8) == 1)
+      i = inp(0x03da);
 }
-
 
 /*
 ====================
@@ -151,27 +142,27 @@ void WaitVBL( void )
 ====================
 */
 
-void VL_SetLineWidth (unsigned width)
+void VL_SetLineWidth(unsigned width)
 {
-   int i,offset;
+   int i, offset;
 
-//
-// set wide virtual screen
-//
-   outpw (CRTC_INDEX,CRTC_OFFSET+width*256);
+   //
+   // set wide virtual screen
+   //
+   outpw(CRTC_INDEX, CRTC_OFFSET + width * 256);
 
-//
-// set up lookup tables
-//
-   linewidth = width*2;
+   //
+   // set up lookup tables
+   //
+   linewidth = width * 2;
 
    offset = 0;
 
-   for (i=0;i<MAXSCANLINES;i++)
-      {
-      ylookup[i]=offset;
+   for (i = 0; i < MAXSCANLINES; i++)
+   {
+      ylookup[i] = offset;
       offset += linewidth;
-      }
+   }
 }
 
 /*
@@ -182,18 +173,18 @@ void VL_SetLineWidth (unsigned width)
 =======================
 */
 
-void VL_SetVGAPlaneMode ( void )
+void VL_SetVGAPlaneMode(void)
 {
-    GraphicsMode();
-    VL_DePlaneVGA ();
-    VL_SetLineWidth (48);
-    screensize=208*SCREENBWIDE;
-    page1start=0xa0200;
-    page2start=0xa0200+screensize;
-    page3start=0xa0200+(2u*screensize);
-    displayofs = page1start;
-    bufferofs = page2start;
-    XFlipPage ();
+   GraphicsMode();
+   VL_DePlaneVGA();
+   VL_SetLineWidth(48);
+   screensize = 208 * SCREENBWIDE;
+   page1start = 0xa0200;
+   page2start = 0xa0200 + screensize;
+   page3start = 0xa0200 + (2u * screensize);
+   displayofs = page1start;
+   bufferofs = page2start;
+   XFlipPage();
 }
 
 /*
@@ -203,16 +194,16 @@ void VL_SetVGAPlaneMode ( void )
 =
 =======================
 */
-void VL_CopyPlanarPage ( byte * src, byte * dest )
+void VL_CopyPlanarPage(byte *src, byte *dest)
 {
    int plane;
 
-   for (plane=0;plane<4;plane++)
-      {
+   for (plane = 0; plane < 4; plane++)
+   {
       VGAREADMAP(plane);
       VGAWRITEMAP(plane);
-      memcpy(dest,src,screensize);
-      }
+      memcpy(dest, src, screensize);
+   }
 }
 
 /*
@@ -222,19 +213,19 @@ void VL_CopyPlanarPage ( byte * src, byte * dest )
 =
 =======================
 */
-void VL_CopyPlanarPageToMemory ( byte * src, byte * dest )
+void VL_CopyPlanarPageToMemory(byte *src, byte *dest)
 {
-   byte * ptr;
-   int plane,a,b;
+   byte *ptr;
+   int plane, a, b;
 
-   for (plane=0;plane<4;plane++)
-      {
-      ptr=dest+plane;
+   for (plane = 0; plane < 4; plane++)
+   {
+      ptr = dest + plane;
       VGAREADMAP(plane);
-      for (a=0;a<200;a++)
-         for (b=0;b<80;b++,ptr+=4)
-            *(ptr)=*(src+(a*linewidth)+b);
-      }
+      for (a = 0; a < 200; a++)
+         for (b = 0; b < 80; b++, ptr += 4)
+            *(ptr) = *(src + (a * linewidth) + b);
+   }
 }
 
 /*
@@ -244,21 +235,21 @@ void VL_CopyPlanarPageToMemory ( byte * src, byte * dest )
 =
 =======================
 */
-void VL_CopyBufferToAll ( unsigned buffer )
+void VL_CopyBufferToAll(unsigned buffer)
 {
    int plane;
 
-   for (plane=0;plane<4;plane++)
-      {
+   for (plane = 0; plane < 4; plane++)
+   {
       VGAREADMAP(plane);
       VGAWRITEMAP(plane);
-      if (page1start!=buffer)
-         memcpy((byte *)page1start,(byte *)buffer,screensize);
-      if (page2start!=buffer)
-         memcpy((byte *)page2start,(byte *)buffer,screensize);
-      if (page3start!=buffer)
-         memcpy((byte *)page3start,(byte *)buffer,screensize);
-      }
+      if (page1start != buffer)
+         memcpy((byte *)page1start, (byte *)buffer, screensize);
+      if (page2start != buffer)
+         memcpy((byte *)page2start, (byte *)buffer, screensize);
+      if (page3start != buffer)
+         memcpy((byte *)page3start, (byte *)buffer, screensize);
+   }
 }
 
 /*
@@ -268,9 +259,9 @@ void VL_CopyBufferToAll ( unsigned buffer )
 =
 =======================
 */
-void VL_CopyDisplayToHidden ( void )
+void VL_CopyDisplayToHidden(void)
 {
-   VL_CopyBufferToAll ( displayofs );
+   VL_CopyBufferToAll(displayofs);
 }
 
 /*
@@ -283,10 +274,10 @@ void VL_CopyDisplayToHidden ( void )
 =================
 */
 
-void VL_ClearBuffer (unsigned buf, byte color)
+void VL_ClearBuffer(unsigned buf, byte color)
 {
-  VGAMAPMASK(15);
-  memset((byte *)buf,color,screensize);
+   VGAMAPMASK(15);
+   memset((byte *)buf, color, screensize);
 }
 
 /*
@@ -299,10 +290,10 @@ void VL_ClearBuffer (unsigned buf, byte color)
 =================
 */
 
-void VL_ClearVideo (byte color)
+void VL_ClearVideo(byte color)
 {
-  VGAMAPMASK(15);
-  memset((byte *)(0xa000<<4),color,0x10000);
+   VGAMAPMASK(15);
+   memset((byte *)(0xa000 << 4), color, 0x10000);
 }
 
 /*
@@ -313,48 +304,47 @@ void VL_ClearVideo (byte color)
 =================
 */
 
-void VL_DePlaneVGA (void)
+void VL_DePlaneVGA(void)
 {
 
-//
-// change CPU addressing to non linear mode
-//
+   //
+   // change CPU addressing to non linear mode
+   //
 
-//
-// turn off chain 4 and odd/even
-//
-        outp (SC_INDEX,SC_MEMMODE);
-        outp (SC_DATA,(inp(SC_DATA)&~8)|4);
+   //
+   // turn off chain 4 and odd/even
+   //
+   outp(SC_INDEX, SC_MEMMODE);
+   outp(SC_DATA, (inp(SC_DATA) & ~8) | 4);
 
-        outp (SC_INDEX,SC_MAPMASK);         // leave this set throughout
+   outp(SC_INDEX, SC_MAPMASK); // leave this set throughout
 
-//
-// turn off odd/even and set write mode 0
-//
-        outp (GC_INDEX,GC_MODE);
-        outp (GC_DATA,inp(GC_DATA)&~0x13);
+   //
+   // turn off odd/even and set write mode 0
+   //
+   outp(GC_INDEX, GC_MODE);
+   outp(GC_DATA, inp(GC_DATA) & ~0x13);
 
-//
-// turn off chain
-//
-        outp (GC_INDEX,GC_MISCELLANEOUS);
-        outp (GC_DATA,inp(GC_DATA)&~2);
+   //
+   // turn off chain
+   //
+   outp(GC_INDEX, GC_MISCELLANEOUS);
+   outp(GC_DATA, inp(GC_DATA) & ~2);
 
-//
-// clear the entire buffer space, because int 10h only did 16 k / plane
-//
-        VL_ClearVideo (0);
+   //
+   // clear the entire buffer space, because int 10h only did 16 k / plane
+   //
+   VL_ClearVideo(0);
 
-//
-// change CRTC scanning from doubleword to byte mode, allowing >64k scans
-//
-        outp (CRTC_INDEX,CRTC_UNDERLINE);
-        outp (CRTC_DATA,inp(CRTC_DATA)&~0x40);
+   //
+   // change CRTC scanning from doubleword to byte mode, allowing >64k scans
+   //
+   outp(CRTC_INDEX, CRTC_UNDERLINE);
+   outp(CRTC_DATA, inp(CRTC_DATA) & ~0x40);
 
-        outp (CRTC_INDEX,CRTC_MODE);
-        outp (CRTC_DATA,inp(CRTC_DATA)|0x40);
+   outp(CRTC_INDEX, CRTC_MODE);
+   outp(CRTC_DATA, inp(CRTC_DATA) | 0x40);
 }
-
 
 /*
 =================
@@ -364,16 +354,16 @@ void VL_DePlaneVGA (void)
 =================
 */
 
-void XFlipPage ( void )
+void XFlipPage(void)
 {
-   displayofs=bufferofs;
+   displayofs = bufferofs;
 
-//   _disable();
+   //   _disable();
 
-   outp(CRTC_INDEX,CRTC_STARTHIGH);
-   outp(CRTC_DATA,((displayofs&0x0000ffff)>>8));
+   outp(CRTC_INDEX, CRTC_STARTHIGH);
+   outp(CRTC_DATA, ((displayofs & 0x0000ffff) >> 8));
 
-//   _enable();
+   //   _enable();
 
    bufferofs += screensize;
    if (bufferofs > page3start)

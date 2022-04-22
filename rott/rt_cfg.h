@@ -26,46 +26,45 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //****************************************************************************
 
-
 //****************************************************************************
 //
 // GLOBALS
 //
 //****************************************************************************
 
-extern int     FXMode;
-extern int     MusicMode;
-extern int     MUvolume;
-extern int     FXvolume;
+extern int FXMode;
+extern int MusicMode;
+extern int MUvolume;
+extern int FXvolume;
 extern boolean mouseenabled;
 extern boolean joystickenabled;
 extern boolean joypadenabled;
-extern int     joystickport;
-extern int     mouseadjustment;
-extern int     threshold;
-extern int     NumVoices;
-extern int     NumChannels;
-extern int     NumBits;
-extern int     MidiAddress;
+extern int joystickport;
+extern int mouseadjustment;
+extern int threshold;
+extern int NumVoices;
+extern int NumChannels;
+extern int NumBits;
+extern int MidiAddress;
 extern boolean stereoreversed;
 extern boolean cybermanenabled;
 extern boolean assassinenabled;
 extern boolean spaceballenabled;
 extern boolean AutoDetailOn;
-extern int     DoubleClickSpeed;
-extern int     fulllight;
+extern int DoubleClickSpeed;
+extern int fulllight;
 extern boolean BobbinOn;
-extern int     Menuflipspeed;
-extern int     DetailLevel;
-extern int     fandc;
-extern int     blanktime;
-extern char    CodeName[9];
-extern char   *ApogeePath;
+extern int Menuflipspeed;
+extern int DetailLevel;
+extern int fandc;
+extern int blanktime;
+extern char CodeName[9];
+extern char *ApogeePath;
 
-extern int     DefaultDifficulty;
-extern int     DefaultPlayerCharacter;
-extern int     DefaultPlayerColor;
-extern byte    passwordstring[20];
+extern int DefaultDifficulty;
+extern int DefaultPlayerCharacter;
+extern int DefaultPlayerColor;
+extern byte passwordstring[20];
 
 typedef struct
 {
@@ -80,11 +79,12 @@ extern AlternateInformation GameLevels;
 extern AlternateInformation BattleLevels;
 
 #define MAXMACROLENGTH 32
-#define MAXMACROS      10
+#define MAXMACROS 10
 
-typedef struct {
+typedef struct
+{
    byte avail;
-   char macro[MAXMACROLENGTH+1];
+   char macro[MAXMACROLENGTH + 1];
 } MacroList;
 
 extern MacroList CommbatMacros[MAXMACROS];
@@ -96,19 +96,19 @@ extern MacroList CommbatMacros[MAXMACROS];
 //****************************************************************************
 
 void WriteBattleConfig(void);
-void ReadScores (void);
-void ReadInt (const char * s1, int * val);
-void ReadBoolean (const char * s1, boolean * val);
-void ReadConfig (void);
-void WriteParameter (int file, const char * s1, int val);
-void WriteScores (void);
-void WriteConfig (void);
-void ReadSETUPFiles (void);
-void DeleteSoundFile ( void );
-void CheckVendor (void);
-void ConvertStringToPasswordString ( char * string );
-void ConvertPasswordStringToPassword ( void );
-void ConvertPasswordStringToString ( char * string );
-void ConvertPasswordToPasswordString ( void );
+void ReadScores(void);
+void ReadInt(const char *s1, int *val);
+void ReadBoolean(const char *s1, boolean *val);
+void ReadConfig(void);
+void WriteParameter(int file, const char *s1, int val);
+void WriteScores(void);
+void WriteConfig(void);
+void ReadSETUPFiles(void);
+void DeleteSoundFile(void);
+void CheckVendor(void);
+void ConvertStringToPasswordString(char *string);
+void ConvertPasswordStringToPassword(void);
+void ConvertPasswordStringToString(char *string);
+void ConvertPasswordToPasswordString(void);
 
 #endif

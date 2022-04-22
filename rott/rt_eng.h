@@ -21,9 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define _rt_eng_public
 
 int RayCast(int count, int xtstep, int ytstep, int offs, int xstep, int ystep);
-#pragma aux RayCast value [EDI] parm [EDI] [EAX] [EBX] [ESI] [ECX] [EDX] modify exact [ESI EDI]
+#pragma aux RayCast value[EDI] parm[EDI][EAX][EBX][ESI][ECX][EDX] modify exact[ESI EDI]
 
 #endif
-
-
-
