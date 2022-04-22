@@ -34,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "scriplib.h"
 #include "rt_util.h"
 //MED
-#include "memcheck.h"
 
 /*
 =============================================================================

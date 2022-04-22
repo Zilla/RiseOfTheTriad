@@ -53,7 +53,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fcntl.h>
 #include <dos.h>
 //MED
-#include "memcheck.h"
 
 /* This file and associated .h files and Spaceball libraries:
    Copyright 1995 Spacetec IMC Corporation

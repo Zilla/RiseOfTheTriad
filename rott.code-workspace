@@ -1,0 +1,14 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "CIN_GLOB.H": "cpp",
+            "CIN_GLOB.C": "cpp",
+            "RT_DEF.H": "cpp"
+        }
+    }
+}

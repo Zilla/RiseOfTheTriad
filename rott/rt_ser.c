@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <bios.h>
 //MED
-#include "memcheck.h"
 
 char	localbuffer[MAXPACKET*2+2];
 char  serialpacket[MAXPACKET];
