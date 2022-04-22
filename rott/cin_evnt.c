@@ -38,6 +38,8 @@ eventtype *lastevent;
 static int numevents = 0;
 static boolean eventsystemstarted = false;
 
+#define strcmpi strcasecmp
+
 /*
 ===============
 =

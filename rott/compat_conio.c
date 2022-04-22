@@ -1,5 +1,5 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 2022
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,45 +17,33 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "cin_glob.h"
-#include "modexlib.h"
-#include "compat_conio.h"
-//MED
 
-/*
-==============
-=
-= CinematicGetPalette
-=
-= Return an 8 bit / color palette
-=
-==============
-*/
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
 
-void CinematicGetPalette(byte *pal)
+unsigned int outp(int port, int value)
 {
-      int i;
-
-      outp(PEL_READ_ADR, 0);
-      for (i = 0; i < 768; i++)
-            pal[i] = ((inp(PEL_DATA)) << 2);
+    int fd = open("/dev/port", O_WRONLY);
+    lseek(fd, port, SEEK_SET);
+    write(fd, &value, 1);
+    close(fd);
+    return (unsigned int)value;
 }
 
-/*
-==============
-=
-= CinematicSetPalette
-=
-= Sets an 8 bit / color palette
-=
-==============
-*/
-
-void CinematicSetPalette(byte *pal)
+unsigned int inp(int port)
 {
-      int i;
+    unsigned int ret;
+    int fd = open("/dev/port", O_RDONLY);
+    lseek(fd, port, SEEK_SET);
+    read(fd, &ret, 1);
+    close(fd);
+    return (unsigned int)ret;
+}
 
-      outp(PEL_WRITE_ADR, 0);
-      for (i = 0; i < 768; i++)
-            outp(PEL_DATA, pal[i] >> 2);
+int getch(void)
+{
+    return getchar();
 }

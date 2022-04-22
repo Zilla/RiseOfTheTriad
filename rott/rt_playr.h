@@ -262,7 +262,7 @@ void CheckUnPause(void);
 void UpdatePlayers(void);
 void UnTargetActor(objtype *target);
 
-typedef enum
+enum
 {
   RENORMALIZE = 1,
   PITFALL,

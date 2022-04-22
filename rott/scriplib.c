@@ -19,16 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // scriplib.c
 
-#ifdef __NeXT__
-#include <libc.h>
-#endif
-
-#ifndef __NeXT__
-#include <io.h>
-#include <dos.h>
 #include <fcntl.h>
 #include <string.h>
-#endif
 
 #include "rt_def.h"
 #include "scriplib.h"

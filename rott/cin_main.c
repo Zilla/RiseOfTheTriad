@@ -18,12 +18,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 #include <malloc.h>
-#include <dos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <io.h>
-#include <conio.h>
+#include "compat_conio.h"
 #include <string.h>
 #include "cin_glob.h"
 #include "scriplib.h"

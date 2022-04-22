@@ -1,5 +1,5 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 2022
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,45 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "cin_glob.h"
-#include "modexlib.h"
-#include "compat_conio.h"
-//MED
 
-/*
-==============
-=
-= CinematicGetPalette
-=
-= Return an 8 bit / color palette
-=
-==============
-*/
+#ifndef __COMPAT_CONIO_H__
+#define __COMPAT_CONIO_H__
 
-void CinematicGetPalette(byte *pal)
-{
-      int i;
+unsigned int outp(int port, int value);
+unsigned int inp(int port);
+int getch(void);
 
-      outp(PEL_READ_ADR, 0);
-      for (i = 0; i < 768; i++)
-            pal[i] = ((inp(PEL_DATA)) << 2);
-}
-
-/*
-==============
-=
-= CinematicSetPalette
-=
-= Sets an 8 bit / color palette
-=
-==============
-*/
-
-void CinematicSetPalette(byte *pal)
-{
-      int i;
-
-      outp(PEL_WRITE_ADR, 0);
-      for (i = 0; i < 768; i++)
-            outp(PEL_DATA, pal[i] >> 2);
-}
+#endif

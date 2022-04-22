@@ -20,16 +20,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_def.h"
 #include "lumpy.h"
 #include <malloc.h>
-#include <dos.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <fcntl.h>
-#include <io.h>
-#include <conio.h>
-#include <graph.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include "compat_conio.h"
 #include <string.h>
-#include <process.h>
 #include "rt_actor.h"
 #include "rt_stat.h"
 #include "rt_vid.h"
@@ -69,9 +68,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cin_main.h"
 #include "rottnet.h"
 #include "rt_scale.h"
-
-#include <direct.h>
-#include <bios.h>
 
 #include "music.h"
 #include "fx_man.h"
@@ -137,6 +133,22 @@ int maxtimelimit;
 boolean timelimitenabled;
 boolean demoexit;
 boolean noecho;
+
+void CheckCommandLineParameters(void);
+void Init_Tables(void);
+void PlayTurboGame(void);
+void CheckRemoteRidicule(int scancode);
+
+/* stdlib stuff */
+
+#define min(a,b)  (((a) < (b)) ? (a) : (b))
+
+char *itoa(int val, char *str, int base)
+{
+   (void)base;
+   sprintf(str, "%d", val);
+   return str;
+}
 
 void main()
 {
@@ -596,7 +608,7 @@ void CheckCommandLineParameters(void)
          if (numplayers > MAXPLAYERS)
             Error("Too many players.\n");
          if (!quiet)
-            printf("Playing %ld player ROTT\n", numplayers);
+            printf("Playing %d player ROTT\n", numplayers);
          modemgame = true;
          if (rottcom->gametype == NETWORK_GAME)
          {
@@ -631,7 +643,7 @@ void CheckCommandLineParameters(void)
          timelimitenabled = true;
          timelimit = ParseNum(_argv[i + 1]);
          if (!quiet)
-            printf("Time Limit = %ld Seconds\n", timelimit);
+            printf("Time Limit = %d Seconds\n", timelimit);
          timelimit *= VBLCOUNTER;
          break;
 
@@ -725,8 +737,7 @@ void SetupWads(void)
    W_InitMultipleFiles(newargs);
 }
 
-void PlayTurboGame(
-    void)
+void PlayTurboGame(void)
 
 {
    NewGame = true;
@@ -1951,6 +1962,7 @@ void CheckRemoteRidicule(int scancode)
 
 void DoBossKey(void)
 {
+   /*
    union REGS regs;
    ShutdownClientControls();
 
@@ -1975,6 +1987,9 @@ void DoBossKey(void)
    ThreeDRefresh();
 
    StartupClientControls();
+   */
+
+  /* TODO: Something fun here */
 }
 
 //******************************************************************************
@@ -2713,14 +2728,14 @@ void GetFileName(boolean saveLBM)
 {
    char num[4];
    int cnt = 0;
-   struct find_t fblock;
+   struct stat s;
 
    if (saveLBM)
       memcpy(savename, "ROTT0000.LBM\0", 13);
    else
       memcpy(savename, "ROTT0000.PCX\0", 13);
 
-   if (_dos_findfirst(savename, 0, &fblock) != 0)
+   if (stat(savename, &s) != 0)
       return;
 
    do
@@ -2742,7 +2757,7 @@ void GetFileName(boolean saveLBM)
       }
       else
          savename[7] = num[0];
-   } while (_dos_findfirst(savename, 0, &fblock) == 0);
+   } while (stat(savename, &s) == 0);
 }
 
 //****************************************************************************

@@ -21,13 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <dos.h>
 #include <string.h>
 #include "rt_def.h"
 #include "_z_zone.h"
 #include "z_zone.h"
 #include "rt_util.h"
-#include <conio.h>
+#include "compat_conio.h"
 #include "develop.h"
 #include "rt_net.h"
 
@@ -62,7 +61,7 @@ int zonememorystarted = 0;
 
 static memzone_t *mainzone;
 static memzone_t *levelzone;
-static levelzonesize = LEVELZONESIZE;
+static int levelzonesize = LEVELZONESIZE;
 static struct meminfo
 {
         unsigned LargestBlockAvail;
@@ -160,7 +159,7 @@ void Z_Init(int size, int min)
         levelzone = Z_AllocateZone(levelzonesize);
 
         if (!quiet)
-                printf("Z_INIT: %ld bytes\n", (maxsize + levelzonesize));
+                printf("Z_INIT: %d bytes\n", (maxsize + levelzonesize));
 
         if (maxsize < (min + (min >> 1)))
         {
@@ -720,7 +719,7 @@ void Z_ChangeTag(void *ptr, int tag)
 
 int Z_AvailHeap(void)
 {
-
+#if 0
         union REGS zregs;
         struct SREGS zsregs;
 
@@ -732,6 +731,9 @@ int Z_AvailHeap(void)
         int386x(DPMI_INT, &zregs, &zregs, &zsregs);
 
         return ((int)MemInfo.LargestBlockAvail);
+#endif
+/* TODO: Rewrite memory handling */
+        return MAXMEMORYSIZE;
 }
 
 /*
