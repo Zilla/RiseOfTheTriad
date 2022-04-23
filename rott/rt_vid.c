@@ -19,9 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <string.h>
-#include <dos.h>
-#include <conio.h>
+#include "compat_conio.h"
 
 #include "rt_def.h"
 #include "rt_vid.h"
@@ -1040,11 +1040,14 @@ void SetBorderColor(int color)
 
 void SetBorderColorInterrupt(int color)
 {
+   /*
    union REGS regs;
 
    regs.w.ax = 0x1001;
    regs.w.bx = color << 8;
    int386(0x10, &regs, &regs);
+   */
+  /* TODO: Does not seem to be used? Write replacement if it is */
 }
 
 //****************************************************************************

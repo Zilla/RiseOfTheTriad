@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_draw.h"
 #include "rt_playr.h"
 #include "isr.h"
-#include "mem.h"
+#include <memory.h>
 #include "stdlib.h"
 #include "rt_spbal.h"
 #include "_rt_spba.h"
@@ -48,11 +48,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "version.h"
 #include "scriplib.h"
 #include <stdlib.h>
-#include <conio.h>
-#include <io.h>
+#include "compat_stdlib.h"
+#include "compat_conio.h"
 #include <fcntl.h>
-#include <dos.h>
 //MED
+
+/* TODO: Remove all spaceball related stuff */
 
 /* This file and associated .h files and Spaceball libraries:
    Copyright 1995 Spacetec IMC Corporation
@@ -86,7 +87,7 @@ static WarpRecord defaultRecords[] = {
 WarpRecord *WarpTx, *WarpTy, *WarpTz, *WarpRx, *WarpRy;
 
 static char *SpaceBallConfigName = "spwrott.cfg";
-static char *ApogeePath = "APOGEECD";
+char *ApogeePath = "APOGEECD";
 
 #define TURBO_LIMIT 1000000
 static int turbo_increment = 500000,
@@ -332,6 +333,7 @@ void OpenSpaceBall(void)
       SpaceBallPresent = true;
       printf("Test the Spaceball by moving the ball and/or pressing buttons.\n");
       printf("Exit test by pressing any keyboard key...\n");
+/*
       while (!kbhit())
       {
 
@@ -343,7 +345,7 @@ void OpenSpaceBall(void)
                    sp.buttons.cur & 4 ? 'C' : ' ', sp.buttons.cur & 8 ? 'D' : ' ',
                    sp.buttons.cur & 16 ? 'E' : ' ', sp.buttons.cur & 32 ? 'F' : ' ');
       }
-
+*/
       // Check for configuration file, set defaults if none
 
       GetPathFromEnvironment(filename, ApogeePath, SpaceBallConfigName);

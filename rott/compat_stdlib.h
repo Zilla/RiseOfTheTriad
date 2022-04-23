@@ -21,8 +21,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __COMPAT_STDLIB_H__
 #define __COMPAT_STDLIB_H__
 
-
 #define min(a,b)  (((a) < (b)) ? (a) : (b))
+#define max(a,b)  (((a) > (b)) ? (a) : (b))
+
+#define strcmpi strcasecmp
+#define stricmp strcasecmp
 
 char *itoa(int val, char *str, int base);
 char *ltoa(long val, char *str, int base);

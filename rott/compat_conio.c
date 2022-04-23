@@ -33,6 +33,15 @@ unsigned int outp(int port, int value)
     return (unsigned int)value;
 }
 
+unsigned int outpw(int port, int value)
+{
+    int fd = open("/dev/port", O_WRONLY);
+    lseek(fd, port, SEEK_SET);
+    write(fd, &value, 2);
+    close(fd);
+    return (unsigned int)value;
+}
+
 unsigned int inp(int port)
 {
     unsigned int ret;

@@ -19,16 +19,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // RT_BUILD.C
 
-#include "RT_DEF.H"
+#include "rt_def.h"
 #include <string.h>
-#include <DOS.H>
 #include "watcom.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
+#include "compat_stdlib.h"
+#include "compat_conio.h"
 
 #include "rt_build.h"
-#include "_rt_build.h"
+#include "_rt_buil.h"
 #include "rt_dr_a.h"
 #include "rt_draw.h"
 #include "rt_scale.h"
@@ -69,7 +69,7 @@ static boolean BackgroundDrawn = false;
 
 static plane_t planelist[MAXPLANES], *planeptr;
 
-static StringShade = 16;
+static int StringShade = 16;
 
 extern void (*USL_MeasureString)(char *, int *, int *, font_t *);
 

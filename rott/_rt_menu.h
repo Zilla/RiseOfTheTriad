@@ -322,7 +322,7 @@ void DrawPWMenu(void);
 void CP_PWMenu(void);
 
 void DrawBattleModes(void);
-int CP_BattleModes(void);
+void CP_BattleModes(void);
 
 void DrawBattleOptions(void);
 void CP_BattleOptions(void);

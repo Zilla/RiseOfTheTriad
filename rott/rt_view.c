@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_sound.h"
 #include "modexlib.h"
 #include "rt_menu.h"
-#include <mem.h>
+#include <memory.h>
 #include <stdlib.h>
 
 #include "rt_main.h"
@@ -144,6 +144,9 @@ static int lightningdistance = 0;
 static int lightningsoundtime = 0;
 static boolean periodic = false;
 static int periodictime = 0;
+
+void SetViewDelta(void);
+void UpdatePeriodicLighting(void);
 
 /*
 ====================

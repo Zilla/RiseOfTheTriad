@@ -25,9 +25,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <string.h>
 #include <ctype.h>
-#include <dos.h>
 
 typedef long fixed;
 
@@ -89,6 +89,8 @@ fixed FIXED_MUL(fixed a, fixed b);
 	"imul    edx"       \
 	"shrd    eax,edx,16" parm[eax][edx] value[eax] modify exact[eax];
 
+#else
+	#define FIXED_MUL(a, b) (a*b)
 #endif /* definition of inline FIXED_MUL */
 
 static fixed StrToFx1616(char *string, char **ret_string)

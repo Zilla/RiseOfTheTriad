@@ -17,13 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include <dos.h>
 #include <string.h>
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <stdio.h>
-#include <io.h>
 #include <fcntl.h>
-
+#include <unistd.h>
 #include "rt_def.h"
 #include "rt_main.h"
 #include "rt_net.h"
@@ -106,14 +105,24 @@ static int LastCommandTime[MAXPLAYERS];
 static CommandStatusType *CommandState[MAXPLAYERS + 1];
 
 static boolean InProcessServer = false;
-static lastcontrolupdatetime;
-static largesttime;
-static PlayerStatus[MAXPLAYERS];
+static int lastcontrolupdatetime;
+static int largesttime;
+static int PlayerStatus[MAXPLAYERS];
 //static int syncservertime;
 //static boolean FixingPackets;
 static int controldivisor = 1;
 static int nextupdatetime;
 static boolean UpdateServer = true;
+
+int GetTypeSize(int type);
+int MaxSpeedForCharacter(playertype *pstate);
+void UpdateDemoPlayback(int time);
+void PrepareLocalPacket(void);
+void CheckForPacket(void);
+void AddModemSubPacket(void *incoming);
+void SendSyncCheckPacket(void);
+void SetPlayerDescription(void *pkt);
+
 /*
 =============================================================================
 
@@ -1083,7 +1092,7 @@ int GetServerPacketSize(void *pkt)
       {
          ptr += GetPacketSize(ptr);
       }
-      return (ptr - pkt);
+      return (ptr - (byte *)pkt);
    }
    else
       return GetPacketSize(pkt);
@@ -2247,22 +2256,22 @@ int SetupCheckForPacket(void)
             break;
          case COM_GAMEDESC:
             if (standalone == true)
-               printf("Received GameDescription from player#%ld\n", rottcom->remotenode);
+               printf("Received GameDescription from player#%d\n", rottcom->remotenode);
             WritePacket(&ROTTpacket[0], GetPacketSize(pkt), 0); // Send to player 0
             break;
          case COM_GAMEACK:
             if (standalone == true)
-               printf("Received GameAcknowledgement from player#%ld\n", rottcom->remotenode);
+               printf("Received GameAcknowledgement from player#%d\n", rottcom->remotenode);
             WritePacket(&ROTTpacket[0], GetPacketSize(pkt), 0); // Send to player 0
             break;
          case COM_GAMEMASTER:
             if (standalone == true)
-               printf("Received GameMasterPacket from player#%ld\n", rottcom->remotenode);
+               printf("Received GameMasterPacket from player#%d\n", rottcom->remotenode);
             BroadcastServerPacket(&ROTTpacket[0], GetPacketSize(pkt)); // Send to all
             break;
          case COM_GAMEPLAY:
             if (standalone == true)
-               printf("Received StartGamePacket from player#%ld\n", rottcom->remotenode);
+               printf("Received StartGamePacket from player#%d\n", rottcom->remotenode);
             BroadcastServerPacket(&ROTTpacket[0], GetPacketSize(pkt)); // Send to all
             retval = scfp_done;
             break;
@@ -3050,7 +3059,7 @@ void LoadDemo(int demonumber)
    GetDemoFilename(demonumber, demo);
    if (demobuffer != NULL)
       FreeDemo();
-   size = LoadFile(demo, &demobuffer);
+   size = LoadFile(demo, (void **)(&demobuffer));
    playstate = ex_demoplayback;
    demoptr = demobuffer;
    lastdemoptr = (demoptr + size);

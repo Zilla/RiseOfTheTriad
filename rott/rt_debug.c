@@ -41,6 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_map.h"
 
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <ctype.h>
 //MED
 
@@ -50,7 +51,7 @@ typedef struct
    byte length;
 } CodeStruct;
 
-typedef enum
+enum
 {
    ENABLECHEAT,     // enable cheats
    ENABLECHEATALT,  // enable cheats
@@ -431,7 +432,7 @@ void DoWarp(void)
    {
       playstate = ex_warped;
       gamestate.mapon = level;
-      gamestate.episode = GetEpisode(gamestate.mapon);
+      GetEpisode(gamestate.mapon);
 
       VL_FadeOut(0, 255, 0, 0, 0, 20);
    }
@@ -650,7 +651,7 @@ void RestartNormal(void)
    AddMessage("Restart to level 1", MSG_CHEAT);
    gamestate.mapon = 0;
    playstate = ex_warped;
-   gamestate.episode = GetEpisode(gamestate.mapon);
+   GetEpisode(gamestate.mapon);
 }
 
 /*
@@ -905,7 +906,7 @@ void KillPlayer()
 void RestartCurrentLevel(void)
 {
    playstate = ex_warped;
-   gamestate.episode = GetEpisode(gamestate.mapon);
+   GetEpisode(gamestate.mapon);
 }
 
 /*

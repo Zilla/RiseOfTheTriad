@@ -18,13 +18,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 #include <stdio.h>
-#include <conio.h>
-#include <dos.h>
-#include <i86.h>
+#include "compat_conio.h"
 #include <string.h>
 
 #include "rt_main.h"
-#include "rt_spball.h"
+#include "rt_spbal.h"
 #include "rt_def.h"
 #include "rt_in.h"
 #include "_rt_in.h"
@@ -126,19 +124,20 @@ char ScanChars[128] =    // Scan code names with single chars
 //
 //****************************************************************************]
 
-static KeyboardDef KbdDefs = {0x1d, 0x38, 0x47, 0x48, 0x49, 0x4b, 0x4d, 0x4f, 0x50, 0x51};
-static JoystickDef JoyDefs[MaxJoys];
-static ControlType Controls[MAXPLAYERS];
+KeyboardDef KbdDefs = {0x1d, 0x38, 0x47, 0x48, 0x49, 0x4b, 0x4d, 0x4f, 0x50, 0x51};
+JoystickDef JoyDefs[MaxJoys];
+ControlType Controls[MAXPLAYERS];
 
-static boolean IN_Started;
+boolean IN_Started;
 
-static Direction DirTable[] = // Quick lookup for total direction
-    {
+Direction DirTable[] = // Quick lookup for total direction
+   {
         dir_NorthWest, dir_North, dir_NorthEast,
         dir_West, dir_None, dir_East,
-        dir_SouthWest, dir_South, dir_SouthEast};
+        dir_SouthWest, dir_South, dir_SouthEast
+   };
 
-int(far *function_ptr)();
+int(*function_ptr)();
 
 static char *ParmStrings[] = {"nojoys", "nomouse", "spaceball", "cyberman", "assassin", NULL};
 
@@ -151,6 +150,7 @@ static char *ParmStrings[] = {"nojoys", "nomouse", "spaceball", "cyberman", "ass
 
 void INL_GetMouseDelta(int *x, int *y)
 {
+   /*
    union REGS inregs;
    union REGS outregs;
 
@@ -162,6 +162,8 @@ void INL_GetMouseDelta(int *x, int *y)
 
    *x = outregs.w.cx;
    *y = outregs.w.dx;
+   */
+  /* TODO: Write mouse handler */
 }
 
 //******************************************************************************
@@ -171,10 +173,9 @@ void INL_GetMouseDelta(int *x, int *y)
 //
 //******************************************************************************
 
-word IN_GetMouseButtons(
-    void)
-
+word IN_GetMouseButtons(void)
 {
+   /*
    word buttons;
    union REGS inregs;
    union REGS outregs;
@@ -196,6 +197,9 @@ word IN_GetMouseButtons(
    buttons &= ~IgnoreMouse;
 
    return (buttons);
+   */
+  /* TODO: Write mouse handler */
+  return 0;
 }
 
 //******************************************************************************
@@ -205,9 +209,7 @@ word IN_GetMouseButtons(
 //
 //******************************************************************************
 
-void IN_IgnoreMouseButtons(
-    void)
-
+void IN_IgnoreMouseButtons(void)
 {
    word buttons;
 
@@ -351,7 +353,7 @@ word IN_GetJoyButtonsDB (word joy)
 
 boolean INL_StartMouse(void)
 {
-
+/*
    union REGS inregs;
    union REGS outregs;
 
@@ -362,6 +364,9 @@ boolean INL_StartMouse(void)
       return (true);
    else
       return (false);
+   */
+  /* TODO: Write mouse handler */
+  return false;
 }
 
 //******************************************************************************
@@ -615,7 +620,7 @@ void IN_Shutdown(void)
 void IN_ClearKeysDown(void)
 {
    LastScan = sc_None;
-   memset(Keyboard, 0, sizeof(Keyboard));
+   memset((void *)(&Keyboard[0]), 0, sizeof(Keyboard));
 }
 
 //******************************************************************************

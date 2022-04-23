@@ -20,11 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "rt_def.h"
 #include <malloc.h>
-#include <dos.h>
 #include <string.h>
 #include "sprites.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include "rt_stat.h"
 #include "z_zone.h"
 #include "lumpy.h"
@@ -205,6 +205,9 @@ static awallinfo_t animwallsinfo[MAXANIMWALLS] =
      {3, 6, "ANIMRP1\0"}};  //anim light streams right
 
 int statcount;
+
+void AddRespawnStatic(respawn_t *stat);
+void DoLights(int tilex, int tiley);
 
 void AddToFreeStaticList(statobj_t *stat)
 {

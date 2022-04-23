@@ -17,13 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include <dos.h>
 #include <errno.h>
-#include <io.h>
 #include <stdio.h>
-#include <conio.h>
+#include "compat_conio.h"
 #include <stdarg.h>
-#include <mem.h>
+#include <memory.h>
 #include <ctype.h>
 #include "rt_def.h"
 #include "rt_str.h"
@@ -105,7 +103,7 @@ static char ReadWrite[2][6] =
         "Write\0"};
 
 static boolean ErrorHandlerStarted = false;
-void(__interrupt __far *olddivisr)() = NULL;
+void(*olddivisr)() = NULL;
 
 //******************************************************************************
 //
@@ -198,8 +196,6 @@ int UL_GeneralError(int code)
    {
       while (!done)
       {
-         if (kbhit())
-         {
             char ch;
 
             ch = toupper(getch());
@@ -213,7 +209,6 @@ int UL_GeneralError(int code)
                retval = 0;
                done = true;
             }
-         }
       }
    }
 
@@ -262,8 +257,6 @@ int UL_DriveError(int code, int location, int rwerror, int whichdrive)
    {
       while (!done)
       {
-         if (kbhit())
-         {
             char ch;
 
             ch = toupper(getch());
@@ -277,12 +270,13 @@ int UL_DriveError(int code, int location, int rwerror, int whichdrive)
                retval = 0;
                done = true;
             }
-         }
       }
    }
 
    return (retval);
 }
+
+  /* TODO: Install signal handler for errors */
 
 //****************************************************************************
 //
@@ -290,8 +284,9 @@ int UL_DriveError(int code, int location, int rwerror, int whichdrive)
 //
 //****************************************************************************
 
-int __far UL_harderr(unsigned deverr, unsigned errcode, unsigned far *devhdr)
+int UL_harderr(unsigned deverr, unsigned errcode, unsigned *devhdr)
 {
+   /*
    int DiskError = 0;      // Indicates if it was a disk error
    int IgnoreAvail = 0;    // if "ignore" response is available
    int RetryAvail = 0;     // if "retry" response is available
@@ -320,6 +315,8 @@ int __far UL_harderr(unsigned deverr, unsigned errcode, unsigned far *devhdr)
    if (action)
       Error("USER BREAK : ROTT aborted.\n");
    return (_HARDERR_RETRY);
+   */
+   return 0;
 }
 
 //****************************************************************************
@@ -330,7 +327,7 @@ int __far UL_harderr(unsigned deverr, unsigned errcode, unsigned far *devhdr)
 
 extern byte *colormap;
 
-void __interrupt __far UL_DivisionISR(void)
+void UL_DivisionISR(void)
 {
    // acknowledge the interrupt
 
@@ -347,11 +344,14 @@ void __interrupt __far UL_DivisionISR(void)
 
 void UL_ErrorStartup(void)
 {
+   /*
    if (ErrorHandlerStarted == true)
       return;
    ErrorHandlerStarted = true;
    _harderr(UL_harderr); // Install hard error handler
+ 
    UL_StartupDivisionByZero();
+   */
 }
 
 //****************************************************************************
@@ -362,10 +362,12 @@ void UL_ErrorStartup(void)
 
 void UL_ErrorShutdown(void)
 {
+   /*
    if (ErrorHandlerStarted == false)
       return;
    ErrorHandlerStarted = false;
    UL_ShutdownDivisionByZero();
+   */
 }
 
 /*
@@ -378,8 +380,10 @@ void UL_ErrorShutdown(void)
 
 void UL_StartupDivisionByZero(void)
 {
+   /*
    olddivisr = _dos_getvect(DIVISIONINT);
    _dos_setvect(DIVISIONINT, UL_DivisionISR);
+   */
 }
 
 /*
@@ -392,5 +396,7 @@ void UL_StartupDivisionByZero(void)
 
 void UL_ShutdownDivisionByZero(void)
 {
+   /*
    _dos_setvect(DIVISIONINT, olddivisr);
+   */
 }

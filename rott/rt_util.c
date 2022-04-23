@@ -20,17 +20,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "rt_def.h"
 #include <malloc.h>
-#include <dos.h>
 #include <stdarg.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <conio.h>
+#include "compat_conio.h"
 #include <string.h>
 #include <stdio.h>
+#include "compat_stdlib.h"
 #include <ctype.h>
-#include <io.h>
 #include <stdlib.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "watcom.h"
 #include "_rt_util.h"
 #include "rt_util.h"
@@ -48,7 +49,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_view.h"
 #include "modexlib.h"
 #include "rt_cfg.h"
-#include <direct.h>
 //MED
 
 int egacolor[16];
@@ -90,6 +90,10 @@ int TotalStaticMemory = 0;
       b = (a) ^ (b); \
       a = (a) ^ (b); \
    }
+
+#define _fstricmp strcasecmp
+
+static void newsift_down(int L, int U);
 
 //******************************************************************************
 //
@@ -391,16 +395,16 @@ void Error(char *error, ...)
    {
       printf("Player X     = %lx\n", player->x);
       printf("Player Y     = %lx\n", player->y);
-      printf("Player Angle = %lx\n\n", player->angle);
+      printf("Player Angle = %x\n\n", player->angle);
    }
-   printf("Episode      = %ld\n", gamestate.episode);
+   printf("Episode      = %d\n", gamestate.episode);
 
    if (gamestate.episode > 1)
       level = (gamestate.mapon + 1) - ((gamestate.episode - 1) << 3);
    else
       level = gamestate.mapon + 1;
 
-   printf("Area         = %ld\n", level);
+   printf("Area         = %d\n", level);
 
    GetPathFromEnvironment(filename, ApogeePath, ERRORFILE);
    handle = SafeOpenAppend(filename);
@@ -603,7 +607,7 @@ int SafeOpenAppend(char *filename)
 {
    int handle;
 
-   handle = open(filename, O_RDWR | O_BINARY | O_CREAT | O_APPEND, S_IREAD | S_IWRITE);
+   handle = open(filename, O_RDWR | O_CREAT | O_APPEND, S_IREAD | S_IWRITE);
 
    if (handle == -1)
       Error("Error opening for append %s: %s", filename, strerror(errno));
@@ -615,7 +619,7 @@ int SafeOpenWrite(char *filename)
 {
    int handle;
 
-   handle = open(filename, O_RDWR | O_BINARY | O_CREAT | O_TRUNC, S_IREAD | S_IWRITE);
+   handle = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IREAD | S_IWRITE);
 
    if (handle == -1)
       Error("Error opening %s: %s", filename, strerror(errno));
@@ -627,7 +631,7 @@ int SafeOpenRead(char *filename)
 {
    int handle;
 
-   handle = open(filename, O_RDONLY | O_BINARY);
+   handle = open(filename, O_RDONLY);
 
    if (handle == -1)
       Error("Error opening %s: %s", filename, strerror(errno));
@@ -1220,7 +1224,7 @@ void hsort(char *base, int nel, int width, int (*compare)(), void (*switcher)())
 }
 
 /*---------------------------------------------------------------------------*/
-static newsift_down(L, U) int L, U;
+static void newsift_down(int L, int U)
 {
    int c;
 
@@ -1273,7 +1277,7 @@ char *UL_GetPath(char *path, char *dir)
       path++;
       dr++;
 
-      if ((*path == SLASHES) || (*path == NULL))
+      if ((*path == SLASHES) || (*path == 0))
          done = true;
    }
 
@@ -1308,6 +1312,7 @@ boolean UL_ChangeDirectory(char *path)
    memset(dir, 0, 9);
 
    // Check for a drive at the beginning of the path
+   /*
    if (*(p + 1) == ':')
    {
       *d++ = *p++; // drive letter
@@ -1316,7 +1321,7 @@ boolean UL_ChangeDirectory(char *path)
       if (UL_ChangeDrive(dir) == false)
          return (false);
    }
-
+  */
    if (*p == SLASHES)
    {
       chdir("\\");
@@ -1350,7 +1355,7 @@ boolean UL_ChangeDirectory(char *path)
 //    FALSE - If drive change unsuccessful.
 //
 //******************************************************************************
-
+/*
 boolean UL_ChangeDrive(char *drive)
 {
    unsigned d, total, tempd;
@@ -1367,7 +1372,7 @@ boolean UL_ChangeDrive(char *drive)
 
    return (true);
 }
-
+*/
 /*
 =============
 =

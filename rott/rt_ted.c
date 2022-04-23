@@ -21,12 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "rt_def.h"
 #include "rt_sound.h"
-#include <io.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <conio.h>
-#include <dos.h>
+#include <errno.h>
+#include <unistd.h>
+#include "compat_stdlib.h"
+#include "compat_conio.h"
 #include "states.h"
 #include "watcom.h"
 #include "rt_ted.h"
@@ -57,6 +58,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_debug.h"
 #include "rt_scale.h"
 #include "rt_net.h"
+#include <sys/time.h>
+#include <time.h>
 //MED
 
 //========================================
@@ -148,6 +151,14 @@ static char CacheStrings[MAXSILLYSTRINGS][80] =
 
 void SetupGameLevel(void);
 void ScanInfoPlane(void);
+void DrawPreCache(void);
+int GetLumpForTile(int tile);
+void InitializePlayerstates(void);
+void SetupStatics(void);
+void SetupActors(void);
+void SetupRandomActors(void);
+void SetupSnakePath(void);
+void LoftSprites(void);
 
 //========================================
 
@@ -914,12 +925,17 @@ void MiscPreCache(void)
 
 boolean IsChristmas(void)
 {
-   struct dosdate_t date;
+   struct timeval tv;
+   struct tm *date;
 
-   _dos_getdate(&date);
+   gettimeofday(&tv, NULL);
+   date = localtime(&(tv.tv_sec));
 
-   if (((date.day == 24) || (date.day == 25)) && //Christmas
-       (date.month == 12))
+   if(date == NULL)
+      return false;
+
+   if (((date->tm_mday == 24) || (date->tm_mday == 25)) && //Christmas
+       (date->tm_mon + 1 == 12))
       return true;
 
    return false;
@@ -935,29 +951,34 @@ boolean IsChristmas(void)
 
 void CheckHolidays(void)
 {
-   struct dosdate_t date;
+   struct timeval tv;
+   struct tm *date;
 
-   _dos_getdate(&date);
+   gettimeofday(&tv, NULL);
+   date = localtime(&(tv.tv_sec));
+
+   if(date == NULL)
+      return;
 
    if (IsChristmas())
       DrawNormalSprite(0, 0, W_GetNumForName("santahat"));
 
-   else if ((date.month == 5) && (date.day == 5)) // Cinco de Mayo
+   else if ((date->tm_mon + 1 == 5) && (date->tm_mday == 5)) // Cinco de Mayo
       DrawNormalSprite(0, 0, W_GetNumForName("sombrero"));
 
-   else if ((date.month == 7) && (date.day == 4)) // 4th of July
+   else if ((date->tm_mon + 1 == 7) && (date->tm_mday == 4)) // 4th of July
       DrawNormalSprite(0, 0, W_GetNumForName("amflag"));
 
-   else if ((date.month == 10) && (date.day == 31)) // Halloween
+   else if ((date->tm_mon + 1 == 10) && (date->tm_mday == 31)) // Halloween
       DrawNormalSprite(0, 0, W_GetNumForName("witchhat"));
 
-   else if ((date.month == 4) && (date.dayofweek == 0)) //Easter
+   else if ((date->tm_mon == 4) && (date->tm_wday == 0)) //Easter
    {
       int i;
 
       for (i = 15; i <= 21; i++)
       {
-         if (date.day == i)
+         if (date->tm_mday == i)
             DrawNormalSprite(0, 0, W_GetNumForName("esterhat"));
       }
    }

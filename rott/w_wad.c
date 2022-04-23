@@ -20,12 +20,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // W_wad.c
 
 #include <stdio.h>
-#include <conio.h>
+#include "compat_stdlib.h"
+#include "compat_conio.h"
 #include <string.h>
 #include <malloc.h>
-#include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <alloca.h>
+#include <unistd.h>
 #include "rt_def.h"
 #include "rt_util.h"
 #include "_w_wad.h"
@@ -53,6 +55,8 @@ static lumpinfo_t *lumpinfo; // location of each lump on disk
 #if (DATACORRUPTIONTEST == 1)
 static byte *lumpcheck;
 #endif
+
+#define strcmpi strcasecmp
 
 //===================
 
@@ -119,7 +123,7 @@ void W_AddFile(char *filename)
         // read the entire file in
         //      FIXME: shared opens
 
-        if ((handle = open(filename, O_RDWR | O_BINARY)) == -1)
+        if ((handle = open(filename, O_RDWR)) == -1)
                 return;
 
         startlump = numlumps;
@@ -158,7 +162,7 @@ void W_AddFile(char *filename)
         //
         // Fill in lumpinfo
         //
-        Z_Realloc(&lumpinfo, numlumps * sizeof(lumpinfo_t));
+        Z_Realloc((void **)(&lumpinfo), numlumps * sizeof(lumpinfo_t));
         //        lumpinfo = realloc (lumpinfo, numlumps*sizeof(lumpinfo_t));
         //        if (!lumpinfo)
         //           Error("W_AddFile: Could not realloc %ld bytes",numlumps*sizeof(lumpinfo_t));
@@ -237,10 +241,10 @@ void W_InitMultipleFiles(char **filenames)
         //
         lumpcache = calloc(numlumps, sizeof(*lumpcache));
         if (!lumpcache)
-                Error("W_InitFiles: lumpcache malloc failed size=%ld\n", numlumps << 2);
+                Error("W_InitFiles: lumpcache malloc failed size=%d\n", numlumps << 2);
 
         if (!quiet)
-                printf("W_Wad: Wad Manager Started NUMLUMPS=%ld\n", numlumps);
+                printf("W_Wad: Wad Manager Started NUMLUMPS=%d\n", numlumps);
 #if (DATACORRUPTIONTEST == 1)
         lumpcheck = SafeMalloc(numlumps);
         memset(lumpcheck, 255, numlumps);

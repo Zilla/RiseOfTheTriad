@@ -66,12 +66,10 @@ static int fActive;                    //  TRUE after successful init
                                        //  and before termination
 static int nAttached = SWIFT_DEV_NONE; // type of SWIFT device
 
-union REGS regs;
-struct SREGS sregs;
 
 short selector;    // selector of DOS memory block
 short segment;     // segment of DOS memory block
-void far *pdosmem; // pointer to DOS memory block
+void *pdosmem; // pointer to DOS memory block
 
 // DPMI real mode interrupt structure
 static struct rminfo
@@ -95,7 +93,7 @@ static struct rminfo
 //****************************************************************************
 
 void MouseInt(struct rminfo *prmi);
-static void far *allocDOS(unsigned nbytes, short *pseg, short *psel);
-static void freeDOS(short sel);
+void *allocDOS(unsigned nbytes, short *pseg, short *psel);
+void freeDOS(short sel);
 
 #endif

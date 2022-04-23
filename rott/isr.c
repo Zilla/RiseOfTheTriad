@@ -18,6 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+/* TODO: Timer handling */
+/* TODO: Write keyboard handler */
+
 /*
 ============================================================================
 
@@ -26,10 +29,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ============================================================================
 */
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <stdio.h>
-#include <dos.h>
-#include <mem.h>
-#include <conio.h>
+#include <memory.h>
+#include "compat_conio.h"
 #include "rt_def.h"
 #include "task_man.h"
 #include "isr.h"
@@ -95,8 +98,8 @@ static int TimerStarted = false;
 static volatile int pausecount = 0;
 static struct dostime_t starttime;
 
-void(__interrupt __far *oldtimerisr)();
-void(__interrupt __far *oldkeyboardisr)() = NULL;
+void(*oldtimerisr)();
+void(*oldkeyboardisr)() = NULL;
 
 static int LEDs;
 static volatile int KBFlags;
@@ -109,7 +112,7 @@ static volatile int KBFlags;
 ================
 */
 
-void __interrupt I_TimerISR(void)
+void I_TimerISR(void)
 {
    // acknowledge the interrupt
 

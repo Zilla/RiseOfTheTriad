@@ -41,6 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_rand.h"
 #include "engine.h"
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <string.h>
 //MED
 
@@ -124,6 +125,14 @@ static char *elevstring[NUMELEVATORACTIONS] =
      "doorclosing"};
 #endif
 #endif
+
+void UtilizeDoor(int door, void (*action)(int));
+void UseDoor(int door);
+void Teleport(elevator_t *eptr, int destination);
+int SetNextAction(elevator_t *eptr, int action);
+void ConnectPushWall(int pwall);
+void SetupPushWall(int pwall);
+void WallMoving(int pwall);
 
 /*
 ===============

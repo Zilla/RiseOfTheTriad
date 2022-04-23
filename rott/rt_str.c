@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //******************************************************************************
 
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -846,7 +847,7 @@ boolean US_LineInput(int x, int y, char *buf, char *def, boolean escok,
 
             ls = Keyboard[sc_LShift];
             rs = Keyboard[sc_RShift];
-            memset(Keyboard, 0, 127 * sizeof(int)); // Clear printable keys
+            memset((void *)(&Keyboard[0]), 0, 127 * sizeof(int)); // Clear printable keys
             Keyboard[sc_LShift] = ls;
             Keyboard[sc_RShift] = rs;
 
@@ -1130,7 +1131,7 @@ boolean US_lineinput(int x, int y, char *buf, char *def, boolean escok,
 
             ls = Keyboard[sc_LShift];
             rs = Keyboard[sc_RShift];
-            memset(Keyboard, 0, 127 * sizeof(int)); // Clear printable keys
+            memset((void *)(&Keyboard[0]), 0, 127 * sizeof(int)); // Clear printable keys
             Keyboard[sc_LShift] = ls;
             Keyboard[sc_RShift] = rs;
             MN_PlayMenuSnd(SD_MOVECURSORSND);

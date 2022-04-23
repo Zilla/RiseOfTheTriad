@@ -1,24 +1,26 @@
 CC=gcc
-CFLAGS=-c -g -m32 $(INCDIRS)
+CFLAGS=-c -g -m32 $(INCDIRS) -Wno-multichar
 LDFLAGS=-m32
 INCDIRS=-Irott
 
-#ROTTOBJ=isr.o  w_wad.o rt_scale.o engine.o \
-	rt_dr_a.o rt_fc_a.o rt_floor.o rt_util.o \
-	rt_stat.o  rt_ted.o rt_playr.o \
-	rt_rand.o rt_door.o rt_menu.o rt_vid.o rt_vh_a.o \
-	rt_str.o rt_in.o rt_sc_a.o  rt_map.o \
-	rt_debug.o rt_sound.o  f_scale.o \
-	rt_swift.o rt_build.o rt_com.o \
-	rt_view.o rt_cfg.o rt_spbal.o sbconfig.o rt_err.o \
-	rt_crc.o rt_msg.o modexlib.o rt_battl.o \
-	usrhooks.o rt_error.o rt_net.o  \
-	fli_util.o fli_main.o rt_dmand.o \
+#ROTTOBJ=    engine.o \
+	rt_dr_a.o rt_fc_a.o rt_vh_a.o  rt_sc_a.o  out/f_scale.o\
+	 \
+	    \
+	   \
+	   \
 
 ROTTOBJ=out/cin_actr.o out/cin_util.o out/compat_conio.o out/cin_evnt.o \
 	out/cin_efct.o out/cin_glob.o out/cin_main.o out/scriplib.o \
     out/z_zone.o out/rt_main.o out/rt_draw.o out/compat_stdlib.o \
-	out/rt_game.o out/rt_actor.o out/rt_state.o 
+	out/rt_game.o out/rt_actor.o out/rt_state.o out/rt_playr.o out/rt_util.o \
+	out/rt_stat.o out/rt_ted.o out/w_wad.o out/rt_sound.o out/rt_rand.o \
+	out/rt_door.o out/rt_scale.o out/rt_floor.o out/rt_crc.o out/rt_menu.o \
+	out/rt_str.o out/rt_vid.o out/rt_in.o out/rt_map.o out/rt_view.o \
+	out/rt_cfg.o out/rt_debug.o out/rt_swift.o out/rt_spbal.o out/sbconfig.o \
+	out/rt_build.o out/rt_error.o out/rt_com.o out/rt_msg.o out/rt_net.o \
+	out/rt_battl.o out/rt_dmand.o out/usrhooks.o out/modexlib.o \
+	out/fli_main.o out/fli_util.o out/isr.o
 
 out/compat_conio.o: rott/compat_conio.c
 	@$(CC) $(CFLAGS) -o $@ $<
@@ -120,6 +122,9 @@ out/rt_debug.o: rott/rt_debug.c
 out/scriplib.o: rott/scriplib.c
 	@$(CC) $(CFLAGS) -o $@ $<
 
+out/sbconfig.o: rott/sbconfig.c
+	@$(CC) $(CFLAGS) -o $@ $<
+
 out/lookups.o: rott/lookups.c
 	@$(CC) $(CFLAGS) -o $@ $<
 
@@ -161,7 +166,7 @@ out/usrhooks.o: rott/usrhooks.c
 out/modexlib.o: rott/modexlib.c
 	@$(CC) $(CFLAGS) -o $@ $<
 
-out/rt_battl.o: rott/rt_battle.c
+out/rt_battl.o: rott/rt_battl.c
 	@$(CC) $(CFLAGS) -o $@ $<
 
 out/f_scale.o: rott/f_scale.asm 

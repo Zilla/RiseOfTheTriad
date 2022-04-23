@@ -18,17 +18,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 #include <malloc.h>
-#include <dos.h>
 #include <stdarg.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <conio.h>
+#include "compat_conio.h"
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <io.h>
 #include <stdlib.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 #include "modexlib.h"
 //MED
 
@@ -44,6 +42,8 @@ unsigned bufferofs;
 unsigned displayofs;
 boolean graphicsmode = false;
 
+/* TODO: Write graphics handler */
+
 /*
 ====================
 =
@@ -53,12 +53,13 @@ boolean graphicsmode = false;
 */
 void GraphicsMode(void)
 {
-
+/*
    union REGS regs;
 
    regs.w.ax = 0x13;
    int386(0x10, &regs, &regs);
    graphicsmode = true;
+   */
 }
 
 /*
@@ -70,12 +71,13 @@ void GraphicsMode(void)
 */
 void TextMode(void)
 {
-
+/*
    union REGS regs;
 
    regs.w.ax = 0x03;
    int386(0x10, &regs, &regs);
    graphicsmode = false;
+   */
 }
 
 /*
@@ -87,12 +89,13 @@ void TextMode(void)
 */
 void TurnOffTextCursor(void)
 {
-
+/*
    union REGS regs;
 
    regs.w.ax = 0x0100;
    regs.w.cx = 0x2000;
    int386(0x10, &regs, &regs);
+   */
 }
 
 #if 0

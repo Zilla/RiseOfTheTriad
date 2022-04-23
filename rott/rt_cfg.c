@@ -25,14 +25,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define _ROTT_
 
-#include <io.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
-#include <bios.h>
-#include <conio.h>
+#include "compat_conio.h"
+#include "compat_stdlib.h"
 #include <ctype.h>
-#include <process.h>
+#include <unistd.h>
+#include <errno.h>
 
 #ifdef _ROTT_
 #include "rt_def.h"
@@ -281,13 +281,13 @@ boolean ParseSoundFile(void)
       ReadBoolean("StereoReverse", &stereoreversed);
 
       // Read in Sound Blaster info
-      ReadUnsigned("SBType", &SBSettings.Type);
-      ReadUnsigned("SBPort", &SBSettings.Address);
-      ReadUnsigned("SBIrq", &SBSettings.Interrupt);
-      ReadUnsigned("SBDma8", &SBSettings.Dma8);
-      ReadUnsigned("SBDma16", &SBSettings.Dma16);
-      ReadUnsigned("SBMidi", &SBSettings.Midi);
-      ReadUnsigned("SBEmu", &SBSettings.Emu);
+      ReadUnsigned("SBType", (unsigned int *)(&SBSettings.Type));
+      ReadUnsigned("SBPort", (unsigned int *)(&SBSettings.Address));
+      ReadUnsigned("SBIrq", (unsigned int *)(&SBSettings.Interrupt));
+      ReadUnsigned("SBDma8", (unsigned int *)(&SBSettings.Dma8));
+      ReadUnsigned("SBDma16", (unsigned int *)(&SBSettings.Dma16));
+      ReadUnsigned("SBMidi", (unsigned int *)(&SBSettings.Midi));
+      ReadUnsigned("SBEmu", (unsigned int *)(&SBSettings.Emu));
    }
    else
       retval = false;
@@ -352,7 +352,7 @@ void ConvertStringToPasswordString(char *string)
    for (i = 0; i < 13; i++)
    {
       memcpy(&temp[0], &string[i << 1], 2);
-      sscanf(&temp[0], "%x", &passwordstring[i]);
+      sscanf(&temp[0], "%c", &passwordstring[i]);
    }
 }
 
@@ -985,7 +985,7 @@ void CheckVendor(void)
    GetPathFromEnvironment(filename, ApogeePath, VENDORDOC);
    if (access(filename, F_OK) == 0)
    {
-      size = LoadFile(filename, &vendor);
+      size = LoadFile(filename, (void **)(&vendor));
       filecrc = CalculateCRC(vendor, size);
       SafeFree(vendor);
       lump = W_GetNumForName(VENDORLUMP);
@@ -1095,8 +1095,8 @@ void WriteBattleConfig(
 
    // Write Battle File
    GetPathFromEnvironment(filename, ApogeePath, BattleName);
-   file = open(filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC,
-               S_IREAD | S_IWRITE);
+   file = open(filename, O_RDWR | O_CREAT | O_TRUNC,
+               S_IRUSR | S_IWUSR);
 
    if (file == -1)
    {
@@ -1452,8 +1452,8 @@ void WriteSoundConfig(
    }
 
    GetPathFromEnvironment(filename, ApogeePath, SoundName);
-   file = open(filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC,
-               S_IREAD | S_IWRITE);
+   file = open(filename, O_RDWR | O_CREAT | O_TRUNC,
+               S_IRUSR | S_IWUSR);
 
    if (file == -1)
       Error("Error opening %s: %s", filename, strerror(errno));
@@ -1608,7 +1608,7 @@ void WriteConfig(void)
    WriteBattleConfig();
 
    GetPathFromEnvironment(filename, ApogeePath, ConfigName);
-   file = open(filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC, S_IREAD | S_IWRITE);
+   file = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
    if (file == -1)
       Error("Error opening %s: %s", filename, strerror(errno));

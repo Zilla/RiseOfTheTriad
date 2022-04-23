@@ -18,9 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include <dos.h>
 #include <string.h>
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -232,10 +232,13 @@ void Thrust(objtype *ob);
 void CheckWeaponChange(objtype *ob);
 void PlayerMissileAttack(objtype *);
 void Cmd_Use(objtype *);
+void Move_Player_From_Exit_To_Start(objtype *ob);
+void CheckFlying(objtype *ob, playertype *pstate);
+void CheckTagGame(objtype *actor1, objtype *actor2);
 //void     ComError (char *error, ...);
 
-statetype s_free = {false, 0, 0, T_Free, NULL, &s_free};
-statetype s_inelevator = {false, 0, 420, T_Player, NULL, &s_player};
+statetype s_free = {false, 0, 0, T_Free, 0, &s_free};
+statetype s_inelevator = {false, 0, 420, T_Player, 0, &s_player};
 
 #if (SHAREWARE == 0)
 statetype s_dogwait = {true, SERIALDOG_W11, 50, T_Player, SF_DOGSTATE, &s_serialdog};
@@ -244,7 +247,7 @@ statetype s_doguse = {true, SERIALDOG_W11, 140, T_DogUse, SF_DOGSTATE, &s_serial
 statetype s_doglick = {true, SERIALDOG_W11, 0, T_DogLick, SF_DOGSTATE, &s_doglick};
 #endif
 
-statetype s_tag = {false, CASSATT_S1, 20, T_Tag, NULL, &s_player};
+statetype s_tag = {false, CASSATT_S1, 20, T_Tag, 0, &s_player};
 
 static SWIFT_3DStatus SWIFTStatus;
 
@@ -2050,6 +2053,7 @@ int sensitivity_scalar[15] =
 
 void PollMouseMove(void)
 {
+   /*
    union REGS inregs;
    union REGS outregs;
    short int mousexmove,
@@ -2091,7 +2095,8 @@ void PollMouseMove(void)
          buttonpoll[bt_run] = true;
       }
    }
-
+   */
+/* TODO: Write mouse handler */
    //   if (MY > 0)
    //      MX -= (MX/2);
 }
@@ -2158,6 +2163,7 @@ void PollJoystickMove(void)
 
 void StartVRFeedback(int guntype)
 {
+   /*
    union REGS inregs;
    union REGS outregs;
 
@@ -2165,6 +2171,8 @@ void StartVRFeedback(int guntype)
    inregs.x.ebx = 1;
    inregs.x.ecx = guntype;
    int386(0x33, &inregs, &outregs);
+   */
+   (void) guntype;
 }
 
 //******************************************************************************
@@ -2175,12 +2183,14 @@ void StartVRFeedback(int guntype)
 
 void StopVRFeedback(void)
 {
+   /*
    union REGS inregs;
    union REGS outregs;
 
    inregs.x.eax = VR_FEEDBACK_SERVICE;
    inregs.x.ebx = 0;
    int386(0x33, &inregs, &outregs);
+   */
 }
 
 //******************************************************************************
@@ -2193,6 +2203,7 @@ void StopVRFeedback(void)
 
 void PollVirtualReality(void)
 {
+   /*
    union REGS inregs;
    union REGS outregs;
    short int mousexmove,
@@ -2249,6 +2260,7 @@ void PollVirtualReality(void)
          buttonpoll[bt_run] = true;
       }
    }
+   */
 }
 
 int scaleamt[16] = {0x10000, 0x10000, 0x10000, 0x20000, 0x12000,

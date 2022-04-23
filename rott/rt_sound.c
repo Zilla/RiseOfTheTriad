@@ -33,8 +33,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "watcom.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <mem.h>
-#include <io.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include "compat_stdlib.h"
+#include <memory.h>
 #include "rt_cfg.h"
 #include "isr.h"
 #include "develop.h"
@@ -51,13 +53,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Local Variables
 
-static soundstart;
-static soundtype;
+static int soundstart;
+static int soundtype;
 int SD_Started = false;
 static boolean PositionStored = false;
 static int NumBadSounds = 0;
 static int remotestart;
 static boolean SoundsRemapped = false;
+
+void MU_SetupGUSInitFile(void);
 
 int musicnums[11] = {
     -1, UltraSound, SoundBlaster, SoundMan16, ProAudioSpectrum,

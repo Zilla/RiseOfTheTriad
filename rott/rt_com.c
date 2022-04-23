@@ -17,16 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include <conio.h>
+#include "compat_conio.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <string.h>
-#include <conio.h>
 #include <ctype.h>
-#include <dos.h>
-#include <process.h>
 #include <stdarg.h>
-#include <bios.h>
 #include <ctype.h>
 #include "rt_def.h"
 #include "_rt_com.h"
@@ -54,9 +51,12 @@ byte ROTTpacket[MAXCOMBUFFERSIZE];
 int controlsynctime;
 
 // LOCAL VARIABLES
-static union REGS comregs;
+//static union REGS comregs;
 static int ComStarted = false;
 static int transittimes[MAXPLAYERS];
+
+void SyncTime(int client);
+void SetTransitTime(int client, int time);
 
 /*
 ===============
@@ -92,10 +92,12 @@ void InitROTTNET(void)
 
    if (!quiet)
    {
-      printf("ROTTNET: Communicating on vector %ld\n", rottcom->intnum);
-      printf("ROTTNET: consoleplayer=%ld\n", rottcom->consoleplayer);
+      printf("ROTTNET: Communicating on vector %d\n", rottcom->intnum);
+      printf("ROTTNET: consoleplayer=%d\n", rottcom->consoleplayer);
    }
 }
+
+/* TODO: Add TCP/IP MP */
 
 /*
 ================
@@ -107,6 +109,7 @@ void InitROTTNET(void)
 
 boolean ReadPacket(void)
 {
+   /*
    word crc;
    word sentcrc;
 
@@ -159,6 +162,7 @@ boolean ReadPacket(void)
       return true;
    }
    else // Not ready yet....
+   */
       return false;
 }
 
@@ -172,6 +176,7 @@ boolean ReadPacket(void)
 
 void WritePacket(void *buffer, int len, int destination)
 {
+   /*
    word crc;
 
    // set send command
@@ -218,6 +223,7 @@ void WritePacket(void *buffer, int len, int destination)
    int386(rottcom->intnum,&comregs,&comregs);
    SoftError( "inque size=%ld\n",*((short *)&(rottcom->data[0])));
 #endif
+*/
 }
 
 /*
@@ -360,7 +366,7 @@ void SetTime(void)
             else if (i != consoleplayer)
                SyncTime(i);
             if (standalone == true)
-               printf("SetTime: player#%ld\n", i);
+               printf("SetTime: player#%d\n", i);
          }
       }
       else

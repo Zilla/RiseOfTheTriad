@@ -25,17 +25,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //******************************************************************************
 
 #include <stdlib.h>
+#include "compat_stdlib.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <fcntl.h>
-#include <conio.h>
+#include "compat_conio.h"
 #include <string.h>
 #include <ctype.h>
-#include <dos.h>
-#include <io.h>
-#include <sys\types.h>
-#include <sys\stat.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <glob.h>
 #include "rt_def.h"
 #include "_rt_menu.h"
 #include "rt_menu.h"
@@ -1104,6 +1104,47 @@ static char SaveName[13] = "ROTTGAM?.ROT\0";
 static byte *savedscreen;
 static mapfileinfo_t *mapinfo;
 
+void CP_BattleModes(void);
+int HandleMenu(CP_iteminfo *item_i, CP_itemtype *items, void (*routine)(int w));
+void HideCursor(CP_iteminfo *item_i, CP_itemtype *items, int x, int y, int which);
+void ShowCursor(CP_iteminfo *item_i, CP_itemtype *items, int x, int *y, int which, int basey);
+void CP_DrawSelectedGame(int w);
+void DrawStoredGame(byte *pic, int episode, int area);
+void DrawCustomKeyboard(void);
+void DrawBattleModeName(int which);
+void DrawPointGoalOptionDescription(int w);
+void GetEpisode(int level);
+void DrawBattleModeDescription(int w);
+int ColorMenu(void);
+
+void SS_DrawSBTypeMenu(void);
+void SS_SBTypeMenu(void);
+void SS_DrawPortMenu(void);
+void SS_PortMenu(void);
+void SS_Draw8BitDMAMenu(void);
+void SS_8BitDMAMenu(void);
+void SS_Draw16BitDMAMenu(void);
+void SS_16BitDMAMenu(void);
+void SS_DrawIrqMenu(void);
+void SS_IrqMenu(void);
+void SS_Quit(void);
+void DrawSoundSetupMainMenu(void);
+void CP_SoundSetup(void);
+void SS_MusicMenu(void);
+void SS_DrawMusicMenu(void);
+void SS_SoundMenu(void);
+void SS_DrawSoundMenu(void);
+void SS_SetupMusicCardMenu(void);
+void DrawMusicCardMenu(void);
+void SS_SetupSoundBlaster(int sbmenu);
+void SS_SetupSoundCardMenu(void);
+void SS_VoiceMenu(int sbmenu);
+void SS_DrawVoiceMenu(void);
+void SS_ChannelMenu(void);
+void SS_DrawChannelMenu(void);
+void SS_BitMenu(void);
+void SS_DrawBitMenu(void);
+
 //******************************************************************************
 //
 // MN_DrawButtons
@@ -1320,7 +1361,7 @@ int getASCII(void)
    int returnvalue = 0;
    int scancode = 0;
 
-   _disable(); // must disable for SHIFT purposes
+   //_disable(); // must disable for SHIFT purposes
 
    IN_UpdateKeyboard();
 
@@ -1349,7 +1390,7 @@ int getASCII(void)
    Keyboard[sc_LShift] = LS;
    Keyboard[sc_RShift] = RS;
 
-   _enable();
+   //_enable();
 
    return (returnvalue);
 }
@@ -1362,10 +1403,11 @@ int getASCII(void)
 
 void ScanForSavedGames()
 {
-   struct find_t f;
+   glob_t g;
    char filename[128];
    char str[45];
    int which;
+   int idx = 0;
    boolean found = false;
 
    //
@@ -1374,11 +1416,10 @@ void ScanForSavedGames()
    memset(&SaveGamesAvail[0], 0, sizeof(SaveGamesAvail));
    GetPathFromEnvironment(filename, ApogeePath, SaveName);
 
-   if (!_dos_findfirst(filename, 0, &f))
+   if(glob(filename, 0, NULL, &g) == 0)
       do
       {
-
-         strcpy(str, &f.name[7]);
+         strcpy(str, &(g.gl_pathv[idx][7]));
          sscanf((const char *)&str[0], "%x", &which);
 
          if (which < NUMSAVEGAMES)
@@ -1388,7 +1429,9 @@ void ScanForSavedGames()
             GetSavedMessage(which, &SaveGameNames[which][0]);
          }
 
-      } while (!_dos_findnext(&f));
+      } while(idx < g.gl_pathc);
+
+   globfree(&g);
 
    if (found)
    {
@@ -3240,7 +3283,7 @@ void QuickSaveGame(void)
    loadname[8] = '.';
 
    GetPathFromEnvironment(filename, ApogeePath, loadname);
-   length = LoadFile(filename, &buf);
+   length = LoadFile(filename, (void **)(&buf));
    GetPathFromEnvironment(filename, ApogeePath, QUICKSAVEBACKUP);
    SaveFile(filename, buf, length);
    SafeFree(buf);
@@ -3262,7 +3305,7 @@ void QuickSaveGame(void)
       game.episode = gamestate.episode;
       game.area = gamestate.mapon;
       game.version = ROTTVERSION;
-      strcpy(&game.message, &SaveGameNames[which][0]);
+      strcpy(&(game.message[0]), &SaveGameNames[which][0]);
 
       if (SaveTheGame(which, &game) == true)
       {
@@ -3303,7 +3346,7 @@ void UndoQuickSaveGame(void)
       itoa(quicksaveslot, &loadname[7], 16);
       loadname[8] = '.';
       GetPathFromEnvironment(filename, ApogeePath, QUICKSAVEBACKUP);
-      length = LoadFile(filename, &buf);
+      length = LoadFile(filename, (void **)(&buf));
       GetPathFromEnvironment(filename, ApogeePath, loadname);
       SaveFile(filename, buf, length);
       SafeFree(buf);
@@ -3370,7 +3413,7 @@ int CP_SaveGame(void)
             game.episode = gamestate.episode;
             game.area = gamestate.mapon;
             game.version = ROTTVERSION;
-            strcpy(&game.message, input);
+            strcpy(&(game.message[0]), input);
             strcpy(&SaveGameNames[which][0], input);
 
             if (SaveTheGame(which, &game) == true)
@@ -4499,8 +4542,11 @@ void WaitKeyUp(void)
 
 void ReadAnyControl(ControlInfo *ci)
 {
+   /*
    union REGS inregs;
    union REGS outregs;
+   */
+  /* TODO: Write mouse handler */
    int mouseactive = 0;
    word buttons;
    //   struct Spw_IntPacket packet;
@@ -4508,6 +4554,7 @@ void ReadAnyControl(ControlInfo *ci)
    IN_UpdateKeyboard();
    IN_ReadControl(0, ci);
 
+#if 0
    if (MousePresent && mouseenabled)
    {
       int mousey,
@@ -4584,7 +4631,7 @@ void ReadAnyControl(ControlInfo *ci)
          mouseactive = 1;
       }
    }
-
+#endif
    if (joystickenabled && !mouseactive)
    {
       int jx, jy, jb;
@@ -6094,7 +6141,7 @@ void DrawLightLevelOptionDescription(int w)
 //
 //****************************************************************************
 
-void DrawPointGoalOptionDescription(w)
+void DrawPointGoalOptionDescription(int w)
 {
    DrawOptionDescription(PointGoalOptionDescriptions, w);
 }
@@ -6459,9 +6506,7 @@ int CP_ColorSelection(void)
    return (status);
 }
 
-int ColorMenu(
-    void)
-
+int ColorMenu(void)
 {
    ControlInfo ci;
    int colorindex;
@@ -7675,7 +7720,7 @@ void ShowBattleOptions(
    }
    ShowBattleOption(inmenu, PosX, PosY, 0, 9, "Danger Damage", string);
 
-   GetMapFileName(&text);
+   GetMapFileName(&(text[0]));
    ShowBattleOption(inmenu, PosX, PosY, 0, 10, "Filename", text);
 
    itoa(numplayers, text, 10);
@@ -8147,34 +8192,6 @@ int CP_EnterCodeNameMenu(
       return 0;
    }
 }
-
-void SS_DrawSBTypeMenu(void);
-void SS_SBTypeMenu(void);
-void SS_DrawPortMenu(void);
-void SS_PortMenu(void);
-void SS_Draw8BitDMAMenu(void);
-void SS_8BitDMAMenu(void);
-void SS_Draw16BitDMAMenu(void);
-void SS_16BitDMAMenu(void);
-void SS_DrawIrqMenu(void);
-void SS_IrqMenu(void);
-void SS_Quit(void);
-void DrawSoundSetupMainMenu(void);
-void CP_SoundSetup(void);
-void SS_MusicMenu(void);
-void SS_DrawMusicMenu(void);
-void SS_SoundMenu(void);
-void SS_DrawSoundMenu(void);
-void SS_SetupMusicCardMenu(void);
-void DrawMusicCardMenu(void);
-void SS_SetupSoundBlaster(int sbmenu);
-void SS_SetupSoundCardMenu(void);
-void SS_VoiceMenu(int sbmenu);
-void SS_DrawVoiceMenu(void);
-void SS_ChannelMenu(void);
-void SS_DrawChannelMenu(void);
-void SS_BitMenu(void);
-void SS_DrawBitMenu(void);
 
 extern int musicnums[11];
 extern int fxnums[11];

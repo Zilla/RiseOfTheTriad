@@ -33,15 +33,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #include "cin_glob.h"
-#include <bios.h>
-#include <dos.h>
 #include <time.h>
 #include <stdlib.h>
-#include <mem.h>
+#include "compat_stdlib.h"
+#include <memory.h>
 #include <limits.h>
 #include <fcntl.h>
-#include <io.h>
-#include <conio.h>
+#include <unistd.h>
+#include "compat_conio.h"
 #include "fli_type.h"
 #include "fli_util.h"
 #include "fli_def.h"
@@ -50,16 +49,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static Ushort screenlookup[200];
 
+/* TODO: Write graphics setup stuff */
+
 /** Screen oriented stuff. **/
 
 static Boolean set_vmode(Uchar mode)
 /* Ask bios to set video mode. */
 {
+	/*
 	union REGS regs;
 
-	regs.h.ah = 0;	  /* Set Video Mode request. */
-	regs.h.al = mode; /* For our specific mode. */
+	regs.h.ah = 0;	  /* Set Video Mode request. *
+	regs.h.al = mode; /* For our specific mode. *
 	int86(0x10, &regs, &regs);
+	*/
 	return TRUE;
 	// return (regs.x.cflag == 0);	/* Carry flag clear? */
 }
@@ -67,11 +70,14 @@ static Boolean set_vmode(Uchar mode)
 static Uchar get_vmode()
 /* Ask bios for current video mode. */
 {
+	/*
 	union REGS regs;
 
-	regs.h.ah = 0xF; /* Get Video Mode request. */
+	regs.h.ah = 0xF; /* Get Video Mode request. *
 	int86(0x10, &regs, &regs);
 	return regs.h.al;
+	*/
+	return 0;
 }
 
 ErrCode screen_open(Screen *s)

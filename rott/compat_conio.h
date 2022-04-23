@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __COMPAT_CONIO_H__
 
 unsigned int outp(int port, int value);
+unsigned int outpw(int port, int value);
 unsigned int inp(int port);
 int getch(void);
 
