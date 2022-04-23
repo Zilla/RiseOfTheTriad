@@ -5,7 +5,7 @@ INCDIRS=-Irott
 
 #ROTTOBJ=isr.o  w_wad.o rt_scale.o engine.o \
 	rt_dr_a.o rt_fc_a.o rt_floor.o rt_util.o \
-	rt_stat.o  rt_state.o rt_ted.o rt_playr.o \
+	rt_stat.o  rt_ted.o rt_playr.o \
 	rt_rand.o rt_door.o rt_menu.o rt_vid.o rt_vh_a.o \
 	rt_str.o rt_in.o rt_sc_a.o  rt_map.o \
 	rt_debug.o rt_sound.o  f_scale.o \
@@ -18,7 +18,7 @@ INCDIRS=-Irott
 ROTTOBJ=out/cin_actr.o out/cin_util.o out/compat_conio.o out/cin_evnt.o \
 	out/cin_efct.o out/cin_glob.o out/cin_main.o out/scriplib.o \
     out/z_zone.o out/rt_main.o out/rt_draw.o out/compat_stdlib.o \
-	out/rt_game.o out/rt_actor.o
+	out/rt_game.o out/rt_actor.o out/rt_state.o 
 
 out/compat_conio.o: rott/compat_conio.c
 	@$(CC) $(CFLAGS) -o $@ $<
