@@ -54,6 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "modexlib.h"
 #include "rt_net.h"
 #include "rt_msg.h"
+#include "fx_man.h"
 //MED
 
 #define SGN(x) (((x) > 0) ? (1) : (-1))
@@ -389,11 +390,20 @@ static statetype *UPDATE_STATES[NUMSTATES][NUMENEMIES] =
 
 void T_Reset(objtype *ob);
 
-static int STOPSPEED = 0x200;
-static int PLAYERFRICTION = 0xe000;
-static int ACTORFRICTION = 0xf000;
-static int DIAGADJUST = 0xb504;
-static boolean MissileSound = true;
+int STOPSPEED = 0x200;
+int PLAYERFRICTION = 0xe000;
+int ACTORFRICTION = 0xf000;
+int DIAGADJUST = 0xb504;
+boolean MissileSound = true;
+
+void ApplyGravity(objtype *ob);
+void BeginEnemyHurt(objtype *ob);
+void T_PlayDead(objtype *ob);
+void SpawnFirewall(objtype *ob, int which, int newz);
+void AvoidPlayerMissile(objtype *ob);
+void SelectKristChaseDir(objtype *ob);
+void ExplodeStatic(statobj_t *tempstat);
+int EnvironmentDamage(objtype *ob);
 
 boolean FirstExplosionState(statetype *state)
 {
@@ -1303,7 +1313,7 @@ void GetMomenta(objtype *target, objtype *source, int *newmomx,
 
 //=======================================================================
 
-void SpawnNewObj(unsigned tilex, unsigned tiley, statetype *state, classtype which)
+void SpawnNewObj(unsigned int tilex, unsigned int tiley, statetype *state, classtype which)
 {
    int newarea;
 
@@ -7206,10 +7216,10 @@ void T_BoulderMove(objtype *ob)
 
 //***************************** Esau ************************************
 
-static enum { ESAU_USING_HOLES = 1,
-              ESAU_LEAVING_CONTROL_ROOM,
-              ESAU_USING_TOUCH_PEDASTALS,
-              ESAU_CHASING_PLAYER
+enum { ESAU_USING_HOLES = 1,
+       ESAU_LEAVING_CONTROL_ROOM,
+       ESAU_USING_TOUCH_PEDASTALS,
+       ESAU_CHASING_PLAYER
 };
 
 void T_EsauWait(objtype *ob)
@@ -8128,7 +8138,7 @@ void SelectMineDir(objtype *ob)
 {
    int angle, missangle;
    dirtype olddir, tdir, next, prev, destdir;
-   static nummines = 0;
+   static int nummines = 0;
 
    if (!CheckLine(ob, PLAYER[0], SIGHT))
    {

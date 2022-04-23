@@ -54,12 +54,12 @@ int SWIFT_GetAttachedDevice(void);
 // Returns the device-type code for the attached SWIFT device, if any.
 //
 
-int SWIFT_GetStaticDeviceInfo(SWIFT_StaticData far *psd);
+int SWIFT_GetStaticDeviceInfo(SWIFT_StaticData *psd);
 //
 // Reads static device data.
 //
 
-void SWIFT_Get3DStatus(SWIFT_3DStatus far *pstat);
+void SWIFT_Get3DStatus(SWIFT_3DStatus *pstat);
 //
 // Read the current input state of the device.
 //

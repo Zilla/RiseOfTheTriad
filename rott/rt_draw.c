@@ -20,9 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // RT_DRAW.C
 
 #include "profile.h"
-#include "rt_def.H"
+#include "rt_def.h"
 #include <string.h>
-#include <DOS.H>
 #include "watcom.h"
 #include "sprites.h"
 #include "rt_actor.h"
@@ -49,7 +48,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_view.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
+#include "compat_stdlib.h"
+#include "compat_conio.h"
 #include "rt_cfg.h"
 #include "rt_str.h"
 #include "develop.h"
@@ -176,6 +176,10 @@ static int weaponshape[NUMWEAPGRAPHICS] =
 };
 
 void SetColorLightLevel(int x, int y, visobj_t *sprite, int dir, int color, int fullbright);
+void InterpolateWall(visobj_t *plane);
+void InterpolateDoor(visobj_t *plane);
+void InterpolateMaskedWall(visobj_t *plane);
+void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, int masked);
 
 /*
 ==================
@@ -2399,7 +2403,7 @@ void InterpolateDoor(visobj_t *plane)
       {
          if ((i >= 0 && i < viewwidth) && (bot != 0) && (posts[i].wallheight <= (height >> DHEIGHTFRACTION)))
          {
-            dc_invscale = height << (10 - HEIGHTFRACTION - DHEIGHTFRACTION);
+            dc_invscale = height >> ((10 - HEIGHTFRACTION - DHEIGHTFRACTION) * -1);
             dc_iscale = 0xffffffffu / (unsigned)dc_invscale;
             dc_texturemid = ((pheight - nominalheight + p->topoffset) << SFRACBITS) + (SFRACUNIT >> 1);
             sprtopoffset = centeryfrac - FixedMul(dc_texturemid, dc_invscale);
@@ -2524,7 +2528,7 @@ void InterpolateMaskedWall(visobj_t *plane)
       {
          if ((i >= 0 && i < viewwidth) && (bot != 0) && (posts[i].wallheight <= (height >> DHEIGHTFRACTION)))
          {
-            dc_invscale = height << (10 - HEIGHTFRACTION - DHEIGHTFRACTION);
+            dc_invscale = height >> ((10 - HEIGHTFRACTION - DHEIGHTFRACTION) *-1);
             dc_iscale = 0xffffffffu / (unsigned)dc_invscale;
             dc_texturemid = ((pheight - nominalheight + topoffset) << SFRACBITS) + (SFRACUNIT >> 1);
             sprtopoffset = centeryfrac - FixedMul(dc_texturemid, dc_invscale);
@@ -4369,7 +4373,7 @@ void DrawTransmitterExplosions(void)
       DrawUnScaledSprite(
           Explosions[i].x,
           Explosions[i].y,
-          (W_GetNumForName(&ExplosionInfo[Explosions[i].which].name) +
+          (W_GetNumForName(&ExplosionInfo[Explosions[i].which].name[0]) +
            (Explosions[i].frame >> 1)),
           16);
    }

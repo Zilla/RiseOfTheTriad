@@ -17,12 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include <dos.h>
-#include <io.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <conio.h>
+#include <unistd.h>
+#include "compat_stdlib.h"
+#include "compat_conio.h"
 #include <ctype.h>
 
 #include "rt_def.h"
@@ -150,6 +150,8 @@ static int playeruniformcolor;
 
 #define NUMBONUSES 11
 #define BONUSBONUS 100000
+
+void DrawPPic(int xpos, int ypos, int width, int height, byte *src, int num, boolean up, boolean bufferofsonly);
 
 //******************************************************************************
 //
@@ -4313,7 +4315,6 @@ void SaveTag(int handle, char *tag, int size)
 
 boolean SaveTheGame(int num, gamestorage_t *game)
 {
-   struct diskfree_t dfree;
    char loadname[45] = "ROTTGAM0.ROT";
    char filename[128];
    byte *altbuffer;
@@ -4346,35 +4347,6 @@ boolean SaveTheGame(int num, gamestorage_t *game)
    loadname[8] = '.';
 
    GetPathFromEnvironment(filename, ApogeePath, loadname);
-
-   // Determine available disk space
-
-   letter = toupper(filename[0]);
-   if (
-       (letter >= 'A') &&
-       (letter <= 'Q'))
-   {
-      if (_dos_getdiskfree((letter - 'A' + 1), &dfree))
-         Error("Error in _dos_getdiskfree call\n");
-   }
-   else
-   {
-      if (_dos_getdiskfree(0, &dfree))
-         Error("Error in _dos_getdiskfree call\n");
-   }
-
-   avail = (int)dfree.avail_clusters *
-           dfree.bytes_per_sector *
-           dfree.sectors_per_cluster;
-   avail -= 8192;
-
-   // Check to see if we have enough
-
-   if (avail < MAXSAVEDGAMESIZE)
-   {
-      CP_DisplayMsg("There is not enough\nspace on your disk\nto Save Game!\nPress any key to continue", 13);
-      return (false);
-   }
 
    // Open the savegame file
 
@@ -4535,7 +4507,7 @@ boolean SaveTheGame(int num, gamestorage_t *game)
 
    // ticcount
    size = sizeof(ticcount);
-   SafeWrite(savehandle, &ticcount, size);
+   SafeWrite(savehandle, (void *)(&ticcount), size);
 
    // shaketics
    size = sizeof(SHAKETICS);
@@ -4648,7 +4620,7 @@ boolean LoadTheGame(int num, gamestorage_t *game)
 
    // Load the file
 
-   totalsize = LoadFile(filename, &loadbuffer);
+   totalsize = LoadFile(filename, (void **)(&loadbuffer));
    bufptr = loadbuffer;
 
    // Calculate checksum
@@ -4888,7 +4860,7 @@ boolean LoadTheGame(int num, gamestorage_t *game)
    // ticcount
    DoLoadGameAction();
    size = sizeof(ticcount);
-   memcpy(&ticcount, bufptr, size);
+   memcpy((void *)(&ticcount), bufptr, size);
    bufptr += size;
    SaveTime = ticcount;
 
@@ -4995,7 +4967,7 @@ void GetSavedMessage(int num, char *message)
 
    // Load the file
 
-   size = LoadFile(filename, &loadbuffer);
+   size = LoadFile(filename, (void **)(&loadbuffer));
    bufptr = loadbuffer;
 
    size = 4;
@@ -5037,7 +5009,7 @@ void GetSavedHeader(int num, gamestorage_t *game)
 
    // Load the file
 
-   size = LoadFile(filename, &loadbuffer);
+   size = LoadFile(filename, (void **)(&loadbuffer));
    bufptr = loadbuffer;
 
    size = 4;

@@ -1,13 +1,13 @@
 CC=gcc
 CFLAGS=-c -g -m32 $(INCDIRS)
 LDFLAGS=-m32
-INCDIRS=-Irott/
+INCDIRS=-Irott
 
-#ROTTOBJ=isr.o  w_wad.o rt_scale.o rt_draw.o engine.o \
+#ROTTOBJ=isr.o  w_wad.o rt_scale.o engine.o \
 	rt_dr_a.o rt_fc_a.o rt_floor.o rt_util.o \
-	rt_stat.o rt_actor.o rt_state.o rt_ted.o rt_playr.o \
+	rt_stat.o  rt_state.o rt_ted.o rt_playr.o \
 	rt_rand.o rt_door.o rt_menu.o rt_vid.o rt_vh_a.o \
-	rt_str.o rt_in.o rt_sc_a.o rt_game.o rt_map.o \
+	rt_str.o rt_in.o rt_sc_a.o  rt_map.o \
 	rt_debug.o rt_sound.o  f_scale.o \
 	rt_swift.o rt_build.o rt_com.o \
 	rt_view.o rt_cfg.o rt_spbal.o sbconfig.o rt_err.o \
@@ -17,9 +17,13 @@ INCDIRS=-Irott/
 
 ROTTOBJ=out/cin_actr.o out/cin_util.o out/compat_conio.o out/cin_evnt.o \
 	out/cin_efct.o out/cin_glob.o out/cin_main.o out/scriplib.o \
-        out/z_zone.o out/rt_main.o
+    out/z_zone.o out/rt_main.o out/rt_draw.o out/compat_stdlib.o \
+	out/rt_game.o out/rt_actor.o
 
 out/compat_conio.o: rott/compat_conio.c
+	@$(CC) $(CFLAGS) -o $@ $<
+
+out/compat_stdlib.o: rott/compat_stdlib.c
 	@$(CC) $(CFLAGS) -o $@ $<
 
 out/isr.o: rott/isr.c

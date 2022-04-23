@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/types.h>
 #include <unistd.h>
 #include "compat_conio.h"
+#include "compat_stdlib.h"
 #include <string.h>
 #include "rt_actor.h"
 #include "rt_stat.h"
@@ -138,17 +139,6 @@ void CheckCommandLineParameters(void);
 void Init_Tables(void);
 void PlayTurboGame(void);
 void CheckRemoteRidicule(int scancode);
-
-/* stdlib stuff */
-
-#define min(a,b)  (((a) < (b)) ? (a) : (b))
-
-char *itoa(int val, char *str, int base)
-{
-   (void)base;
-   sprintf(str, "%d", val);
-   return str;
-}
 
 void main()
 {
