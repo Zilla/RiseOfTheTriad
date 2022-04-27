@@ -96,13 +96,15 @@ static task *fasttimertask;
 #endif
 static int TimerStarted = false;
 static volatile int pausecount = 0;
-static struct dostime_t starttime;
+/*static struct dostime_t starttime;*/
 
 void(*oldtimerisr)();
 void(*oldkeyboardisr)() = NULL;
 
 static int LEDs;
 static volatile int KBFlags;
+
+void I_GetCMOSTime(/*struct dostime_t *cmostime*/);
 
 /*
 ================
@@ -115,9 +117,10 @@ static volatile int KBFlags;
 void I_TimerISR(void)
 {
    // acknowledge the interrupt
-
+/*
    OUTP(0x20, 0x20);
    ticcount++;
+*/
 }
 
 /*
@@ -297,6 +300,7 @@ void I_Delay(int delay)
 
 void I_StartupTimer(void)
 {
+#if 0
 #if PROFILE
    return;
 #else
@@ -398,6 +402,7 @@ void I_ShutdownTimer(void)
 //      }
 */
 #endif
+#endif
 }
 
 /*
@@ -407,8 +412,9 @@ void I_ShutdownTimer(void)
 =
 ===============
 */
-void I_GetCMOSTime(struct dostime_t *cmostime)
+void I_GetCMOSTime(/*struct dostime_t *cmostime*/)
 {
+#if 0
    OUTP(0x70, 0);
    cmostime->second = inp(0x71);
    OUTP(0x70, 2);
@@ -418,6 +424,7 @@ void I_GetCMOSTime(struct dostime_t *cmostime)
    cmostime->second = (cmostime->second & 0x0f) + ((cmostime->second >> 4) * 10);
    cmostime->minute = (cmostime->minute & 0x0f) + ((cmostime->minute >> 4) * 10);
    cmostime->hour = (cmostime->hour & 0x0f) + ((cmostime->hour >> 4) * 10);
+#endif
 }
 
 /*
@@ -457,14 +464,12 @@ void I_GetCMOSTime(struct dostime_t *cmostime)
 ================
 */
 
-void I_SendKeyboardData(
-    int val)
-
+void I_SendKeyboardData(int val)
 {
    int retry;
    volatile int count;
 
-   _disable();
+  // _disable();
 
    KBFlags &= ~(kb_fe | kb_fa);
 
@@ -479,7 +484,7 @@ void I_SendKeyboardData(
 
    outp(porta, val);
 
-   _enable();
+ //  _enable();
 
    retry = 3;
    while (retry--)
@@ -518,7 +523,7 @@ void I_SetKeyboardLEDs(
    int mask;
    int count;
 
-   _disable();
+   //_disable();
    KBFlags |= kb_pr_led;
 
    switch (which)
@@ -558,15 +563,15 @@ void I_SetKeyboardLEDs(
       }
 
       I_SendKeyboardData(led_cmd);
-      _disable();
+      //_disable();
       I_SendKeyboardData(LEDs);
-      _disable();
+      //_disable();
       I_SendKeyboardData(kb_enable);
-      _disable();
+      //_disable();
       count++;
    } while (KBFlags & kb_error);
 
-   _enable();
+   //_enable();
    KBFlags &= ~(kb_pr_led | kb_error);
 }
 
@@ -577,7 +582,7 @@ void I_SetKeyboardLEDs(
 =
 ================
 */
-void __interrupt I_KeyboardISR(void)
+void I_KeyboardISR(void)
 {
    int k;
    int temp;
@@ -702,13 +707,13 @@ void I_StartupKeyboard(void)
    KBFlags = 0;
    ExtendedKeyFlag = false;
 
-   oldkeyboardisr = _dos_getvect(KEYBOARDINT);
-   _dos_setvect(0x8000 | KEYBOARDINT, I_KeyboardISR);
+   /*oldkeyboardisr = _dos_getvect(KEYBOARDINT);
+   _dos_setvect(0x8000 | KEYBOARDINT, I_KeyboardISR);*/
 
    //   I_SetKeyboardLEDs( scroll_lock, 0 );
 
    Keyhead = Keytail = 0;
-   memset(Keystate, 0, sizeof(Keystate));
+   memset((void *)Keystate, 0, sizeof(Keystate));
    if (!quiet)
       printf("I_StartupKeyboard: Keyboard Started\n");
 }
@@ -722,6 +727,6 @@ void I_ShutdownKeyboard(void)
    // Clear LEDS
    //   *( (byte *)0x417 ) &= ~0x70;
 
-   _dos_setvect(KEYBOARDINT, oldkeyboardisr);
+   //_dos_setvect(KEYBOARDINT, oldkeyboardisr);
    *(short *)0x41c = *(short *)0x41a; // clear bios key buffer
 }

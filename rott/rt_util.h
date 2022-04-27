@@ -141,11 +141,11 @@ void Square(void);
             "mov edx,03c4h", \
             "out dx,ax" modify exact[eax edx]
 
-void my_outp(int port, int data);
+//void my_outp(int port, int data);
 #pragma aux my_outp = \
     "out dx,al",      \
             parm[edx][eax] modify exact[]
 
-#define OUTP my_outp
+#define OUTP outp
 
 #endif

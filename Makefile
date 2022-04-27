@@ -3,7 +3,7 @@ CFLAGS=-c -g -m32 $(INCDIRS) -Wno-multichar
 LDFLAGS=-m32
 INCDIRS=-Irott
 
-#ROTTOBJ=    engine.o \
+#ROTTOBJ=     \
 	rt_dr_a.o rt_fc_a.o rt_vh_a.o  rt_sc_a.o  out/f_scale.o\
 	 \
 	    \
@@ -20,7 +20,7 @@ ROTTOBJ=out/cin_actr.o out/cin_util.o out/compat_conio.o out/cin_evnt.o \
 	out/rt_cfg.o out/rt_debug.o out/rt_swift.o out/rt_spbal.o out/sbconfig.o \
 	out/rt_build.o out/rt_error.o out/rt_com.o out/rt_msg.o out/rt_net.o \
 	out/rt_battl.o out/rt_dmand.o out/usrhooks.o out/modexlib.o \
-	out/fli_main.o out/fli_util.o out/isr.o
+	out/fli_main.o out/fli_util.o out/isr.o out/engine.o
 
 out/compat_conio.o: rott/compat_conio.c
 	@$(CC) $(CFLAGS) -o $@ $<

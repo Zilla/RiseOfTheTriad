@@ -372,3 +372,19 @@ void XFlipPage(void)
    if (bufferofs > page3start)
       bufferofs = page1start;
 }
+
+
+void VGAMAPMASK(int x)
+{
+
+}
+
+void VGAREADMAP(int x)
+{
+
+}
+
+void VGAWRITEMAP(int x)
+{
+
+}

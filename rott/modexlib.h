@@ -141,6 +141,7 @@ void TurnOffTextCursor(void);
     "add    eax,04H"     \
     "out    dx,ax" parm[eax] modify exact[eax edx]
 
+/* TODO: Fix these */
 void VGAMAPMASK(int x);
 void VGAREADMAP(int x);
 void VGAWRITEMAP(int x);
